@@ -1,0 +1,705 @@
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"usha.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.align	1
+  16              		.global	USHAReset
+  17              		.syntax unified
+  18              		.thumb
+  19              		.thumb_func
+  20              		.fpu softvfp
+  22              	USHAReset:
+  23              	.LFB0:
+  24              		.file 1 "build\\openmote-cc2538_armgcc\\openapps\\opencoap\\usha.c"
+   1:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /**************************** usha.c ***************************/
+   2:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /***************** See RFC 6234 for details. *******************/
+   3:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /* Copyright (c) 2011 IETF Trust and the persons identified as */
+   4:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /* authors of the code.  All rights reserved.                  */
+   5:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /* See sha.h for terms of use and redistribution.              */
+   6:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** 
+   7:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /*
+   8:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *  Description:
+   9:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     This file implements a unified interface to the SHA algorithms.
+  10:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  */
+  11:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** 
+  12:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** #include "sha.h"
+  13:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** 
+  14:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /*
+  15:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *  USHAReset
+  16:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  17:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *  Description:
+  18:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      This function will initialize the SHA Context in preparation
+  19:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      for computing a new SHA message digest.
+  20:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  21:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *  Parameters:
+  22:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      context: [in/out]
+  23:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *          The context to reset.
+  24:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      whichSha: [in]
+  25:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *          Selects which SHA reset to call
+  26:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  27:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *  Returns:
+  28:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      sha Error Code.
+  29:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  30:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  */
+  31:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** int USHAReset(USHAContext *context, enum SHAversion whichSha)
+  32:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** {
+  25              		.loc 1 32 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 8
+  28              		@ frame_needed = 1, uses_anonymous_args = 0
+  29 0000 80B5     		push	{r7, lr}
+  30              		.cfi_def_cfa_offset 8
+  31              		.cfi_offset 7, -8
+  32              		.cfi_offset 14, -4
+  33 0002 82B0     		sub	sp, sp, #8
+  34              		.cfi_def_cfa_offset 16
+  35 0004 00AF     		add	r7, sp, #0
+  36              		.cfi_def_cfa_register 7
+  37 0006 7860     		str	r0, [r7, #4]
+  38 0008 0B46     		mov	r3, r1
+  39 000a FB70     		strb	r3, [r7, #3]
+  33:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   if (!context) return shaNull;
+  40              		.loc 1 33 0
+  41 000c 7B68     		ldr	r3, [r7, #4]
+  42 000e 002B     		cmp	r3, #0
+  43 0010 01D1     		bne	.L2
+  44              		.loc 1 33 0 is_stmt 0 discriminator 1
+  45 0012 0123     		movs	r3, #1
+  46 0014 0DE0     		b	.L3
+  47              	.L2:
+  34:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   context->whichSha = whichSha;
+  48              		.loc 1 34 0 is_stmt 1
+  49 0016 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+  50 0018 7B68     		ldr	r3, [r7, #4]
+  51 001a 1A60     		str	r2, [r3]
+  35:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   switch (whichSha) {
+  52              		.loc 1 35 0
+  53 001c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+  54 001e 022B     		cmp	r3, #2
+  55 0020 06D1     		bne	.L6
+  36:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   //  case SHA1:   return SHA1Reset((SHA1Context*)&context->ctx);
+  37:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   //  case SHA224: return SHA224Reset((SHA224Context*)&context->ctx);
+  38:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     case SHA256: return SHA256Reset((SHA256Context*)&context->ctx);
+  56              		.loc 1 38 0
+  57 0022 7B68     		ldr	r3, [r7, #4]
+  58 0024 0833     		adds	r3, r3, #8
+  59 0026 1846     		mov	r0, r3
+  60 0028 FFF7FEFF 		bl	SHA256Reset
+  61 002c 0346     		mov	r3, r0
+  62 002e 00E0     		b	.L3
+  63              	.L6:
+  39:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   //  case SHA384: return SHA384Reset((SHA384Context*)&context->ctx);
+  40:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   //  case SHA512: return SHA512Reset((SHA512Context*)&context->ctx);
+  41:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     default: return shaBadParam;
+  64              		.loc 1 41 0
+  65 0030 0423     		movs	r3, #4
+  66              	.L3:
+  42:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   }
+  43:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** }
+  67              		.loc 1 43 0
+  68 0032 1846     		mov	r0, r3
+  69 0034 0837     		adds	r7, r7, #8
+  70              		.cfi_def_cfa_offset 8
+  71 0036 BD46     		mov	sp, r7
+  72              		.cfi_def_cfa_register 13
+  73              		@ sp needed
+  74 0038 80BD     		pop	{r7, pc}
+  75              		.cfi_endproc
+  76              	.LFE0:
+  78              		.align	1
+  79              		.global	USHAInput
+  80              		.syntax unified
+  81              		.thumb
+  82              		.thumb_func
+  83              		.fpu softvfp
+  85              	USHAInput:
+  86              	.LFB1:
+  44:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** 
+  45:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /*
+  46:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *  USHAInput
+  47:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  48:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *  Description:
+  49:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      This function accepts an array of octets as the next portion
+  50:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      of the message.
+  51:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  52:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *  Parameters:
+  53:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      context: [in/out]
+  54:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *          The SHA context to update.
+  55:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      message_array: [in]
+  56:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *          An array of octets representing the next portion of
+  57:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *          the message.
+  58:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      length: [in]
+  59:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *          The length of the message in message_array.
+  60:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  61:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *  Returns:
+  62:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *      sha Error Code.
+  63:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  64:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  */
+  65:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** int USHAInput(USHAContext *context,
+  66:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****               const uint8_t *bytes, unsigned int bytecount)
+  67:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** {
+  87              		.loc 1 67 0
+  88              		.cfi_startproc
+  89              		@ args = 0, pretend = 0, frame = 16
+  90              		@ frame_needed = 1, uses_anonymous_args = 0
+  91 003a 80B5     		push	{r7, lr}
+  92              		.cfi_def_cfa_offset 8
+  93              		.cfi_offset 7, -8
+  94              		.cfi_offset 14, -4
+  95 003c 84B0     		sub	sp, sp, #16
+  96              		.cfi_def_cfa_offset 24
+  97 003e 00AF     		add	r7, sp, #0
+  98              		.cfi_def_cfa_register 7
+  99 0040 F860     		str	r0, [r7, #12]
+ 100 0042 B960     		str	r1, [r7, #8]
+ 101 0044 7A60     		str	r2, [r7, #4]
+  68:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   if (!context) return shaNull;
+ 102              		.loc 1 68 0
+ 103 0046 FB68     		ldr	r3, [r7, #12]
+ 104 0048 002B     		cmp	r3, #0
+ 105 004a 01D1     		bne	.L8
+ 106              		.loc 1 68 0 is_stmt 0 discriminator 1
+ 107 004c 0123     		movs	r3, #1
+ 108 004e 0DE0     		b	.L9
+ 109              	.L8:
+  69:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   switch (context->whichSha) {
+ 110              		.loc 1 69 0 is_stmt 1
+ 111 0050 FB68     		ldr	r3, [r7, #12]
+ 112 0052 1B68     		ldr	r3, [r3]
+ 113 0054 022B     		cmp	r3, #2
+ 114 0056 08D1     		bne	.L12
+  70:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     case SHA256:
+  71:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****       return SHA256Input((SHA256Context*)&context->ctx, bytes,
+ 115              		.loc 1 71 0
+ 116 0058 FB68     		ldr	r3, [r7, #12]
+ 117 005a 0833     		adds	r3, r3, #8
+ 118 005c 7A68     		ldr	r2, [r7, #4]
+ 119 005e B968     		ldr	r1, [r7, #8]
+ 120 0060 1846     		mov	r0, r3
+ 121 0062 FFF7FEFF 		bl	SHA256Input
+ 122 0066 0346     		mov	r3, r0
+ 123 0068 00E0     		b	.L9
+ 124              	.L12:
+  72:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****           bytecount);
+  73:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     default: return shaBadParam;
+ 125              		.loc 1 73 0
+ 126 006a 0423     		movs	r3, #4
+ 127              	.L9:
+  74:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   }
+  75:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** }
+ 128              		.loc 1 75 0
+ 129 006c 1846     		mov	r0, r3
+ 130 006e 1037     		adds	r7, r7, #16
+ 131              		.cfi_def_cfa_offset 8
+ 132 0070 BD46     		mov	sp, r7
+ 133              		.cfi_def_cfa_register 13
+ 134              		@ sp needed
+ 135 0072 80BD     		pop	{r7, pc}
+ 136              		.cfi_endproc
+ 137              	.LFE1:
+ 139              		.align	1
+ 140              		.global	USHAFinalBits
+ 141              		.syntax unified
+ 142              		.thumb
+ 143              		.thumb_func
+ 144              		.fpu softvfp
+ 146              	USHAFinalBits:
+ 147              	.LFB2:
+  76:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** 
+  77:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /*
+  78:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * USHAFinalBits
+  79:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  80:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Description:
+  81:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   This function will add in any final bits of the message.
+  82:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  83:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Parameters:
+  84:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   context: [in/out]
+  85:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     The SHA context to update.
+  86:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   message_bits: [in]
+  87:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     The final bits of the message, in the upper portion of the
+  88:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     byte.  (Use 0b###00000 instead of 0b00000### to input the
+  89:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     three bits ###.)
+  90:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   length: [in]
+  91:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     The number of bits in message_bits, between 1 and 7.
+  92:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+  93:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Returns:
+  94:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   sha Error Code.
+  95:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  */
+  96:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** int USHAFinalBits(USHAContext *context,
+  97:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****                   uint8_t bits, unsigned int bit_count)
+  98:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** {
+ 148              		.loc 1 98 0
+ 149              		.cfi_startproc
+ 150              		@ args = 0, pretend = 0, frame = 16
+ 151              		@ frame_needed = 1, uses_anonymous_args = 0
+ 152 0074 80B5     		push	{r7, lr}
+ 153              		.cfi_def_cfa_offset 8
+ 154              		.cfi_offset 7, -8
+ 155              		.cfi_offset 14, -4
+ 156 0076 84B0     		sub	sp, sp, #16
+ 157              		.cfi_def_cfa_offset 24
+ 158 0078 00AF     		add	r7, sp, #0
+ 159              		.cfi_def_cfa_register 7
+ 160 007a F860     		str	r0, [r7, #12]
+ 161 007c 0B46     		mov	r3, r1
+ 162 007e 7A60     		str	r2, [r7, #4]
+ 163 0080 FB72     		strb	r3, [r7, #11]
+  99:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   if (!context) return shaNull;
+ 164              		.loc 1 99 0
+ 165 0082 FB68     		ldr	r3, [r7, #12]
+ 166 0084 002B     		cmp	r3, #0
+ 167 0086 01D1     		bne	.L14
+ 168              		.loc 1 99 0 is_stmt 0 discriminator 1
+ 169 0088 0123     		movs	r3, #1
+ 170 008a 0DE0     		b	.L15
+ 171              	.L14:
+ 100:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   switch (context->whichSha) {
+ 172              		.loc 1 100 0 is_stmt 1
+ 173 008c FB68     		ldr	r3, [r7, #12]
+ 174 008e 1B68     		ldr	r3, [r3]
+ 175 0090 022B     		cmp	r3, #2
+ 176 0092 08D1     		bne	.L18
+ 101:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     case SHA256:
+ 102:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****       return SHA256FinalBits((SHA256Context*)&context->ctx, bits,
+ 177              		.loc 1 102 0
+ 178 0094 FB68     		ldr	r3, [r7, #12]
+ 179 0096 0833     		adds	r3, r3, #8
+ 180 0098 F97A     		ldrb	r1, [r7, #11]	@ zero_extendqisi2
+ 181 009a 7A68     		ldr	r2, [r7, #4]
+ 182 009c 1846     		mov	r0, r3
+ 183 009e FFF7FEFF 		bl	SHA256FinalBits
+ 184 00a2 0346     		mov	r3, r0
+ 185 00a4 00E0     		b	.L15
+ 186              	.L18:
+ 103:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****           bit_count);
+ 104:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     default: return shaBadParam;
+ 187              		.loc 1 104 0
+ 188 00a6 0423     		movs	r3, #4
+ 189              	.L15:
+ 105:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   }
+ 106:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** }
+ 190              		.loc 1 106 0
+ 191 00a8 1846     		mov	r0, r3
+ 192 00aa 1037     		adds	r7, r7, #16
+ 193              		.cfi_def_cfa_offset 8
+ 194 00ac BD46     		mov	sp, r7
+ 195              		.cfi_def_cfa_register 13
+ 196              		@ sp needed
+ 197 00ae 80BD     		pop	{r7, pc}
+ 198              		.cfi_endproc
+ 199              	.LFE2:
+ 201              		.align	1
+ 202              		.global	USHAResult
+ 203              		.syntax unified
+ 204              		.thumb
+ 205              		.thumb_func
+ 206              		.fpu softvfp
+ 208              	USHAResult:
+ 209              	.LFB3:
+ 107:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** 
+ 108:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /*
+ 109:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * USHAResult
+ 110:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 111:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Description:
+ 112:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   This function will return the message digest of the appropriate
+ 113:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   bit size, as returned by USHAHashSizeBits(whichSHA) for the
+ 114:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   'whichSHA' value used in the preceeding call to USHAReset,
+ 115:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   into the Message_Digest array provided by the caller.
+ 116:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 117:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Parameters:
+ 118:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   context: [in/out]
+ 119:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     The context to use to calculate the SHA-1 hash.
+ 120:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   Message_Digest: [out]
+ 121:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     Where the digest is returned.
+ 122:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 123:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Returns:
+ 124:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   sha Error Code.
+ 125:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 126:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  */
+ 127:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** int USHAResult(USHAContext *context,
+ 128:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****                uint8_t Message_Digest[USHAMaxHashSize])
+ 129:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** {
+ 210              		.loc 1 129 0
+ 211              		.cfi_startproc
+ 212              		@ args = 0, pretend = 0, frame = 8
+ 213              		@ frame_needed = 1, uses_anonymous_args = 0
+ 214 00b0 80B5     		push	{r7, lr}
+ 215              		.cfi_def_cfa_offset 8
+ 216              		.cfi_offset 7, -8
+ 217              		.cfi_offset 14, -4
+ 218 00b2 82B0     		sub	sp, sp, #8
+ 219              		.cfi_def_cfa_offset 16
+ 220 00b4 00AF     		add	r7, sp, #0
+ 221              		.cfi_def_cfa_register 7
+ 222 00b6 7860     		str	r0, [r7, #4]
+ 223 00b8 3960     		str	r1, [r7]
+ 130:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   if (!context) return shaNull;
+ 224              		.loc 1 130 0
+ 225 00ba 7B68     		ldr	r3, [r7, #4]
+ 226 00bc 002B     		cmp	r3, #0
+ 227 00be 01D1     		bne	.L20
+ 228              		.loc 1 130 0 is_stmt 0 discriminator 1
+ 229 00c0 0123     		movs	r3, #1
+ 230 00c2 0CE0     		b	.L21
+ 231              	.L20:
+ 131:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   switch (context->whichSha) {
+ 232              		.loc 1 131 0 is_stmt 1
+ 233 00c4 7B68     		ldr	r3, [r7, #4]
+ 234 00c6 1B68     		ldr	r3, [r3]
+ 235 00c8 022B     		cmp	r3, #2
+ 236 00ca 07D1     		bne	.L24
+ 132:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     case SHA256:
+ 133:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****       return SHA256Result((SHA256Context*)&context->ctx,
+ 237              		.loc 1 133 0
+ 238 00cc 7B68     		ldr	r3, [r7, #4]
+ 239 00ce 0833     		adds	r3, r3, #8
+ 240 00d0 3968     		ldr	r1, [r7]
+ 241 00d2 1846     		mov	r0, r3
+ 242 00d4 FFF7FEFF 		bl	SHA256Result
+ 243 00d8 0346     		mov	r3, r0
+ 244 00da 00E0     		b	.L21
+ 245              	.L24:
+ 134:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****                           Message_Digest);
+ 135:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     default: return shaBadParam;
+ 246              		.loc 1 135 0
+ 247 00dc 0423     		movs	r3, #4
+ 248              	.L21:
+ 136:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   }
+ 137:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** }
+ 249              		.loc 1 137 0
+ 250 00de 1846     		mov	r0, r3
+ 251 00e0 0837     		adds	r7, r7, #8
+ 252              		.cfi_def_cfa_offset 8
+ 253 00e2 BD46     		mov	sp, r7
+ 254              		.cfi_def_cfa_register 13
+ 255              		@ sp needed
+ 256 00e4 80BD     		pop	{r7, pc}
+ 257              		.cfi_endproc
+ 258              	.LFE3:
+ 260              		.align	1
+ 261              		.global	USHABlockSize
+ 262              		.syntax unified
+ 263              		.thumb
+ 264              		.thumb_func
+ 265              		.fpu softvfp
+ 267              	USHABlockSize:
+ 268              	.LFB4:
+ 138:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** 
+ 139:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /*
+ 140:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * USHABlockSize
+ 141:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 142:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Description:
+ 143:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   This function will return the blocksize for the given SHA
+ 144:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   algorithm.
+ 145:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 146:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Parameters:
+ 147:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   whichSha:
+ 148:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     which SHA algorithm to query
+ 149:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 150:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Returns:
+ 151:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   block size
+ 152:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 153:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  */
+ 154:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** int USHABlockSize(enum SHAversion whichSha)
+ 155:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** {
+ 269              		.loc 1 155 0
+ 270              		.cfi_startproc
+ 271              		@ args = 0, pretend = 0, frame = 8
+ 272              		@ frame_needed = 1, uses_anonymous_args = 0
+ 273              		@ link register save eliminated.
+ 274 00e6 80B4     		push	{r7}
+ 275              		.cfi_def_cfa_offset 4
+ 276              		.cfi_offset 7, -4
+ 277 00e8 83B0     		sub	sp, sp, #12
+ 278              		.cfi_def_cfa_offset 16
+ 279 00ea 00AF     		add	r7, sp, #0
+ 280              		.cfi_def_cfa_register 7
+ 281 00ec 0346     		mov	r3, r0
+ 282 00ee FB71     		strb	r3, [r7, #7]
+ 156:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   switch (whichSha) {
+ 283              		.loc 1 156 0
+ 284 00f0 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 285 00f2 022B     		cmp	r3, #2
+ 286 00f4 01D1     		bne	.L29
+ 157:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     case SHA256: return SHA256_Message_Block_Size;
+ 287              		.loc 1 157 0
+ 288 00f6 4023     		movs	r3, #64
+ 289 00f8 00E0     		b	.L28
+ 290              	.L29:
+ 158:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     default: return 0;
+ 291              		.loc 1 158 0
+ 292 00fa 0023     		movs	r3, #0
+ 293              	.L28:
+ 159:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   }
+ 160:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** }
+ 294              		.loc 1 160 0
+ 295 00fc 1846     		mov	r0, r3
+ 296 00fe 0C37     		adds	r7, r7, #12
+ 297              		.cfi_def_cfa_offset 4
+ 298 0100 BD46     		mov	sp, r7
+ 299              		.cfi_def_cfa_register 13
+ 300              		@ sp needed
+ 301 0102 80BC     		pop	{r7}
+ 302              		.cfi_restore 7
+ 303              		.cfi_def_cfa_offset 0
+ 304 0104 7047     		bx	lr
+ 305              		.cfi_endproc
+ 306              	.LFE4:
+ 308              		.align	1
+ 309              		.global	USHAHashSize
+ 310              		.syntax unified
+ 311              		.thumb
+ 312              		.thumb_func
+ 313              		.fpu softvfp
+ 315              	USHAHashSize:
+ 316              	.LFB5:
+ 161:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** 
+ 162:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /*
+ 163:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * USHAHashSize
+ 164:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 165:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Description:
+ 166:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   This function will return the hashsize for the given SHA
+ 167:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   algorithm.
+ 168:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 169:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Parameters:
+ 170:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   whichSha:
+ 171:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     which SHA algorithm to query
+ 172:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 173:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Returns:
+ 174:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   hash size
+ 175:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 176:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  */
+ 177:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** int USHAHashSize(enum SHAversion whichSha)
+ 178:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** {
+ 317              		.loc 1 178 0
+ 318              		.cfi_startproc
+ 319              		@ args = 0, pretend = 0, frame = 8
+ 320              		@ frame_needed = 1, uses_anonymous_args = 0
+ 321              		@ link register save eliminated.
+ 322 0106 80B4     		push	{r7}
+ 323              		.cfi_def_cfa_offset 4
+ 324              		.cfi_offset 7, -4
+ 325 0108 83B0     		sub	sp, sp, #12
+ 326              		.cfi_def_cfa_offset 16
+ 327 010a 00AF     		add	r7, sp, #0
+ 328              		.cfi_def_cfa_register 7
+ 329 010c 0346     		mov	r3, r0
+ 330 010e FB71     		strb	r3, [r7, #7]
+ 179:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   switch (whichSha) {
+ 331              		.loc 1 179 0
+ 332 0110 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 333 0112 022B     		cmp	r3, #2
+ 334 0114 01D1     		bne	.L34
+ 180:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     case SHA256: return SHA256HashSize;
+ 335              		.loc 1 180 0
+ 336 0116 2023     		movs	r3, #32
+ 337 0118 00E0     		b	.L33
+ 338              	.L34:
+ 181:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     default: return 0;
+ 339              		.loc 1 181 0
+ 340 011a 0023     		movs	r3, #0
+ 341              	.L33:
+ 182:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   }
+ 183:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** }
+ 342              		.loc 1 183 0
+ 343 011c 1846     		mov	r0, r3
+ 344 011e 0C37     		adds	r7, r7, #12
+ 345              		.cfi_def_cfa_offset 4
+ 346 0120 BD46     		mov	sp, r7
+ 347              		.cfi_def_cfa_register 13
+ 348              		@ sp needed
+ 349 0122 80BC     		pop	{r7}
+ 350              		.cfi_restore 7
+ 351              		.cfi_def_cfa_offset 0
+ 352 0124 7047     		bx	lr
+ 353              		.cfi_endproc
+ 354              	.LFE5:
+ 356              		.align	1
+ 357              		.global	USHAHashSizeBits
+ 358              		.syntax unified
+ 359              		.thumb
+ 360              		.thumb_func
+ 361              		.fpu softvfp
+ 363              	USHAHashSizeBits:
+ 364              	.LFB6:
+ 184:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** 
+ 185:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /*
+ 186:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * USHAHashSizeBits
+ 187:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 188:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Description:
+ 189:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   This function will return the hashsize for the given SHA
+ 190:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   algorithm, expressed in bits.
+ 191:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 192:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Parameters:
+ 193:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   whichSha:
+ 194:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     which SHA algorithm to query
+ 195:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 196:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Returns:
+ 197:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   hash size in bits
+ 198:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 199:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  */
+ 200:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** int USHAHashSizeBits(enum SHAversion whichSha)
+ 201:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** {
+ 365              		.loc 1 201 0
+ 366              		.cfi_startproc
+ 367              		@ args = 0, pretend = 0, frame = 8
+ 368              		@ frame_needed = 1, uses_anonymous_args = 0
+ 369              		@ link register save eliminated.
+ 370 0126 80B4     		push	{r7}
+ 371              		.cfi_def_cfa_offset 4
+ 372              		.cfi_offset 7, -4
+ 373 0128 83B0     		sub	sp, sp, #12
+ 374              		.cfi_def_cfa_offset 16
+ 375 012a 00AF     		add	r7, sp, #0
+ 376              		.cfi_def_cfa_register 7
+ 377 012c 0346     		mov	r3, r0
+ 378 012e FB71     		strb	r3, [r7, #7]
+ 202:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   switch (whichSha) {
+ 379              		.loc 1 202 0
+ 380 0130 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 381 0132 022B     		cmp	r3, #2
+ 382 0134 02D1     		bne	.L39
+ 203:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     case SHA256: return SHA256HashSizeBits;
+ 383              		.loc 1 203 0
+ 384 0136 4FF48073 		mov	r3, #256
+ 385 013a 00E0     		b	.L38
+ 386              	.L39:
+ 204:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     default: return 0;
+ 387              		.loc 1 204 0
+ 388 013c 0023     		movs	r3, #0
+ 389              	.L38:
+ 205:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   }
+ 206:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** }
+ 390              		.loc 1 206 0
+ 391 013e 1846     		mov	r0, r3
+ 392 0140 0C37     		adds	r7, r7, #12
+ 393              		.cfi_def_cfa_offset 4
+ 394 0142 BD46     		mov	sp, r7
+ 395              		.cfi_def_cfa_register 13
+ 396              		@ sp needed
+ 397 0144 80BC     		pop	{r7}
+ 398              		.cfi_restore 7
+ 399              		.cfi_def_cfa_offset 0
+ 400 0146 7047     		bx	lr
+ 401              		.cfi_endproc
+ 402              	.LFE6:
+ 404              		.section	.rodata
+ 405              		.align	2
+ 406              	.LC0:
+ 407 0000 53484132 		.ascii	"SHA256\000"
+ 407      353600
+ 408              		.text
+ 409              		.align	1
+ 410              		.global	USHAHashName
+ 411              		.syntax unified
+ 412              		.thumb
+ 413              		.thumb_func
+ 414              		.fpu softvfp
+ 416              	USHAHashName:
+ 417              	.LFB7:
+ 207:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** 
+ 208:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** /*
+ 209:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * USHAHashName
+ 210:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 211:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Description:
+ 212:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   This function will return the name of the given SHA algorithm
+ 213:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   as a string.
+ 214:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 215:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Parameters:
+ 216:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   whichSha:
+ 217:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *     which SHA algorithm to query
+ 218:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 219:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  * Returns:
+ 220:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *   character string with the name in it
+ 221:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  *
+ 222:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****  */
+ 223:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** const char *USHAHashName(enum SHAversion whichSha)
+ 224:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** {
+ 418              		.loc 1 224 0
+ 419              		.cfi_startproc
+ 420              		@ args = 0, pretend = 0, frame = 8
+ 421              		@ frame_needed = 1, uses_anonymous_args = 0
+ 422              		@ link register save eliminated.
+ 423 0148 80B4     		push	{r7}
+ 424              		.cfi_def_cfa_offset 4
+ 425              		.cfi_offset 7, -4
+ 426 014a 83B0     		sub	sp, sp, #12
+ 427              		.cfi_def_cfa_offset 16
+ 428 014c 00AF     		add	r7, sp, #0
+ 429              		.cfi_def_cfa_register 7
+ 430 014e 0346     		mov	r3, r0
+ 431 0150 FB71     		strb	r3, [r7, #7]
+ 225:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   switch (whichSha) {
+ 432              		.loc 1 225 0
+ 433 0152 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 434 0154 022B     		cmp	r3, #2
+ 435 0156 01D1     		bne	.L44
+ 226:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     case SHA256: return "SHA256";
+ 436              		.loc 1 226 0
+ 437 0158 034B     		ldr	r3, .L45
+ 438 015a 00E0     		b	.L43
+ 439              	.L44:
+ 227:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****     default: return 0;
+ 440              		.loc 1 227 0
+ 441 015c 0023     		movs	r3, #0
+ 442              	.L43:
+ 228:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c ****   }
+ 229:build\openmote-cc2538_armgcc\openapps\opencoap/usha.c **** }
+ 443              		.loc 1 229 0
+ 444 015e 1846     		mov	r0, r3
+ 445 0160 0C37     		adds	r7, r7, #12
+ 446              		.cfi_def_cfa_offset 4
+ 447 0162 BD46     		mov	sp, r7
+ 448              		.cfi_def_cfa_register 13
+ 449              		@ sp needed
+ 450 0164 80BC     		pop	{r7}
+ 451              		.cfi_restore 7
+ 452              		.cfi_def_cfa_offset 0
+ 453 0166 7047     		bx	lr
+ 454              	.L46:
+ 455              		.align	2
+ 456              	.L45:
+ 457 0168 00000000 		.word	.LC0
+ 458              		.cfi_endproc
+ 459              	.LFE7:
+ 461              	.Letext0:
+ 462              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 463              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 464              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 465              		.file 5 "build\\openmote-cc2538_armgcc\\openapps\\opencoap\\sha.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 usha.c
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:15     .text:00000000 $t
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:22     .text:00000000 USHAReset
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:85     .text:0000003a USHAInput
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:146    .text:00000074 USHAFinalBits
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:208    .text:000000b0 USHAResult
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:267    .text:000000e6 USHABlockSize
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:315    .text:00000106 USHAHashSize
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:363    .text:00000126 USHAHashSizeBits
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:405    .rodata:00000000 $d
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:416    .text:00000148 USHAHashName
+C:\Users\Lee\AppData\Local\Temp\ccBN7sbP.s:457    .text:00000168 $d
+                           .group:00000000 wm4.0.93d65e4ff05d5af51629690e5b534e57
+                           .group:00000000 wm4._newlib_version.h.4.875b979a44719054cd750d0952ad3fd6
+                           .group:00000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.cce27fed8484c08a33f522034c30d2b5
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+
+UNDEFINED SYMBOLS
+SHA256Reset
+SHA256Input
+SHA256FinalBits
+SHA256Result

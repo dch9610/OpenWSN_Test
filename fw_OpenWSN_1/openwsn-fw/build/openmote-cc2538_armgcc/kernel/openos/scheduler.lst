@@ -1,0 +1,481 @@
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"scheduler.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.rodata
+  16              		.align	2
+  19              	rreg_uriquery:
+  20 0000 683D7563 		.ascii	"h=ucb\000"
+  20      6200
+  21 0006 0000     		.align	2
+  24              	infoBoardname:
+  25 0008 43433235 		.ascii	"CC2538\000"
+  25      333800
+  26 000f 00       		.align	2
+  29              	infouCName:
+  30 0010 43433235 		.ascii	"CC2538\000"
+  30      333800
+  31 0017 00       		.align	2
+  34              	infoRadioName:
+  35 0018 43433235 		.ascii	"CC2538 SoC\000"
+  35      33382053 
+  35      6F4300
+  36 0023 00       		.align	2
+  39              	infoStackName:
+  40 0024 4F70656E 		.ascii	"OpenWSN \000"
+  40      57534E20 
+  40      00
+  41              		.comm	scheduler_vars,128,4
+  42              		.comm	scheduler_dbg,2,4
+  43              		.text
+  44              		.align	1
+  45              		.global	scheduler_init
+  46              		.syntax unified
+  47              		.thumb
+  48              		.thumb_func
+  49              		.fpu softvfp
+  51              	scheduler_init:
+  52              	.LFB0:
+  53              		.file 1 "build\\openmote-cc2538_armgcc\\kernel\\openos\\scheduler.c"
+   1:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** /**
+   2:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** \brief OpenOS scheduler.
+   3:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+   4:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** \author Thomas Watteyne <watteyne@eecs.berkeley.edu>, February 2012.
+   5:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** */
+   6:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+   7:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** #include "opendefs.h"
+   8:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** #include "scheduler.h"
+   9:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** #include "board.h"
+  10:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** #include "debugpins.h"
+  11:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** #include "leds.h"
+  12:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  13:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** //=========================== variables =======================================
+  14:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  15:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** scheduler_vars_t scheduler_vars;
+  16:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** scheduler_dbg_t  scheduler_dbg;
+  17:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  18:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** //=========================== prototypes ======================================
+  19:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  20:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** void consumeTask(uint8_t taskId);
+  21:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  22:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** //=========================== public ==========================================
+  23:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  24:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** void scheduler_init(void) {
+  54              		.loc 1 24 0
+  55              		.cfi_startproc
+  56              		@ args = 0, pretend = 0, frame = 0
+  57              		@ frame_needed = 1, uses_anonymous_args = 0
+  58 0000 80B5     		push	{r7, lr}
+  59              		.cfi_def_cfa_offset 8
+  60              		.cfi_offset 7, -8
+  61              		.cfi_offset 14, -4
+  62 0002 00AF     		add	r7, sp, #0
+  63              		.cfi_def_cfa_register 7
+  25:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  26:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     // initialization module variables
+  27:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     memset(&scheduler_vars,0,sizeof(scheduler_vars_t));
+  64              		.loc 1 27 0
+  65 0004 8022     		movs	r2, #128
+  66 0006 0021     		movs	r1, #0
+  67 0008 0448     		ldr	r0, .L2
+  68 000a FFF7FEFF 		bl	memset
+  28:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     memset(&scheduler_dbg,0,sizeof(scheduler_dbg_t));
+  69              		.loc 1 28 0
+  70 000e 0222     		movs	r2, #2
+  71 0010 0021     		movs	r1, #0
+  72 0012 0348     		ldr	r0, .L2+4
+  73 0014 FFF7FEFF 		bl	memset
+  29:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  30:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     // enable the scheduler's interrupt so SW can wake up the scheduler
+  31:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     SCHEDULER_ENABLE_INTERRUPT();
+  32:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** }
+  74              		.loc 1 32 0
+  75 0018 00BF     		nop
+  76 001a 80BD     		pop	{r7, pc}
+  77              	.L3:
+  78              		.align	2
+  79              	.L2:
+  80 001c 00000000 		.word	scheduler_vars
+  81 0020 00000000 		.word	scheduler_dbg
+  82              		.cfi_endproc
+  83              	.LFE0:
+  85              		.align	1
+  86              		.global	scheduler_start
+  87              		.syntax unified
+  88              		.thumb
+  89              		.thumb_func
+  90              		.fpu softvfp
+  92              	scheduler_start:
+  93              	.LFB1:
+  33:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  34:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** void scheduler_start(void) {
+  94              		.loc 1 34 0
+  95              		.cfi_startproc
+  96              		@ args = 0, pretend = 0, frame = 8
+  97              		@ frame_needed = 1, uses_anonymous_args = 0
+  98 0024 80B5     		push	{r7, lr}
+  99              		.cfi_def_cfa_offset 8
+ 100              		.cfi_offset 7, -8
+ 101              		.cfi_offset 14, -4
+ 102 0026 82B0     		sub	sp, sp, #8
+ 103              		.cfi_def_cfa_offset 16
+ 104 0028 00AF     		add	r7, sp, #0
+ 105              		.cfi_def_cfa_register 7
+  35:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     taskList_item_t* pThisTask;
+  36:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     while (1) {
+  37:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****         while(scheduler_vars.task_list!=NULL) {
+ 106              		.loc 1 37 0
+ 107 002a 1CE0     		b	.L5
+ 108              	.L6:
+  38:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          // there is still at least one task in the linked-list of tasks
+  39:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  40:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          INTERRUPT_DECLARATION();
+  41:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          DISABLE_INTERRUPTS();
+ 109              		.loc 1 41 0
+ 110 002c FFF7FEFF 		bl	IntMasterDisable
+  42:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  43:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          // the task to execute is the one at the head of the queue
+  44:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          pThisTask                = scheduler_vars.task_list;
+ 111              		.loc 1 44 0
+ 112 0030 124B     		ldr	r3, .L8
+ 113 0032 9B6F     		ldr	r3, [r3, #120]
+ 114 0034 7B60     		str	r3, [r7, #4]
+  45:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  46:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          // shift the queue by one task
+  47:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          scheduler_vars.task_list = pThisTask->next;
+ 115              		.loc 1 47 0
+ 116 0036 7B68     		ldr	r3, [r7, #4]
+ 117 0038 9B68     		ldr	r3, [r3, #8]
+ 118 003a 104A     		ldr	r2, .L8
+ 119 003c 9367     		str	r3, [r2, #120]
+  48:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  49:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          ENABLE_INTERRUPTS();
+ 120              		.loc 1 49 0
+ 121 003e FFF7FEFF 		bl	IntMasterEnable
+  50:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  51:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          // execute the current task
+  52:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          pThisTask->cb();
+ 122              		.loc 1 52 0
+ 123 0042 7B68     		ldr	r3, [r7, #4]
+ 124 0044 1B68     		ldr	r3, [r3]
+ 125 0046 9847     		blx	r3
+ 126              	.LVL0:
+  53:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  54:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          // free up this task container
+  55:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          pThisTask->cb            = NULL;
+ 127              		.loc 1 55 0
+ 128 0048 7B68     		ldr	r3, [r7, #4]
+ 129 004a 0022     		movs	r2, #0
+ 130 004c 1A60     		str	r2, [r3]
+  56:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          pThisTask->prio          = TASKPRIO_NONE;
+ 131              		.loc 1 56 0
+ 132 004e 7B68     		ldr	r3, [r7, #4]
+ 133 0050 0022     		movs	r2, #0
+ 134 0052 1A71     		strb	r2, [r3, #4]
+  57:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          pThisTask->next          = NULL;
+ 135              		.loc 1 57 0
+ 136 0054 7B68     		ldr	r3, [r7, #4]
+ 137 0056 0022     		movs	r2, #0
+ 138 0058 9A60     		str	r2, [r3, #8]
+  58:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          scheduler_dbg.numTasksCur--;
+ 139              		.loc 1 58 0
+ 140 005a 094B     		ldr	r3, .L8+4
+ 141 005c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 142 005e 013B     		subs	r3, r3, #1
+ 143 0060 DAB2     		uxtb	r2, r3
+ 144 0062 074B     		ldr	r3, .L8+4
+ 145 0064 1A70     		strb	r2, [r3]
+ 146              	.L5:
+  37:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          // there is still at least one task in the linked-list of tasks
+ 147              		.loc 1 37 0
+ 148 0066 054B     		ldr	r3, .L8
+ 149 0068 9B6F     		ldr	r3, [r3, #120]
+ 150 006a 002B     		cmp	r3, #0
+ 151 006c DED1     		bne	.L6
+  59:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****       }
+  60:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****       debugpins_task_clr();
+ 152              		.loc 1 60 0
+ 153 006e FFF7FEFF 		bl	debugpins_task_clr
+  61:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****       board_sleep();
+ 154              		.loc 1 61 0
+ 155 0072 FFF7FEFF 		bl	board_sleep
+  62:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****       debugpins_task_set();                      // IAR should halt here if nothing to do
+ 156              		.loc 1 62 0
+ 157 0076 FFF7FEFF 		bl	debugpins_task_set
+  37:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****          // there is still at least one task in the linked-list of tasks
+ 158              		.loc 1 37 0
+ 159 007a F4E7     		b	.L5
+ 160              	.L9:
+ 161              		.align	2
+ 162              	.L8:
+ 163 007c 00000000 		.word	scheduler_vars
+ 164 0080 00000000 		.word	scheduler_dbg
+ 165              		.cfi_endproc
+ 166              	.LFE1:
+ 168              		.align	1
+ 169              		.global	scheduler_push_task
+ 170              		.syntax unified
+ 171              		.thumb
+ 172              		.thumb_func
+ 173              		.fpu softvfp
+ 175              	scheduler_push_task:
+ 176              	.LFB2:
+  63:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****    }
+  64:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** }
+  65:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  66:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** void scheduler_push_task(task_cbt cb, task_prio_t prio) {
+ 177              		.loc 1 66 0
+ 178              		.cfi_startproc
+ 179              		@ args = 0, pretend = 0, frame = 16
+ 180              		@ frame_needed = 1, uses_anonymous_args = 0
+ 181 0084 80B5     		push	{r7, lr}
+ 182              		.cfi_def_cfa_offset 8
+ 183              		.cfi_offset 7, -8
+ 184              		.cfi_offset 14, -4
+ 185 0086 84B0     		sub	sp, sp, #16
+ 186              		.cfi_def_cfa_offset 24
+ 187 0088 00AF     		add	r7, sp, #0
+ 188              		.cfi_def_cfa_register 7
+ 189 008a 7860     		str	r0, [r7, #4]
+ 190 008c 0B46     		mov	r3, r1
+ 191 008e FB70     		strb	r3, [r7, #3]
+  67:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     taskList_item_t*  taskContainer;
+  68:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     taskList_item_t** taskListWalker;
+  69:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     INTERRUPT_DECLARATION();
+  70:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  71:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     DISABLE_INTERRUPTS();
+ 192              		.loc 1 71 0
+ 193 0090 FFF7FEFF 		bl	IntMasterDisable
+  72:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  73:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     // find an empty task container
+  74:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     taskContainer = &scheduler_vars.taskBuf[0];
+ 194              		.loc 1 74 0
+ 195 0094 254B     		ldr	r3, .L19
+ 196 0096 FB60     		str	r3, [r7, #12]
+  75:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     while (taskContainer->cb!=NULL &&
+ 197              		.loc 1 75 0
+ 198 0098 02E0     		b	.L11
+ 199              	.L13:
+  76:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****           taskContainer<=&scheduler_vars.taskBuf[TASK_LIST_DEPTH-1]) {
+  77:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****        taskContainer++;
+ 200              		.loc 1 77 0
+ 201 009a FB68     		ldr	r3, [r7, #12]
+ 202 009c 0C33     		adds	r3, r3, #12
+ 203 009e FB60     		str	r3, [r7, #12]
+ 204              	.L11:
+  75:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     while (taskContainer->cb!=NULL &&
+ 205              		.loc 1 75 0
+ 206 00a0 FB68     		ldr	r3, [r7, #12]
+ 207 00a2 1B68     		ldr	r3, [r3]
+ 208 00a4 002B     		cmp	r3, #0
+ 209 00a6 03D0     		beq	.L12
+  75:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     while (taskContainer->cb!=NULL &&
+ 210              		.loc 1 75 0 is_stmt 0 discriminator 1
+ 211 00a8 FB68     		ldr	r3, [r7, #12]
+ 212 00aa 214A     		ldr	r2, .L19+4
+ 213 00ac 9342     		cmp	r3, r2
+ 214 00ae F4D9     		bls	.L13
+ 215              	.L12:
+  78:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     }
+  79:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     if (taskContainer>&scheduler_vars.taskBuf[TASK_LIST_DEPTH-1]) {
+ 216              		.loc 1 79 0 is_stmt 1
+ 217 00b0 FB68     		ldr	r3, [r7, #12]
+ 218 00b2 1F4A     		ldr	r2, .L19+4
+ 219 00b4 9342     		cmp	r3, r2
+ 220 00b6 03D9     		bls	.L14
+  80:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****        // task list has overflown. This should never happpen!
+  81:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  82:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****        // we can not print from within the kernel. Instead:
+  83:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****        // blink the error LED
+  84:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****        leds_error_blink();
+ 221              		.loc 1 84 0
+ 222 00b8 FFF7FEFF 		bl	leds_error_blink
+  85:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****        // reset the board
+  86:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****        board_reset();
+ 223              		.loc 1 86 0
+ 224 00bc FFF7FEFF 		bl	board_reset
+ 225              	.L14:
+  87:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     }
+  88:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     // fill that task container with this task
+  89:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     taskContainer->cb              = cb;
+ 226              		.loc 1 89 0
+ 227 00c0 FB68     		ldr	r3, [r7, #12]
+ 228 00c2 7A68     		ldr	r2, [r7, #4]
+ 229 00c4 1A60     		str	r2, [r3]
+  90:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     taskContainer->prio            = prio;
+ 230              		.loc 1 90 0
+ 231 00c6 FB68     		ldr	r3, [r7, #12]
+ 232 00c8 FA78     		ldrb	r2, [r7, #3]
+ 233 00ca 1A71     		strb	r2, [r3, #4]
+  91:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+  92:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     // find position in queue
+  93:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     taskListWalker                 = &scheduler_vars.task_list;
+ 234              		.loc 1 93 0
+ 235 00cc 194B     		ldr	r3, .L19+8
+ 236 00ce BB60     		str	r3, [r7, #8]
+  94:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     while (*taskListWalker!=NULL &&
+ 237              		.loc 1 94 0
+ 238 00d0 03E0     		b	.L15
+ 239              	.L17:
+  95:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****           (*taskListWalker)->prio <= taskContainer->prio) {
+  96:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****        taskListWalker              = (taskList_item_t**)&((*taskListWalker)->next);
+ 240              		.loc 1 96 0
+ 241 00d2 BB68     		ldr	r3, [r7, #8]
+ 242 00d4 1B68     		ldr	r3, [r3]
+ 243 00d6 0833     		adds	r3, r3, #8
+ 244 00d8 BB60     		str	r3, [r7, #8]
+ 245              	.L15:
+  94:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     while (*taskListWalker!=NULL &&
+ 246              		.loc 1 94 0
+ 247 00da BB68     		ldr	r3, [r7, #8]
+ 248 00dc 1B68     		ldr	r3, [r3]
+ 249 00de 002B     		cmp	r3, #0
+ 250 00e0 06D0     		beq	.L16
+  95:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****           (*taskListWalker)->prio <= taskContainer->prio) {
+ 251              		.loc 1 95 0 discriminator 1
+ 252 00e2 BB68     		ldr	r3, [r7, #8]
+ 253 00e4 1B68     		ldr	r3, [r3]
+ 254 00e6 1A79     		ldrb	r2, [r3, #4]	@ zero_extendqisi2
+ 255 00e8 FB68     		ldr	r3, [r7, #12]
+ 256 00ea 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+  94:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     while (*taskListWalker!=NULL &&
+ 257              		.loc 1 94 0 discriminator 1
+ 258 00ec 9A42     		cmp	r2, r3
+ 259 00ee F0D9     		bls	.L17
+ 260              	.L16:
+  97:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     }
+  98:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     // insert at that position
+  99:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     taskContainer->next            = *taskListWalker;
+ 261              		.loc 1 99 0
+ 262 00f0 BB68     		ldr	r3, [r7, #8]
+ 263 00f2 1A68     		ldr	r2, [r3]
+ 264 00f4 FB68     		ldr	r3, [r7, #12]
+ 265 00f6 9A60     		str	r2, [r3, #8]
+ 100:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     *taskListWalker                = taskContainer;
+ 266              		.loc 1 100 0
+ 267 00f8 BB68     		ldr	r3, [r7, #8]
+ 268 00fa FA68     		ldr	r2, [r7, #12]
+ 269 00fc 1A60     		str	r2, [r3]
+ 101:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     // maintain debug stats
+ 102:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     scheduler_dbg.numTasksCur++;
+ 270              		.loc 1 102 0
+ 271 00fe 0E4B     		ldr	r3, .L19+12
+ 272 0100 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 273 0102 0133     		adds	r3, r3, #1
+ 274 0104 DAB2     		uxtb	r2, r3
+ 275 0106 0C4B     		ldr	r3, .L19+12
+ 276 0108 1A70     		strb	r2, [r3]
+ 103:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     if (scheduler_dbg.numTasksCur>scheduler_dbg.numTasksMax) {
+ 277              		.loc 1 103 0
+ 278 010a 0B4B     		ldr	r3, .L19+12
+ 279 010c 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 280 010e 0A4B     		ldr	r3, .L19+12
+ 281 0110 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 282 0112 9A42     		cmp	r2, r3
+ 283 0114 03D9     		bls	.L18
+ 104:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****         scheduler_dbg.numTasksMax   = scheduler_dbg.numTasksCur;
+ 284              		.loc 1 104 0
+ 285 0116 084B     		ldr	r3, .L19+12
+ 286 0118 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 287 011a 074B     		ldr	r3, .L19+12
+ 288 011c 5A70     		strb	r2, [r3, #1]
+ 289              	.L18:
+ 105:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     }
+ 106:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** 
+ 107:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c ****     ENABLE_INTERRUPTS();
+ 290              		.loc 1 107 0
+ 291 011e FFF7FEFF 		bl	IntMasterEnable
+ 108:build\openmote-cc2538_armgcc\kernel\openos/scheduler.c **** }
+ 292              		.loc 1 108 0
+ 293 0122 00BF     		nop
+ 294 0124 1037     		adds	r7, r7, #16
+ 295              		.cfi_def_cfa_offset 8
+ 296 0126 BD46     		mov	sp, r7
+ 297              		.cfi_def_cfa_register 13
+ 298              		@ sp needed
+ 299 0128 80BD     		pop	{r7, pc}
+ 300              	.L20:
+ 301 012a 00BF     		.align	2
+ 302              	.L19:
+ 303 012c 00000000 		.word	scheduler_vars
+ 304 0130 6C000000 		.word	scheduler_vars+108
+ 305 0134 78000000 		.word	scheduler_vars+120
+ 306 0138 00000000 		.word	scheduler_dbg
+ 307              		.cfi_endproc
+ 308              	.LFE2:
+ 310              	.Letext0:
+ 311              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 312              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 313              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 314              		.file 5 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 315              		.file 6 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\lib\\gcc\\arm-none-eab
+ 316              		.file 7 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 317              		.file 8 "bsp\\boards\\openmote-cc2538/board_info.h"
+ 318              		.file 9 "inc/opendefs.h"
+ 319              		.file 10 "kernel/scheduler.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 scheduler.c
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:16     .rodata:00000000 $d
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:19     .rodata:00000000 rreg_uriquery
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:24     .rodata:00000008 infoBoardname
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:29     .rodata:00000010 infouCName
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:34     .rodata:00000018 infoRadioName
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:39     .rodata:00000024 infoStackName
+                            *COM*:00000080 scheduler_vars
+                            *COM*:00000002 scheduler_dbg
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:44     .text:00000000 $t
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:51     .text:00000000 scheduler_init
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:80     .text:0000001c $d
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:85     .text:00000024 $t
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:92     .text:00000024 scheduler_start
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:163    .text:0000007c $d
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:168    .text:00000084 $t
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:175    .text:00000084 scheduler_push_task
+C:\Users\Lee\AppData\Local\Temp\ccslYYTg.s:303    .text:0000012c $d
+                           .group:00000000 wm4.0.93d65e4ff05d5af51629690e5b534e57
+                           .group:00000000 wm4._newlib_version.h.4.875b979a44719054cd750d0952ad3fd6
+                           .group:00000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.cce27fed8484c08a33f522034c30d2b5
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:00000000 wm4.newlib.h.8.f6e543eac3f2f65163ba2ffe3b04987b
+                           .group:00000000 wm4.ieeefp.h.77.220d9cccac42cd58761758bee2df4ce6
+                           .group:00000000 wm4.config.h.220.6cac6a9685cfce5e83c17784171638d9
+                           .group:00000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:00000000 wm4.stddef.h.39.a38874c8f8a57e66301090908ec2a69f
+                           .group:00000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:00000000 wm4._types.h.125.5cf8a495f1f7ef36777ad868a1e32068
+                           .group:00000000 wm4.stddef.h.161.5349cb105733e8777bfb0cf53c4e3f34
+                           .group:00000000 wm4._types.h.184.03611d4f6b5bec9997bcf4279eceba07
+                           .group:00000000 wm4.reent.h.17.90c2574d4acdcfce933db5cb09ff35fe
+                           .group:00000000 wm4.cdefs.h.47.0bcdf94cb40e176393dd1404056825b4
+                           .group:00000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:00000000 wm4.stddef.h.161.19e15733342b50ead2919490b095303e
+                           .group:00000000 wm4.stdbool.h.29.07dce69c3b78884144b7f7bd19483461
+                           .group:00000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:00000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:00000000 wm4.board_info.h.22.34c159473b0affd9f1a6f5aa8cf576c9
+                           .group:00000000 wm4.opendefs.h.23.3a22b672f37c862344b7aef3ebe35451
+                           .group:00000000 wm4.scheduler.h.2.eb68556b8ec5a9773a999c64d41ac76c
+
+UNDEFINED SYMBOLS
+memset
+IntMasterDisable
+IntMasterEnable
+debugpins_task_clr
+board_sleep
+debugpins_task_set
+leds_error_blink
+board_reset

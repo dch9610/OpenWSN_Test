@@ -1,0 +1,3210 @@
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"forwarding.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.rodata
+  16              		.align	2
+  19              	rreg_uriquery:
+  20 0000 683D7563 		.ascii	"h=ucb\000"
+  20      6200
+  21 0006 0000     		.align	2
+  24              	infoBoardname:
+  25 0008 43433235 		.ascii	"CC2538\000"
+  25      333800
+  26 000f 00       		.align	2
+  29              	infouCName:
+  30 0010 43433235 		.ascii	"CC2538\000"
+  30      333800
+  31 0017 00       		.align	2
+  34              	infoRadioName:
+  35 0018 43433235 		.ascii	"CC2538 SoC\000"
+  35      33382053 
+  35      6F4300
+  36 0023 00       		.align	2
+  39              	infoStackName:
+  40 0024 4F70656E 		.ascii	"OpenWSN \000"
+  40      57534E20 
+  40      00
+  41 002d 000000   		.align	2
+  44              	linklocalprefix:
+  45 0030 FE       		.byte	-2
+  46 0031 80       		.byte	-128
+  47 0032 00       		.byte	0
+  48 0033 00       		.byte	0
+  49 0034 00       		.byte	0
+  50 0035 00       		.byte	0
+  51 0036 00       		.byte	0
+  52 0037 00       		.byte	0
+  53              		.align	2
+  56              	all_routers_multicast:
+  57 0038 FF       		.byte	-1
+  58 0039 02       		.byte	2
+  59 003a 00       		.byte	0
+  60 003b 00       		.byte	0
+  61 003c 00       		.byte	0
+  62 003d 00       		.byte	0
+  63 003e 00       		.byte	0
+  64 003f 00       		.byte	0
+  65 0040 00       		.byte	0
+  66 0041 00       		.byte	0
+  67 0042 00       		.byte	0
+  68 0043 00       		.byte	0
+  69 0044 00       		.byte	0
+  70 0045 00       		.byte	0
+  71 0046 00       		.byte	0
+  72 0047 1A       		.byte	26
+  73              		.text
+  74              		.align	1
+  75              		.global	forwarding_init
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  79              		.fpu softvfp
+  81              	forwarding_init:
+  82              	.LFB3:
+  83              		.file 1 "build\\openmote-cc2538_armgcc\\openstack\\03b-IPv6\\forwarding.c"
+   1:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "opendefs.h"
+   2:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "forwarding.h"
+   3:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "iphc.h"
+   4:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "openqueue.h"
+   5:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "openserial.h"
+   6:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "idmanager.h"
+   7:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "packetfunctions.h"
+   8:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "neighbors.h"
+   9:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "icmpv6.h"
+  10:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "icmpv6rpl.h"
+  11:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "openudp.h"
+  12:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "debugpins.h"
+  13:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #include "scheduler.h"
+  14:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  15:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** //=========================== variables =======================================
+  16:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  17:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** //=========================== prototypes ======================================
+  18:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  19:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** void      forwarding_getNextHop(
+  20:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    open_addr_t*         destination,
+  21:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    open_addr_t*         addressToWrite
+  22:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** );
+  23:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** owerror_t forwarding_send_internal_RoutingTable(
+  24:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    OpenQueueEntry_t*    msg,
+  25:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    ipv6_header_iht*     ipv6_outer_header,
+  26:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    ipv6_header_iht*     ipv6_inner_header,
+  27:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    rpl_option_ht*       rpl_option,
+  28:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+  29:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    deadline_option_ht*	deadline_option,
+  30:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+  31:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    uint32_t*             flow_label,
+  32:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    uint8_t              fw_SendOrfw_Rcv
+  33:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** );
+  34:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** owerror_t forwarding_send_internal_SourceRouting(
+  35:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    OpenQueueEntry_t*    msg,
+  36:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    ipv6_header_iht*     ipv6_outer_header,
+  37:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    ipv6_header_iht*     ipv6_inner_header,
+  38:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+  39:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    deadline_option_ht*	deadline_option,
+  40:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+  41:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    rpl_option_ht*       rpl_option
+  42:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** );
+  43:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** void      forwarding_createRplOption(
+  44:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    rpl_option_ht*       rpl_option,
+  45:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    uint8_t              flags
+  46:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** );
+  47:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  48:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+  49:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** void forwarding_createDeadlineOption(
+  50:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    deadline_option_ht*   deadline_option
+  51:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** );
+  52:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+  53:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  54:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** //=========================== public ==========================================
+  55:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  56:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** /**
+  57:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \brief Initialize this module.
+  58:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** */
+  59:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** void forwarding_init(void) {
+  84              		.loc 1 59 0
+  85              		.cfi_startproc
+  86              		@ args = 0, pretend = 0, frame = 0
+  87              		@ frame_needed = 1, uses_anonymous_args = 0
+  88              		@ link register save eliminated.
+  89 0000 80B4     		push	{r7}
+  90              		.cfi_def_cfa_offset 4
+  91              		.cfi_offset 7, -4
+  92 0002 00AF     		add	r7, sp, #0
+  93              		.cfi_def_cfa_register 7
+  60:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** }
+  94              		.loc 1 60 0
+  95 0004 00BF     		nop
+  96 0006 BD46     		mov	sp, r7
+  97              		.cfi_def_cfa_register 13
+  98              		@ sp needed
+  99 0008 80BC     		pop	{r7}
+ 100              		.cfi_restore 7
+ 101              		.cfi_def_cfa_offset 0
+ 102 000a 7047     		bx	lr
+ 103              		.cfi_endproc
+ 104              	.LFE3:
+ 106              		.align	1
+ 107              		.global	forwarding_send
+ 108              		.syntax unified
+ 109              		.thumb
+ 110              		.thumb_func
+ 111              		.fpu softvfp
+ 113              	forwarding_send:
+ 114              	.LFB4:
+  61:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  62:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** /**
+  63:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \brief Send a packet originating at this mote.
+  64:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  65:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** This function is called by an upper layer, and only concerns packets originated
+  66:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** at this mote.
+  67:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  68:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in,out] msg Packet to send.
+  69:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** */
+  70:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** owerror_t forwarding_send(OpenQueueEntry_t* msg) {
+ 115              		.loc 1 70 0
+ 116              		.cfi_startproc
+ 117              		@ args = 0, pretend = 0, frame = 296
+ 118              		@ frame_needed = 1, uses_anonymous_args = 0
+ 119 000c F0B5     		push	{r4, r5, r6, r7, lr}
+ 120              		.cfi_def_cfa_offset 20
+ 121              		.cfi_offset 4, -20
+ 122              		.cfi_offset 5, -16
+ 123              		.cfi_offset 6, -12
+ 124              		.cfi_offset 7, -8
+ 125              		.cfi_offset 14, -4
+ 126 000e D7B0     		sub	sp, sp, #348
+ 127              		.cfi_def_cfa_offset 368
+ 128 0010 0CAF     		add	r7, sp, #48
+ 129              		.cfi_def_cfa 7, 320
+ 130 0012 3B1D     		adds	r3, r7, #4
+ 131 0014 1860     		str	r0, [r3]
+  71:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ipv6_header_iht      ipv6_outer_header;
+  72:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ipv6_header_iht      ipv6_inner_header;
+  73:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     rpl_option_ht        rpl_option;
+  74:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+  75:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     deadline_option_ht   deadline_option;
+  76:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+  77:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t*         myprefix;
+  78:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t*         myadd64;
+  79:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint32_t             flow_label = 0;
+ 132              		.loc 1 79 0
+ 133 0016 0023     		movs	r3, #0
+ 134 0018 FB65     		str	r3, [r7, #92]
+  80:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  81:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t          temp_dest_prefix;
+  82:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t          temp_dest_mac64b;
+  83:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t*         p_dest;
+  84:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t*         p_src;
+  85:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t          temp_src_prefix;
+  86:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t          temp_src_mac64b;
+  87:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     bool                 sac;
+  88:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              sam;
+  89:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              m;
+  90:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     bool                 dac;
+  91:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              dam;
+  92:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              next_header;
+  93:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  94:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // take ownership over the packet
+  95:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     msg->owner                = COMPONENT_FORWARDING;
+ 135              		.loc 1 95 0
+ 136 001a 3B1D     		adds	r3, r7, #4
+ 137 001c 1B68     		ldr	r3, [r3]
+ 138 001e 1222     		movs	r2, #18
+ 139 0020 5A70     		strb	r2, [r3, #1]
+  96:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  97:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     m   = IPHC_M_NO;
+ 140              		.loc 1 97 0
+ 141 0022 0023     		movs	r3, #0
+ 142 0024 87F81931 		strb	r3, [r7, #281]
+  98:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+  99:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // retrieve my prefix and EUI64
+ 100:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     myadd64                   = idmanager_getMyID(ADDR_64B);
+ 143              		.loc 1 100 0
+ 144 0028 0220     		movs	r0, #2
+ 145 002a FFF7FEFF 		bl	idmanager_getMyID
+ 146 002e C7F81001 		str	r0, [r7, #272]
+ 101:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 102:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // set source address (me)
+ 103:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     msg->l3_sourceAdd.type=ADDR_128B;
+ 147              		.loc 1 103 0
+ 148 0032 3B1D     		adds	r3, r7, #4
+ 149 0034 1B68     		ldr	r3, [r3]
+ 150 0036 0322     		movs	r2, #3
+ 151 0038 83F82E20 		strb	r2, [r3, #46]
+ 104:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 105:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     packetfunctions_ip128bToMac64b(&(msg->l3_destinationAdd),&temp_dest_prefix,&temp_dest_mac64b);
+ 152              		.loc 1 105 0
+ 153 003c 3B1D     		adds	r3, r7, #4
+ 154 003e 1B68     		ldr	r3, [r3]
+ 155 0040 1D33     		adds	r3, r3, #29
+ 156 0042 07F13402 		add	r2, r7, #52
+ 157 0046 07F14801 		add	r1, r7, #72
+ 158 004a 1846     		mov	r0, r3
+ 159 004c FFF7FEFF 		bl	packetfunctions_ip128bToMac64b
+ 106:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // at this point, we still haven't written in the packet the source prefix
+ 107:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // that we will use - it depends whether the destination address is link-local or not
+ 108:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 109:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // if we are sending to a link-local address set the source prefix to link-local
+ 110:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (packetfunctions_isLinkLocal(&msg->l3_destinationAdd)                ||
+ 160              		.loc 1 110 0
+ 161 0050 3B1D     		adds	r3, r7, #4
+ 162 0052 1B68     		ldr	r3, [r3]
+ 163 0054 1D33     		adds	r3, r3, #29
+ 164 0056 1846     		mov	r0, r3
+ 165 0058 FFF7FEFF 		bl	packetfunctions_isLinkLocal
+ 166 005c 0346     		mov	r3, r0
+ 167 005e 002B     		cmp	r3, #0
+ 168 0060 11D1     		bne	.L3
+ 111:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             packetfunctions_isAllRoutersMulticast(&msg->l3_destinationAdd)  ||
+ 169              		.loc 1 111 0 discriminator 1
+ 170 0062 3B1D     		adds	r3, r7, #4
+ 171 0064 1B68     		ldr	r3, [r3]
+ 172 0066 1D33     		adds	r3, r3, #29
+ 173 0068 1846     		mov	r0, r3
+ 174 006a FFF7FEFF 		bl	packetfunctions_isAllRoutersMulticast
+ 175 006e 0346     		mov	r3, r0
+ 110:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             packetfunctions_isAllRoutersMulticast(&msg->l3_destinationAdd)  ||
+ 176              		.loc 1 110 0 discriminator 1
+ 177 0070 002B     		cmp	r3, #0
+ 178 0072 08D1     		bne	.L3
+ 112:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             packetfunctions_isAllHostsMulticast(&msg->l3_destinationAdd)) {
+ 179              		.loc 1 112 0
+ 180 0074 3B1D     		adds	r3, r7, #4
+ 181 0076 1B68     		ldr	r3, [r3]
+ 182 0078 1D33     		adds	r3, r3, #29
+ 183 007a 1846     		mov	r0, r3
+ 184 007c FFF7FEFF 		bl	packetfunctions_isAllHostsMulticast
+ 185 0080 0346     		mov	r3, r0
+ 111:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             packetfunctions_isAllRoutersMulticast(&msg->l3_destinationAdd)  ||
+ 186              		.loc 1 111 0
+ 187 0082 002B     		cmp	r3, #0
+ 188 0084 1DD0     		beq	.L4
+ 189              	.L3:
+ 113:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         memset(&temp_src_prefix, 0x00, sizeof(open_addr_t));
+ 190              		.loc 1 113 0
+ 191 0086 07F12003 		add	r3, r7, #32
+ 192 008a 1122     		movs	r2, #17
+ 193 008c 0021     		movs	r1, #0
+ 194 008e 1846     		mov	r0, r3
+ 195 0090 FFF7FEFF 		bl	memset
+ 114:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         temp_src_prefix.type = ADDR_PREFIX;
+ 196              		.loc 1 114 0
+ 197 0094 07F12003 		add	r3, r7, #32
+ 198 0098 0522     		movs	r2, #5
+ 199 009a 1A70     		strb	r2, [r3]
+ 115:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         temp_src_prefix.prefix[0] = 0xfe;
+ 200              		.loc 1 115 0
+ 201 009c 07F12003 		add	r3, r7, #32
+ 202 00a0 FE22     		movs	r2, #254
+ 203 00a2 5A70     		strb	r2, [r3, #1]
+ 116:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         temp_src_prefix.prefix[1] = 0x80;
+ 204              		.loc 1 116 0
+ 205 00a4 07F12003 		add	r3, r7, #32
+ 206 00a8 8022     		movs	r2, #128
+ 207 00aa 9A70     		strb	r2, [r3, #2]
+ 117:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         myprefix = &temp_src_prefix;
+ 208              		.loc 1 117 0
+ 209 00ac 07F12003 		add	r3, r7, #32
+ 210 00b0 C7F82431 		str	r3, [r7, #292]
+ 118:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         sac = IPHC_SAC_STATELESS;
+ 211              		.loc 1 118 0
+ 212 00b4 0023     		movs	r3, #0
+ 213 00b6 87F81B31 		strb	r3, [r7, #283]
+ 119:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         dac = IPHC_DAC_STATELESS;
+ 214              		.loc 1 119 0
+ 215 00ba 0023     		movs	r3, #0
+ 216 00bc 87F81831 		strb	r3, [r7, #280]
+ 217 00c0 32E0     		b	.L5
+ 218              	.L4:
+ 120:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     } else if (packetfunctions_sameAddress(&temp_dest_prefix,idmanager_getMyID(ADDR_PREFIX))==FALSE
+ 219              		.loc 1 120 0
+ 220 00c2 0520     		movs	r0, #5
+ 221 00c4 FFF7FEFF 		bl	idmanager_getMyID
+ 222 00c8 0246     		mov	r2, r0
+ 223 00ca 07F14803 		add	r3, r7, #72
+ 224 00ce 1146     		mov	r1, r2
+ 225 00d0 1846     		mov	r0, r3
+ 226 00d2 FFF7FEFF 		bl	packetfunctions_sameAddress
+ 227 00d6 0346     		mov	r3, r0
+ 228 00d8 83F00103 		eor	r3, r3, #1
+ 229 00dc DBB2     		uxtb	r3, r3
+ 230 00de 002B     		cmp	r3, #0
+ 231 00e0 17D0     		beq	.L6
+ 232              		.loc 1 120 0 is_stmt 0 discriminator 1
+ 233 00e2 3B1D     		adds	r3, r7, #4
+ 234 00e4 1B68     		ldr	r3, [r3]
+ 235 00e6 1D33     		adds	r3, r3, #29
+ 236 00e8 1846     		mov	r0, r3
+ 237 00ea FFF7FEFF 		bl	packetfunctions_isBroadcastMulticast
+ 238 00ee 0346     		mov	r3, r0
+ 239 00f0 83F00103 		eor	r3, r3, #1
+ 240 00f4 DBB2     		uxtb	r3, r3
+ 241 00f6 002B     		cmp	r3, #0
+ 242 00f8 0BD0     		beq	.L6
+ 121:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         myprefix = idmanager_getMyID(ADDR_PREFIX);
+ 243              		.loc 1 121 0 is_stmt 1
+ 244 00fa 0520     		movs	r0, #5
+ 245 00fc FFF7FEFF 		bl	idmanager_getMyID
+ 246 0100 C7F82401 		str	r0, [r7, #292]
+ 122:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         sac = IPHC_SAC_STATELESS;
+ 247              		.loc 1 122 0
+ 248 0104 0023     		movs	r3, #0
+ 249 0106 87F81B31 		strb	r3, [r7, #283]
+ 123:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         dac = IPHC_DAC_STATELESS;
+ 250              		.loc 1 123 0
+ 251 010a 0023     		movs	r3, #0
+ 252 010c 87F81831 		strb	r3, [r7, #280]
+ 253 0110 0AE0     		b	.L5
+ 254              	.L6:
+ 124:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     } else {
+ 125:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         myprefix = idmanager_getMyID(ADDR_PREFIX);
+ 255              		.loc 1 125 0
+ 256 0112 0520     		movs	r0, #5
+ 257 0114 FFF7FEFF 		bl	idmanager_getMyID
+ 258 0118 C7F82401 		str	r0, [r7, #292]
+ 126:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         sac = IPHC_SAC_STATEFUL;
+ 259              		.loc 1 126 0
+ 260 011c 0123     		movs	r3, #1
+ 261 011e 87F81B31 		strb	r3, [r7, #283]
+ 127:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         dac = IPHC_DAC_STATEFUL;
+ 262              		.loc 1 127 0
+ 263 0122 0123     		movs	r3, #1
+ 264 0124 87F81831 		strb	r3, [r7, #280]
+ 265              	.L5:
+ 128:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 129:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // myprefix now contains the pointer to the correct prefix to use (link-local or global)
+ 130:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     memcpy(&(msg->l3_sourceAdd.addr_128b[0]),myprefix->prefix,8);
+ 266              		.loc 1 130 0
+ 267 0128 3B1D     		adds	r3, r7, #4
+ 268 012a 1B68     		ldr	r3, [r3]
+ 269 012c 03F12F00 		add	r0, r3, #47
+ 270 0130 D7F82431 		ldr	r3, [r7, #292]
+ 271 0134 0133     		adds	r3, r3, #1
+ 272 0136 0822     		movs	r2, #8
+ 273 0138 1946     		mov	r1, r3
+ 274 013a FFF7FEFF 		bl	memcpy
+ 131:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     memcpy(&(msg->l3_sourceAdd.addr_128b[8]),myadd64->addr_64b,8);
+ 275              		.loc 1 131 0
+ 276 013e 3B1D     		adds	r3, r7, #4
+ 277 0140 1B68     		ldr	r3, [r3]
+ 278 0142 03F13700 		add	r0, r3, #55
+ 279 0146 D7F81031 		ldr	r3, [r7, #272]
+ 280 014a 0133     		adds	r3, r3, #1
+ 281 014c 0822     		movs	r2, #8
+ 282 014e 1946     		mov	r1, r3
+ 283 0150 FFF7FEFF 		bl	memcpy
+ 132:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 133:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // initialize IPv6 header
+ 134:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     memset(&ipv6_outer_header,0,sizeof(ipv6_header_iht));
+ 284              		.loc 1 134 0
+ 285 0154 07F1C803 		add	r3, r7, #200
+ 286 0158 4822     		movs	r2, #72
+ 287 015a 0021     		movs	r1, #0
+ 288 015c 1846     		mov	r0, r3
+ 289 015e FFF7FEFF 		bl	memset
+ 135:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     memset(&ipv6_inner_header,0,sizeof(ipv6_header_iht));
+ 290              		.loc 1 135 0
+ 291 0162 07F18003 		add	r3, r7, #128
+ 292 0166 4822     		movs	r2, #72
+ 293 0168 0021     		movs	r1, #0
+ 294 016a 1846     		mov	r0, r3
+ 295 016c FFF7FEFF 		bl	memset
+ 136:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 137:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // Set hop limit to the default in-network value as this packet is being
+ 138:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // sent from upper layer. This is done here as send_internal() is used by
+ 139:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // forwarding of packets as well which carry a hlim. This value is required
+ 140:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // to be set to a value as the following function can decrement it.
+ 141:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ipv6_inner_header.hop_limit     = IPHC_DEFAULT_HOP_LIMIT;
+ 296              		.loc 1 141 0
+ 297 0170 4123     		movs	r3, #65
+ 298 0172 87F8A030 		strb	r3, [r7, #160]
+ 142:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 143:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // create the RPL hop-by-hop option
+ 144:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 145:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     forwarding_createRplOption(
+ 299              		.loc 1 145 0
+ 300 0176 07F17803 		add	r3, r7, #120
+ 301 017a 0021     		movs	r1, #0
+ 302 017c 1846     		mov	r0, r3
+ 303 017e FFF7FEFF 		bl	forwarding_createRplOption
+ 146:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       &rpl_option,      // rpl_option to fill in
+ 147:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       0x00              // flags
+ 148:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     );
+ 149:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 150:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 151:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     forwarding_createDeadlineOption(
+ 304              		.loc 1 151 0
+ 305 0182 07F16003 		add	r3, r7, #96
+ 306 0186 1846     		mov	r0, r3
+ 307 0188 FFF7FEFF 		bl	forwarding_createDeadlineOption
+ 152:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       &deadline_option
+ 153:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     );
+ 154:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 155:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 156:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (packetfunctions_sameAddress(&temp_dest_prefix, myprefix)) {
+ 308              		.loc 1 156 0
+ 309 018c 07F14803 		add	r3, r7, #72
+ 310 0190 D7F82411 		ldr	r1, [r7, #292]
+ 311 0194 1846     		mov	r0, r3
+ 312 0196 FFF7FEFF 		bl	packetfunctions_sameAddress
+ 313 019a 0346     		mov	r3, r0
+ 314 019c 002B     		cmp	r3, #0
+ 315 019e 0ED0     		beq	.L7
+ 157:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****          // same prefix use 64B address
+ 158:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****          sam = IPHC_SAM_64B;
+ 316              		.loc 1 158 0
+ 317 01a0 0123     		movs	r3, #1
+ 318 01a2 87F81A31 		strb	r3, [r7, #282]
+ 159:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****          dam = IPHC_DAM_64B;
+ 319              		.loc 1 159 0
+ 320 01a6 0123     		movs	r3, #1
+ 321 01a8 87F81731 		strb	r3, [r7, #279]
+ 160:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****          p_dest = &temp_dest_mac64b;
+ 322              		.loc 1 160 0
+ 323 01ac 07F13403 		add	r3, r7, #52
+ 324 01b0 C7F82031 		str	r3, [r7, #288]
+ 161:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****          p_src  = &temp_src_mac64b;
+ 325              		.loc 1 161 0
+ 326 01b4 07F10C03 		add	r3, r7, #12
+ 327 01b8 C7F81C31 		str	r3, [r7, #284]
+ 328 01bc 43E0     		b	.L8
+ 329              	.L7:
+ 162:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     } else {
+ 163:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         //not the same prefix. so the packet travels to another network
+ 164:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         //check if this is a source routing pkt. in case it is then the DAM is elided as it is in t
+ 165:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if (packetfunctions_isBroadcastMulticast(&(msg->l3_destinationAdd))==FALSE){
+ 330              		.loc 1 165 0
+ 331 01be 3B1D     		adds	r3, r7, #4
+ 332 01c0 1B68     		ldr	r3, [r3]
+ 333 01c2 1D33     		adds	r3, r3, #29
+ 334 01c4 1846     		mov	r0, r3
+ 335 01c6 FFF7FEFF 		bl	packetfunctions_isBroadcastMulticast
+ 336 01ca 0346     		mov	r3, r0
+ 337 01cc 83F00103 		eor	r3, r3, #1
+ 338 01d0 DBB2     		uxtb	r3, r3
+ 339 01d2 002B     		cmp	r3, #0
+ 340 01d4 24D0     		beq	.L9
+ 166:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             sam = IPHC_SAM_128B;
+ 341              		.loc 1 166 0
+ 342 01d6 0023     		movs	r3, #0
+ 343 01d8 87F81A31 		strb	r3, [r7, #282]
+ 167:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             dam = IPHC_DAM_128B;
+ 344              		.loc 1 167 0
+ 345 01dc 0023     		movs	r3, #0
+ 346 01de 87F81731 		strb	r3, [r7, #279]
+ 168:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             p_dest = &(msg->l3_destinationAdd);
+ 347              		.loc 1 168 0
+ 348 01e2 3B1D     		adds	r3, r7, #4
+ 349 01e4 1B68     		ldr	r3, [r3]
+ 350 01e6 1D33     		adds	r3, r3, #29
+ 351 01e8 C7F82031 		str	r3, [r7, #288]
+ 169:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             p_src = &(msg->l3_sourceAdd);
+ 352              		.loc 1 169 0
+ 353 01ec 3B1D     		adds	r3, r7, #4
+ 354 01ee 1B68     		ldr	r3, [r3]
+ 355 01f0 2E33     		adds	r3, r3, #46
+ 356 01f2 C7F81C31 		str	r3, [r7, #284]
+ 170:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 171:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             ipv6_outer_header.src.type = ADDR_128B;
+ 357              		.loc 1 171 0
+ 358 01f6 0323     		movs	r3, #3
+ 359 01f8 87F8EA30 		strb	r3, [r7, #234]
+ 172:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             memcpy(&ipv6_outer_header.src,p_src,sizeof(open_addr_t));
+ 360              		.loc 1 172 0
+ 361 01fc D7F81C21 		ldr	r2, [r7, #284]
+ 362 0200 07F1EA03 		add	r3, r7, #234
+ 363 0204 1568     		ldr	r5, [r2]	@ unaligned
+ 364 0206 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 365 0208 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 366 020a D168     		ldr	r1, [r2, #12]	@ unaligned
+ 367 020c 1D60     		str	r5, [r3]	@ unaligned
+ 368 020e 5C60     		str	r4, [r3, #4]	@ unaligned
+ 369 0210 9860     		str	r0, [r3, #8]	@ unaligned
+ 370 0212 D960     		str	r1, [r3, #12]	@ unaligned
+ 371 0214 127C     		ldrb	r2, [r2, #16]
+ 372 0216 1A74     		strb	r2, [r3, #16]
+ 173:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             ipv6_outer_header.hop_limit = IPHC_DEFAULT_HOP_LIMIT;
+ 373              		.loc 1 173 0
+ 374 0218 4123     		movs	r3, #65
+ 375 021a 87F8E830 		strb	r3, [r7, #232]
+ 376 021e 12E0     		b	.L8
+ 377              	.L9:
+ 174:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         } else {
+ 175:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****            // this is DIO, source address elided, multicast bit is set
+ 176:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             sam = IPHC_SAM_ELIDED;
+ 378              		.loc 1 176 0
+ 379 0220 0323     		movs	r3, #3
+ 380 0222 87F81A31 		strb	r3, [r7, #282]
+ 177:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             m   = IPHC_M_YES;
+ 381              		.loc 1 177 0
+ 382 0226 0123     		movs	r3, #1
+ 383 0228 87F81931 		strb	r3, [r7, #281]
+ 178:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             dam = IPHC_DAM_ELIDED;
+ 384              		.loc 1 178 0
+ 385 022c 0323     		movs	r3, #3
+ 386 022e 87F81731 		strb	r3, [r7, #279]
+ 179:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             p_dest = &(msg->l3_destinationAdd);
+ 387              		.loc 1 179 0
+ 388 0232 3B1D     		adds	r3, r7, #4
+ 389 0234 1B68     		ldr	r3, [r3]
+ 390 0236 1D33     		adds	r3, r3, #29
+ 391 0238 C7F82031 		str	r3, [r7, #288]
+ 180:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             p_src = &(msg->l3_sourceAdd);
+ 392              		.loc 1 180 0
+ 393 023c 3B1D     		adds	r3, r7, #4
+ 394 023e 1B68     		ldr	r3, [r3]
+ 395 0240 2E33     		adds	r3, r3, #46
+ 396 0242 C7F81C31 		str	r3, [r7, #284]
+ 397              	.L8:
+ 181:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         }
+ 182:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 183:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     //IPHC inner header and NHC IPv6 header will be added at here
+ 184:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 185:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (msg->l4_protocol_compressed){
+ 398              		.loc 1 185 0
+ 399 0246 3B1D     		adds	r3, r7, #4
+ 400 0248 1B68     		ldr	r3, [r3]
+ 401 024a 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 402 024c 002B     		cmp	r3, #0
+ 403 024e 03D0     		beq	.L10
+ 186:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         next_header = IPHC_NH_COMPRESSED;
+ 404              		.loc 1 186 0
+ 405 0250 0123     		movs	r3, #1
+ 406 0252 87F81631 		strb	r3, [r7, #278]
+ 407 0256 02E0     		b	.L11
+ 408              	.L10:
+ 187:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }else{
+ 188:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         next_header = IPHC_NH_INLINE;
+ 409              		.loc 1 188 0
+ 410 0258 0023     		movs	r3, #0
+ 411 025a 87F81631 		strb	r3, [r7, #278]
+ 412              	.L11:
+ 189:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 190:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     iphc_prependIPv6Header(msg,
+ 413              		.loc 1 190 0
+ 414 025e FD6D     		ldr	r5, [r7, #92]
+ 415 0260 3B1D     		adds	r3, r7, #4
+ 416 0262 1B68     		ldr	r3, [r3]
+ 417 0264 DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 418 0266 97F8E820 		ldrb	r2, [r7, #232]	@ zero_extendqisi2
+ 419 026a 97F81911 		ldrb	r1, [r7, #281]	@ zero_extendqisi2
+ 420 026e 0029     		cmp	r1, #0
+ 421 0270 14BF     		ite	ne
+ 422 0272 0121     		movne	r1, #1
+ 423 0274 0021     		moveq	r1, #0
+ 424 0276 C9B2     		uxtb	r1, r1
+ 425 0278 97F81661 		ldrb	r6, [r7, #278]	@ zero_extendqisi2
+ 426 027c 381D     		adds	r0, r7, #4
+ 427 027e 0224     		movs	r4, #2
+ 428 0280 0B94     		str	r4, [sp, #44]
+ 429 0282 D7F81C41 		ldr	r4, [r7, #284]
+ 430 0286 0A94     		str	r4, [sp, #40]
+ 431 0288 D7F82041 		ldr	r4, [r7, #288]
+ 432 028c 0994     		str	r4, [sp, #36]
+ 433 028e 97F81741 		ldrb	r4, [r7, #279]	@ zero_extendqisi2
+ 434 0292 0894     		str	r4, [sp, #32]
+ 435 0294 97F81841 		ldrb	r4, [r7, #280]	@ zero_extendqisi2
+ 436 0298 0794     		str	r4, [sp, #28]
+ 437 029a 0691     		str	r1, [sp, #24]
+ 438 029c 97F81A11 		ldrb	r1, [r7, #282]	@ zero_extendqisi2
+ 439 02a0 0591     		str	r1, [sp, #20]
+ 440 02a2 97F81B11 		ldrb	r1, [r7, #283]	@ zero_extendqisi2
+ 441 02a6 0491     		str	r1, [sp, #16]
+ 442 02a8 0021     		movs	r1, #0
+ 443 02aa 0391     		str	r1, [sp, #12]
+ 444 02ac 0292     		str	r2, [sp, #8]
+ 445 02ae 0222     		movs	r2, #2
+ 446 02b0 0192     		str	r2, [sp, #4]
+ 447 02b2 0093     		str	r3, [sp]
+ 448 02b4 3346     		mov	r3, r6
+ 449 02b6 2A46     		mov	r2, r5
+ 450 02b8 0321     		movs	r1, #3
+ 451 02ba 0068     		ldr	r0, [r0]
+ 452 02bc FFF7FEFF 		bl	iphc_prependIPv6Header
+ 191:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 IPHC_TF_ELIDED,
+ 192:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 flow_label, // value_flowlabel
+ 193:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 next_header,
+ 194:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 msg->l4_protocol, // value nh. If compressed this is ignored as LOWPAN_NH is alread
+ 195:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 IPHC_HLIM_64,
+ 196:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 ipv6_outer_header.hop_limit,
+ 197:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 IPHC_CID_NO,
+ 198:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 sac,
+ 199:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 sam,
+ 200:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 m,
+ 201:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 dac,
+ 202:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 dam,
+ 203:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 p_dest,
+ 204:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 p_src,
+ 205:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 PCKTSEND
+ 206:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 );
+ 207:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // both of them are compressed
+ 208:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ipv6_outer_header.next_header_compressed = TRUE;
+ 453              		.loc 1 208 0
+ 454 02c0 0123     		movs	r3, #1
+ 455 02c2 87F8D030 		strb	r3, [r7, #208]
+ 209:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 210:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     return forwarding_send_internal_RoutingTable(
+ 456              		.loc 1 210 0
+ 457 02c6 07F17804 		add	r4, r7, #120
+ 458 02ca 07F18002 		add	r2, r7, #128
+ 459 02ce 07F1C801 		add	r1, r7, #200
+ 460 02d2 381D     		adds	r0, r7, #4
+ 461 02d4 0223     		movs	r3, #2
+ 462 02d6 0293     		str	r3, [sp, #8]
+ 463 02d8 07F15C03 		add	r3, r7, #92
+ 464 02dc 0193     		str	r3, [sp, #4]
+ 465 02de 07F16003 		add	r3, r7, #96
+ 466 02e2 0093     		str	r3, [sp]
+ 467 02e4 2346     		mov	r3, r4
+ 468 02e6 0068     		ldr	r0, [r0]
+ 469 02e8 FFF7FEFF 		bl	forwarding_send_internal_RoutingTable
+ 470 02ec 0346     		mov	r3, r0
+ 211:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         msg,
+ 212:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         &ipv6_outer_header,
+ 213:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         &ipv6_inner_header,
+ 214:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         &rpl_option,
+ 215:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 216:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         &deadline_option,
+ 217:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 218:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         &flow_label,
+ 219:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         PCKTSEND
+ 220:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     );
+ 221:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** }
+ 471              		.loc 1 221 0
+ 472 02ee 1846     		mov	r0, r3
+ 473 02f0 07F59677 		add	r7, r7, #300
+ 474              		.cfi_def_cfa_offset 20
+ 475 02f4 BD46     		mov	sp, r7
+ 476              		.cfi_def_cfa_register 13
+ 477              		@ sp needed
+ 478 02f6 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 479              		.cfi_endproc
+ 480              	.LFE4:
+ 482              		.align	1
+ 483              		.global	forwarding_sendDone
+ 484              		.syntax unified
+ 485              		.thumb
+ 486              		.thumb_func
+ 487              		.fpu softvfp
+ 489              	forwarding_sendDone:
+ 490              	.LFB5:
+ 222:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 223:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** /**
+ 224:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \brief Indicates a packet has been sent.
+ 225:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 226:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in,out] msg   The packet just sent.
+ 227:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     error The outcome of sending it.
+ 228:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** */
+ 229:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** void forwarding_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 491              		.loc 1 229 0
+ 492              		.cfi_startproc
+ 493              		@ args = 0, pretend = 0, frame = 8
+ 494              		@ frame_needed = 1, uses_anonymous_args = 0
+ 495 02f8 80B5     		push	{r7, lr}
+ 496              		.cfi_def_cfa_offset 8
+ 497              		.cfi_offset 7, -8
+ 498              		.cfi_offset 14, -4
+ 499 02fa 82B0     		sub	sp, sp, #8
+ 500              		.cfi_def_cfa_offset 16
+ 501 02fc 00AF     		add	r7, sp, #0
+ 502              		.cfi_def_cfa_register 7
+ 503 02fe 7860     		str	r0, [r7, #4]
+ 504 0300 0B46     		mov	r3, r1
+ 505 0302 FB70     		strb	r3, [r7, #3]
+ 230:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 231:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    // take ownership
+ 232:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    msg->owner = COMPONENT_FORWARDING;
+ 506              		.loc 1 232 0
+ 507 0304 7B68     		ldr	r3, [r7, #4]
+ 508 0306 1222     		movs	r2, #18
+ 509 0308 5A70     		strb	r2, [r3, #1]
+ 233:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 234:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    if (msg->creator==COMPONENT_RADIO || msg->creator==COMPONENT_FORWARDING) {
+ 510              		.loc 1 234 0
+ 511 030a 7B68     		ldr	r3, [r7, #4]
+ 512 030c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 513 030e 072B     		cmp	r3, #7
+ 514 0310 03D0     		beq	.L14
+ 515              		.loc 1 234 0 is_stmt 0 discriminator 1
+ 516 0312 7B68     		ldr	r3, [r7, #4]
+ 517 0314 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 518 0316 122B     		cmp	r3, #18
+ 519 0318 03D1     		bne	.L15
+ 520              	.L14:
+ 235:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       // this is a relayed packet
+ 236:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 237:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       // free packet
+ 238:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       openqueue_freePacketBuffer(msg);
+ 521              		.loc 1 238 0 is_stmt 1
+ 522 031a 7868     		ldr	r0, [r7, #4]
+ 523 031c FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 524 0320 1DE0     		b	.L16
+ 525              	.L15:
+ 239:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    } else {
+ 240:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       // this is a packet created by this mote
+ 241:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 242:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       // indicate sendDone to upper layer
+ 243:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       switch(msg->l4_protocol) {
+ 526              		.loc 1 243 0
+ 527 0322 7B68     		ldr	r3, [r7, #4]
+ 528 0324 DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 529 0326 112B     		cmp	r3, #17
+ 530 0328 02D0     		beq	.L18
+ 531 032a 3A2B     		cmp	r3, #58
+ 532 032c 06D0     		beq	.L19
+ 533 032e 0BE0     		b	.L20
+ 534              	.L18:
+ 244:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****          case IANA_UDP:
+ 245:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             openudp_sendDone(msg,error);
+ 535              		.loc 1 245 0
+ 536 0330 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 537 0332 1946     		mov	r1, r3
+ 538 0334 7868     		ldr	r0, [r7, #4]
+ 539 0336 FFF7FEFF 		bl	openudp_sendDone
+ 246:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             break;
+ 540              		.loc 1 246 0
+ 541 033a 10E0     		b	.L16
+ 542              	.L19:
+ 247:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****          case IANA_ICMPv6:
+ 248:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             icmpv6_sendDone(msg,error);
+ 543              		.loc 1 248 0
+ 544 033c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 545 033e 1946     		mov	r1, r3
+ 546 0340 7868     		ldr	r0, [r7, #4]
+ 547 0342 FFF7FEFF 		bl	icmpv6_sendDone
+ 249:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             break;
+ 548              		.loc 1 249 0
+ 549 0346 0AE0     		b	.L16
+ 550              	.L20:
+ 250:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****          default:
+ 251:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 252:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // log error
+ 253:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             openserial_printCritical(
+ 254:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                COMPONENT_FORWARDING,
+ 255:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                ERR_WRONG_TRAN_PROTOCOL,
+ 256:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                (errorparameter_t)msg->l4_protocol,
+ 551              		.loc 1 256 0
+ 552 0348 7B68     		ldr	r3, [r7, #4]
+ 553 034a DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 253:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                COMPONENT_FORWARDING,
+ 554              		.loc 1 253 0
+ 555 034c 9AB2     		uxth	r2, r3
+ 556 034e 0023     		movs	r3, #0
+ 557 0350 0621     		movs	r1, #6
+ 558 0352 1220     		movs	r0, #18
+ 559 0354 FFF7FEFF 		bl	openserial_printCritical
+ 257:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                (errorparameter_t)0
+ 258:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             );
+ 259:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 260:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // free packet
+ 261:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             openqueue_freePacketBuffer(msg);
+ 560              		.loc 1 261 0
+ 561 0358 7868     		ldr	r0, [r7, #4]
+ 562 035a FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 563              	.L16:
+ 262:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       }
+ 263:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    }
+ 264:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** }
+ 564              		.loc 1 264 0
+ 565 035e 00BF     		nop
+ 566 0360 0837     		adds	r7, r7, #8
+ 567              		.cfi_def_cfa_offset 8
+ 568 0362 BD46     		mov	sp, r7
+ 569              		.cfi_def_cfa_register 13
+ 570              		@ sp needed
+ 571 0364 80BD     		pop	{r7, pc}
+ 572              		.cfi_endproc
+ 573              	.LFE5:
+ 575              		.align	1
+ 576              		.global	forwarding_receive
+ 577              		.syntax unified
+ 578              		.thumb
+ 579              		.thumb_func
+ 580              		.fpu softvfp
+ 582              	forwarding_receive:
+ 583              	.LFB6:
+ 265:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 266:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** /**
+ 267:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \brief Indicates a packet was received.
+ 268:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 269:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in,out] msg               The packet just sent.
+ 270:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     ipv6_outer_header The information contained in the IPv6 header.
+ 271:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     ipv6_inner_header The hop-by-hop header present in the packet.
+ 272:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     rpl_option        The hop-by-hop options present in the packet.
+ 273:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** */
+ 274:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** void forwarding_receive(
+ 275:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       OpenQueueEntry_t*      msg,
+ 276:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       ipv6_header_iht*       ipv6_outer_header,
+ 277:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       ipv6_header_iht*       ipv6_inner_header,
+ 278:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 279:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       deadline_option_ht*	 	 deadline_option,
+ 280:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 281:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       rpl_option_ht*         rpl_option
+ 282:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ) {
+ 584              		.loc 1 282 0
+ 585              		.cfi_startproc
+ 586              		@ args = 4, pretend = 0, frame = 24
+ 587              		@ frame_needed = 1, uses_anonymous_args = 0
+ 588 0366 80B5     		push	{r7, lr}
+ 589              		.cfi_def_cfa_offset 8
+ 590              		.cfi_offset 7, -8
+ 591              		.cfi_offset 14, -4
+ 592 0368 8AB0     		sub	sp, sp, #40
+ 593              		.cfi_def_cfa_offset 48
+ 594 036a 04AF     		add	r7, sp, #16
+ 595              		.cfi_def_cfa 7, 32
+ 596 036c F860     		str	r0, [r7, #12]
+ 597 036e B960     		str	r1, [r7, #8]
+ 598 0370 7A60     		str	r2, [r7, #4]
+ 599 0372 3B60     		str	r3, [r7]
+ 283:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t flags;
+ 284:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint16_t senderRank;
+ 285:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 286:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // take ownership
+ 287:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     msg->owner                     = COMPONENT_FORWARDING;
+ 600              		.loc 1 287 0
+ 601 0374 FB68     		ldr	r3, [r7, #12]
+ 602 0376 1222     		movs	r2, #18
+ 603 0378 5A70     		strb	r2, [r3, #1]
+ 288:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 289:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 290:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // determine L4 protocol
+ 291:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // get information from ipv6_header
+ 292:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     msg->l4_protocol            = ipv6_inner_header->next_header;
+ 604              		.loc 1 292 0
+ 605 037a 7B68     		ldr	r3, [r7, #4]
+ 606 037c 5A7A     		ldrb	r2, [r3, #9]	@ zero_extendqisi2
+ 607 037e FB68     		ldr	r3, [r7, #12]
+ 608 0380 DA73     		strb	r2, [r3, #15]
+ 293:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     msg->l4_protocol_compressed = ipv6_inner_header->next_header_compressed;
+ 609              		.loc 1 293 0
+ 610 0382 7B68     		ldr	r3, [r7, #4]
+ 611 0384 1A7A     		ldrb	r2, [r3, #8]	@ zero_extendqisi2
+ 612 0386 FB68     		ldr	r3, [r7, #12]
+ 613 0388 1A74     		strb	r2, [r3, #16]
+ 294:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 295:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // populate packets metadata with L3 information
+ 296:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     memcpy(&(msg->l3_destinationAdd),&ipv6_inner_header->dest, sizeof(open_addr_t));
+ 614              		.loc 1 296 0
+ 615 038a FB68     		ldr	r3, [r7, #12]
+ 616 038c 03F11D00 		add	r0, r3, #29
+ 617 0390 7B68     		ldr	r3, [r7, #4]
+ 618 0392 3333     		adds	r3, r3, #51
+ 619 0394 1122     		movs	r2, #17
+ 620 0396 1946     		mov	r1, r3
+ 621 0398 FFF7FEFF 		bl	memcpy
+ 297:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     memcpy(&(msg->l3_sourceAdd),     &ipv6_inner_header->src,  sizeof(open_addr_t));
+ 622              		.loc 1 297 0
+ 623 039c FB68     		ldr	r3, [r7, #12]
+ 624 039e 03F12E00 		add	r0, r3, #46
+ 625 03a2 7B68     		ldr	r3, [r7, #4]
+ 626 03a4 2233     		adds	r3, r3, #34
+ 627 03a6 1122     		movs	r2, #17
+ 628 03a8 1946     		mov	r1, r3
+ 629 03aa FFF7FEFF 		bl	memcpy
+ 298:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 299:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (
+ 300:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         (
+ 301:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             idmanager_isMyAddress(&(msg->l3_destinationAdd))
+ 630              		.loc 1 301 0
+ 631 03ae FB68     		ldr	r3, [r7, #12]
+ 632 03b0 1D33     		adds	r3, r3, #29
+ 633 03b2 1846     		mov	r0, r3
+ 634 03b4 FFF7FEFF 		bl	idmanager_isMyAddress
+ 635 03b8 0346     		mov	r3, r0
+ 299:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         (
+ 636              		.loc 1 299 0
+ 637 03ba 002B     		cmp	r3, #0
+ 638 03bc 07D1     		bne	.L22
+ 302:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             ||
+ 303:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             packetfunctions_isBroadcastMulticast(&(msg->l3_destinationAdd))
+ 639              		.loc 1 303 0
+ 640 03be FB68     		ldr	r3, [r7, #12]
+ 641 03c0 1D33     		adds	r3, r3, #29
+ 642 03c2 1846     		mov	r0, r3
+ 643 03c4 FFF7FEFF 		bl	packetfunctions_isBroadcastMulticast
+ 644 03c8 0346     		mov	r3, r0
+ 302:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             ||
+ 645              		.loc 1 302 0
+ 646 03ca 002B     		cmp	r3, #0
+ 647 03cc 3CD0     		beq	.L23
+ 648              	.L22:
+ 304:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         )
+ 305:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         &&
+ 306:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         ipv6_outer_header->next_header!=IANA_IPv6ROUTE
+ 649              		.loc 1 306 0
+ 650 03ce BB68     		ldr	r3, [r7, #8]
+ 651 03d0 5B7A     		ldrb	r3, [r3, #9]	@ zero_extendqisi2
+ 305:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         ipv6_outer_header->next_header!=IANA_IPv6ROUTE
+ 652              		.loc 1 305 0
+ 653 03d2 2B2B     		cmp	r3, #43
+ 654 03d4 38D0     		beq	.L23
+ 307:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ) {
+ 308:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if (ipv6_outer_header->src.type != ADDR_NONE || ipv6_outer_header->rhe_length){
+ 655              		.loc 1 308 0
+ 656 03d6 BB68     		ldr	r3, [r7, #8]
+ 657 03d8 93F82230 		ldrb	r3, [r3, #34]	@ zero_extendqisi2
+ 658 03dc 002B     		cmp	r3, #0
+ 659 03de 04D1     		bne	.L24
+ 660              		.loc 1 308 0 is_stmt 0 discriminator 1
+ 661 03e0 BB68     		ldr	r3, [r7, #8]
+ 662 03e2 93F82130 		ldrb	r3, [r3, #33]	@ zero_extendqisi2
+ 663 03e6 002B     		cmp	r3, #0
+ 664 03e8 0BD0     		beq	.L25
+ 665              	.L24:
+ 309:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             packetfunctions_tossHeader(msg,ipv6_outer_header->header_length + ipv6_outer_header->rh
+ 666              		.loc 1 309 0 is_stmt 1
+ 667 03ea BB68     		ldr	r3, [r7, #8]
+ 668 03ec 93F84420 		ldrb	r2, [r3, #68]	@ zero_extendqisi2
+ 669 03f0 BB68     		ldr	r3, [r7, #8]
+ 670 03f2 93F82130 		ldrb	r3, [r3, #33]	@ zero_extendqisi2
+ 671 03f6 1344     		add	r3, r3, r2
+ 672 03f8 DBB2     		uxtb	r3, r3
+ 673 03fa 1946     		mov	r1, r3
+ 674 03fc F868     		ldr	r0, [r7, #12]
+ 675 03fe FFF7FEFF 		bl	packetfunctions_tossHeader
+ 676              	.L25:
+ 310:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         }
+ 311:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         // this packet is for me, no source routing header // toss iphc inner header
+ 312:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         packetfunctions_tossHeader(msg,ipv6_inner_header->header_length);
+ 677              		.loc 1 312 0
+ 678 0402 7B68     		ldr	r3, [r7, #4]
+ 679 0404 93F84430 		ldrb	r3, [r3, #68]	@ zero_extendqisi2
+ 680 0408 1946     		mov	r1, r3
+ 681 040a F868     		ldr	r0, [r7, #12]
+ 682 040c FFF7FEFF 		bl	packetfunctions_tossHeader
+ 313:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         // indicate received packet to upper layer
+ 314:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         switch(msg->l4_protocol) {
+ 683              		.loc 1 314 0
+ 684 0410 FB68     		ldr	r3, [r7, #12]
+ 685 0412 DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 686 0414 112B     		cmp	r3, #17
+ 687 0416 02D0     		beq	.L27
+ 688 0418 3A2B     		cmp	r3, #58
+ 689 041a 04D0     		beq	.L28
+ 690 041c 07E0     		b	.L38
+ 691              	.L27:
+ 315:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         case IANA_UDP:
+ 316:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             openudp_receive(msg);
+ 692              		.loc 1 316 0
+ 693 041e F868     		ldr	r0, [r7, #12]
+ 694 0420 FFF7FEFF 		bl	openudp_receive
+ 317:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             break;
+ 695              		.loc 1 317 0
+ 696 0424 0FE0     		b	.L29
+ 697              	.L28:
+ 318:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         case IANA_ICMPv6:
+ 319:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             icmpv6_receive(msg);
+ 698              		.loc 1 319 0
+ 699 0426 F868     		ldr	r0, [r7, #12]
+ 700 0428 FFF7FEFF 		bl	icmpv6_receive
+ 320:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             break;
+ 701              		.loc 1 320 0
+ 702 042c 0BE0     		b	.L29
+ 703              	.L38:
+ 321:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         default:
+ 322:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // log error
+ 323:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             openserial_printError(
+ 324:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 COMPONENT_FORWARDING,ERR_WRONG_TRAN_PROTOCOL,
+ 325:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 (errorparameter_t)msg->l4_protocol,
+ 704              		.loc 1 325 0
+ 705 042e FB68     		ldr	r3, [r7, #12]
+ 706 0430 DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 323:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 COMPONENT_FORWARDING,ERR_WRONG_TRAN_PROTOCOL,
+ 707              		.loc 1 323 0
+ 708 0432 9AB2     		uxth	r2, r3
+ 709 0434 0123     		movs	r3, #1
+ 710 0436 0621     		movs	r1, #6
+ 711 0438 1220     		movs	r0, #18
+ 712 043a FFF7FEFF 		bl	openserial_printError
+ 326:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 (errorparameter_t)1
+ 327:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             );
+ 328:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 329:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // free packet
+ 330:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             openqueue_freePacketBuffer(msg);
+ 713              		.loc 1 330 0
+ 714 043e F868     		ldr	r0, [r7, #12]
+ 715 0440 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 331:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         }
+ 332:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     } else {
+ 716              		.loc 1 332 0
+ 717 0444 9AE0     		b	.L21
+ 718              	.L29:
+ 719 0446 99E0     		b	.L21
+ 720              	.L23:
+ 333:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         // this packet is not for me: relay
+ 334:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 335:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         // change the creator of the packet
+ 336:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         msg->creator = COMPONENT_FORWARDING;
+ 721              		.loc 1 336 0
+ 722 0448 FB68     		ldr	r3, [r7, #12]
+ 723 044a 1222     		movs	r2, #18
+ 724 044c 1A70     		strb	r2, [r3]
+ 337:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 338:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 339:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if (deadline_option != NULL) {
+ 725              		.loc 1 339 0
+ 726 044e 3B68     		ldr	r3, [r7]
+ 727 0450 002B     		cmp	r3, #0
+ 728 0452 1BD0     		beq	.L31
+ 340:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // Deadline Option : Drop
+ 341:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             if( (deadline_option->time_left <= 0) && (deadline_option->d_flag == 1) ) { // packet e
+ 729              		.loc 1 341 0
+ 730 0454 3B68     		ldr	r3, [r7]
+ 731 0456 B3F91330 		ldrsh	r3, [r3, #19]	@ unaligned
+ 732 045a 1BB2     		sxth	r3, r3
+ 733 045c 002B     		cmp	r3, #0
+ 734 045e 15DC     		bgt	.L31
+ 735              		.loc 1 341 0 is_stmt 0 discriminator 1
+ 736 0460 3B68     		ldr	r3, [r7]
+ 737 0462 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 738 0464 03F00203 		and	r3, r3, #2
+ 739 0468 DBB2     		uxtb	r3, r3
+ 740 046a 002B     		cmp	r3, #0
+ 741 046c 0ED0     		beq	.L31
+ 342:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                deadline_option->time_left = 0;
+ 742              		.loc 1 342 0 is_stmt 1
+ 743 046e 3B68     		ldr	r3, [r7]
+ 744 0470 0022     		movs	r2, #0
+ 745 0472 DA74     		strb	r2, [r3, #19]
+ 746 0474 0022     		movs	r2, #0
+ 747 0476 1A75     		strb	r2, [r3, #20]
+ 343:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                openserial_printError(
+ 748              		.loc 1 343 0
+ 749 0478 0023     		movs	r3, #0
+ 750 047a 0022     		movs	r2, #0
+ 751 047c 4421     		movs	r1, #68
+ 752 047e 1220     		movs	r0, #18
+ 753 0480 FFF7FEFF 		bl	openserial_printError
+ 344:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                          COMPONENT_FORWARDING,
+ 345:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                          ERR_6LORH_DEADLINE_DROPPED,
+ 346:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                          (errorparameter_t)0,
+ 347:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                          (errorparameter_t)0
+ 348:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                );
+ 349:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                openqueue_freePacketBuffer(msg);
+ 754              		.loc 1 349 0
+ 755 0484 F868     		ldr	r0, [r7, #12]
+ 756 0486 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 350:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                return;
+ 757              		.loc 1 350 0
+ 758 048a 77E0     		b	.L21
+ 759              	.L31:
+ 351:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****            }
+ 352:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****        }
+ 353:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 354:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 355:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if(openqueue_isHighPriorityEntryEnough()==FALSE){
+ 760              		.loc 1 355 0
+ 761 048c FFF7FEFF 		bl	openqueue_isHighPriorityEntryEnough
+ 762 0490 0346     		mov	r3, r0
+ 763 0492 83F00103 		eor	r3, r3, #1
+ 764 0496 DBB2     		uxtb	r3, r3
+ 765 0498 002B     		cmp	r3, #0
+ 766 049a 0FD0     		beq	.L32
+ 356:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // after change the creator to COMPONENT_FORWARDING,
+ 357:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // there is no space for high priority packet, drop this message
+ 358:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // by free the buffer.
+ 359:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             openserial_printError(
+ 360:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                      COMPONENT_FORWARDING,
+ 361:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                      ERR_FORWARDING_PACKET_DROPPED,
+ 362:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                      (errorparameter_t)msg->l2_nextORpreviousHop.addr_64b[6],
+ 767              		.loc 1 362 0
+ 768 049c FB68     		ldr	r3, [r7, #12]
+ 769 049e 93F84830 		ldrb	r3, [r3, #72]	@ zero_extendqisi2
+ 359:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                      COMPONENT_FORWARDING,
+ 770              		.loc 1 359 0
+ 771 04a2 9AB2     		uxth	r2, r3
+ 363:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                      (errorparameter_t)msg->l2_nextORpreviousHop.addr_64b[7]
+ 772              		.loc 1 363 0
+ 773 04a4 FB68     		ldr	r3, [r7, #12]
+ 774 04a6 93F84930 		ldrb	r3, [r3, #73]	@ zero_extendqisi2
+ 359:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                      COMPONENT_FORWARDING,
+ 775              		.loc 1 359 0
+ 776 04aa 9BB2     		uxth	r3, r3
+ 777 04ac 1421     		movs	r1, #20
+ 778 04ae 1220     		movs	r0, #18
+ 779 04b0 FFF7FEFF 		bl	openserial_printError
+ 364:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             );
+ 365:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             openqueue_freePacketBuffer(msg);
+ 780              		.loc 1 365 0
+ 781 04b4 F868     		ldr	r0, [r7, #12]
+ 782 04b6 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 366:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             return;
+ 783              		.loc 1 366 0
+ 784 04ba 5FE0     		b	.L21
+ 785              	.L32:
+ 367:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         }
+ 368:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 369:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if (ipv6_outer_header->next_header!=IANA_IPv6ROUTE) {
+ 786              		.loc 1 369 0
+ 787 04bc BB68     		ldr	r3, [r7, #8]
+ 788 04be 5B7A     		ldrb	r3, [r3, #9]	@ zero_extendqisi2
+ 789 04c0 2B2B     		cmp	r3, #43
+ 790 04c2 4AD0     		beq	.L33
+ 370:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             flags = rpl_option->flags;
+ 791              		.loc 1 370 0
+ 792 04c4 3B6A     		ldr	r3, [r7, #32]
+ 793 04c6 5B78     		ldrb	r3, [r3, #1]
+ 794 04c8 FB75     		strb	r3, [r7, #23]
+ 371:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             senderRank = rpl_option->senderRank;
+ 795              		.loc 1 371 0
+ 796 04ca 3B6A     		ldr	r3, [r7, #32]
+ 797 04cc DA78     		ldrb	r2, [r3, #3]	@ zero_extendqisi2
+ 798 04ce 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 799 04d0 1B02     		lsls	r3, r3, #8
+ 800 04d2 1343     		orrs	r3, r3, r2
+ 801 04d4 BB82     		strh	r3, [r7, #20]	@ movhi
+ 372:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             if ((flags & O_FLAG)!=0){
+ 802              		.loc 1 372 0
+ 803 04d6 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 804 04d8 03F01003 		and	r3, r3, #16
+ 805 04dc 002B     		cmp	r3, #0
+ 806 04de 06D0     		beq	.L34
+ 373:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 // wrong direction
+ 374:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 // log error
+ 375:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 openserial_printError(
+ 807              		.loc 1 375 0
+ 808 04e0 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 809 04e2 9AB2     		uxth	r2, r3
+ 810 04e4 BB8A     		ldrh	r3, [r7, #20]
+ 811 04e6 1321     		movs	r1, #19
+ 812 04e8 1220     		movs	r0, #18
+ 813 04ea FFF7FEFF 		bl	openserial_printError
+ 814              	.L34:
+ 376:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     COMPONENT_FORWARDING,
+ 377:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     ERR_WRONG_DIRECTION,
+ 378:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     (errorparameter_t)flags,
+ 379:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     (errorparameter_t)senderRank
+ 380:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 );
+ 381:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             }
+ 382:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             if (senderRank < icmpv6rpl_getMyDAGrank()){
+ 815              		.loc 1 382 0
+ 816 04ee FFF7FEFF 		bl	icmpv6rpl_getMyDAGrank
+ 817 04f2 0346     		mov	r3, r0
+ 818 04f4 1A46     		mov	r2, r3
+ 819 04f6 BB8A     		ldrh	r3, [r7, #20]
+ 820 04f8 9342     		cmp	r3, r2
+ 821 04fa 0ED2     		bcs	.L35
+ 383:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 // loop detected
+ 384:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 // set flag
+ 385:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 rpl_option->flags |= R_FLAG;
+ 822              		.loc 1 385 0
+ 823 04fc 3B6A     		ldr	r3, [r7, #32]
+ 824 04fe 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 825 0500 43F00803 		orr	r3, r3, #8
+ 826 0504 DAB2     		uxtb	r2, r3
+ 827 0506 3B6A     		ldr	r3, [r7, #32]
+ 828 0508 5A70     		strb	r2, [r3, #1]
+ 386:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 // log error
+ 387:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 openserial_printError(
+ 388:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     COMPONENT_FORWARDING,
+ 389:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     ERR_LOOP_DETECTED,
+ 390:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     (errorparameter_t) senderRank,
+ 391:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     (errorparameter_t) icmpv6rpl_getMyDAGrank()
+ 829              		.loc 1 391 0
+ 830 050a FFF7FEFF 		bl	icmpv6rpl_getMyDAGrank
+ 831 050e 0346     		mov	r3, r0
+ 387:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     COMPONENT_FORWARDING,
+ 832              		.loc 1 387 0
+ 833 0510 BA8A     		ldrh	r2, [r7, #20]
+ 834 0512 1221     		movs	r1, #18
+ 835 0514 1220     		movs	r0, #18
+ 836 0516 FFF7FEFF 		bl	openserial_printError
+ 837              	.L35:
+ 392:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 );
+ 393:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             }
+ 394:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             forwarding_createRplOption(rpl_option, rpl_option->flags);
+ 838              		.loc 1 394 0
+ 839 051a 3B6A     		ldr	r3, [r7, #32]
+ 840 051c 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 841 051e 1946     		mov	r1, r3
+ 842 0520 386A     		ldr	r0, [r7, #32]
+ 843 0522 FFF7FEFF 		bl	forwarding_createRplOption
+ 395:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 396:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 397:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             if (deadline_option != NULL)
+ 844              		.loc 1 397 0
+ 845 0526 3B68     		ldr	r3, [r7]
+ 846 0528 002B     		cmp	r3, #0
+ 847 052a 02D0     		beq	.L36
+ 398:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 forwarding_createDeadlineOption(deadline_option);
+ 848              		.loc 1 398 0
+ 849 052c 3868     		ldr	r0, [r7]
+ 850 052e FFF7FEFF 		bl	forwarding_createDeadlineOption
+ 851              	.L36:
+ 399:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 400:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 401:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // resend as if from upper layer
+ 402:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             if (
+ 403:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 forwarding_send_internal_RoutingTable(
+ 852              		.loc 1 403 0
+ 853 0532 BB68     		ldr	r3, [r7, #8]
+ 854 0534 0433     		adds	r3, r3, #4
+ 855 0536 0122     		movs	r2, #1
+ 856 0538 0292     		str	r2, [sp, #8]
+ 857 053a 0193     		str	r3, [sp, #4]
+ 858 053c 3B68     		ldr	r3, [r7]
+ 859 053e 0093     		str	r3, [sp]
+ 860 0540 3B6A     		ldr	r3, [r7, #32]
+ 861 0542 7A68     		ldr	r2, [r7, #4]
+ 862 0544 B968     		ldr	r1, [r7, #8]
+ 863 0546 F868     		ldr	r0, [r7, #12]
+ 864 0548 FFF7FEFF 		bl	forwarding_send_internal_RoutingTable
+ 865 054c 0346     		mov	r3, r0
+ 402:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 forwarding_send_internal_RoutingTable(
+ 866              		.loc 1 402 0
+ 867 054e 012B     		cmp	r3, #1
+ 868 0550 14D1     		bne	.L21
+ 404:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     msg,
+ 405:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     ipv6_outer_header,
+ 406:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     ipv6_inner_header,
+ 407:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     rpl_option,
+ 408:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 409:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     deadline_option,
+ 410:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 411:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     &(ipv6_outer_header->flow_label),
+ 412:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     PCKTFORWARD
+ 413:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 )==E_FAIL
+ 414:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             ) {
+ 415:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 openqueue_freePacketBuffer(msg);
+ 869              		.loc 1 415 0
+ 870 0552 F868     		ldr	r0, [r7, #12]
+ 871 0554 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 872 0558 10E0     		b	.L21
+ 873              	.L33:
+ 416:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             }
+ 417:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         } else {
+ 418:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // source routing header present
+ 419:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             if (
+ 420:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 forwarding_send_internal_SourceRouting(
+ 874              		.loc 1 420 0
+ 875 055a 3B6A     		ldr	r3, [r7, #32]
+ 876 055c 0093     		str	r3, [sp]
+ 877 055e 3B68     		ldr	r3, [r7]
+ 878 0560 7A68     		ldr	r2, [r7, #4]
+ 879 0562 B968     		ldr	r1, [r7, #8]
+ 880 0564 F868     		ldr	r0, [r7, #12]
+ 881 0566 FFF7FEFF 		bl	forwarding_send_internal_SourceRouting
+ 882 056a 0346     		mov	r3, r0
+ 419:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 forwarding_send_internal_SourceRouting(
+ 883              		.loc 1 419 0
+ 884 056c 012B     		cmp	r3, #1
+ 885 056e 05D1     		bne	.L21
+ 421:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     msg,
+ 422:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     ipv6_outer_header,
+ 423:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     ipv6_inner_header,
+ 424:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 425:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     deadline_option,
+ 426:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 427:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     rpl_option
+ 428:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 )==E_FAIL
+ 429:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             ) {
+ 430:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 // log error
+ 431:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 openserial_printError(
+ 886              		.loc 1 431 0
+ 887 0570 0023     		movs	r3, #0
+ 888 0572 0022     		movs	r2, #0
+ 889 0574 0F21     		movs	r1, #15
+ 890 0576 1220     		movs	r0, #18
+ 891 0578 FFF7FEFF 		bl	openserial_printError
+ 892              	.L21:
+ 432:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     COMPONENT_FORWARDING,
+ 433:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     ERR_INVALID_FWDMODE,
+ 434:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     (errorparameter_t)0,
+ 435:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     (errorparameter_t)0
+ 436:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 );
+ 437:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             }
+ 438:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         }
+ 439:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 440:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** }
+ 893              		.loc 1 440 0
+ 894 057c 1837     		adds	r7, r7, #24
+ 895              		.cfi_def_cfa_offset 8
+ 896 057e BD46     		mov	sp, r7
+ 897              		.cfi_def_cfa_register 13
+ 898              		@ sp needed
+ 899 0580 80BD     		pop	{r7, pc}
+ 900              		.cfi_endproc
+ 901              	.LFE6:
+ 903              		.align	1
+ 904              		.global	forwarding_getNextHop
+ 905              		.syntax unified
+ 906              		.thumb
+ 907              		.thumb_func
+ 908              		.fpu softvfp
+ 910              	forwarding_getNextHop:
+ 911              	.LFB7:
+ 441:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 442:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** //=========================== private =========================================
+ 443:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 444:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** /**
+ 445:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \brief Retrieve the next hop's address from routing table.
+ 446:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 447:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]  destination128b  Final IPv6 destination address.
+ 448:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[out] addressToWrite64b Location to write the EUI64 of next hop to.
+ 449:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** */
+ 450:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** void forwarding_getNextHop(open_addr_t* destination128b, open_addr_t* addressToWrite64b) {
+ 912              		.loc 1 450 0
+ 913              		.cfi_startproc
+ 914              		@ args = 0, pretend = 0, frame = 16
+ 915              		@ frame_needed = 1, uses_anonymous_args = 0
+ 916 0582 80B5     		push	{r7, lr}
+ 917              		.cfi_def_cfa_offset 8
+ 918              		.cfi_offset 7, -8
+ 919              		.cfi_offset 14, -4
+ 920 0584 84B0     		sub	sp, sp, #16
+ 921              		.cfi_def_cfa_offset 24
+ 922 0586 00AF     		add	r7, sp, #0
+ 923              		.cfi_def_cfa_register 7
+ 924 0588 7860     		str	r0, [r7, #4]
+ 925 058a 3960     		str	r1, [r7]
+ 451:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    uint8_t         i;
+ 452:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 453:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    if (packetfunctions_isBroadcastMulticast(destination128b)) {
+ 926              		.loc 1 453 0
+ 927 058c 7868     		ldr	r0, [r7, #4]
+ 928 058e FFF7FEFF 		bl	packetfunctions_isBroadcastMulticast
+ 929 0592 0346     		mov	r3, r0
+ 930 0594 002B     		cmp	r3, #0
+ 931 0596 11D0     		beq	.L40
+ 454:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       // IP destination is broadcast, send to 0xffffffffffffffff
+ 455:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       addressToWrite64b->type = ADDR_64B;
+ 932              		.loc 1 455 0
+ 933 0598 3B68     		ldr	r3, [r7]
+ 934 059a 0222     		movs	r2, #2
+ 935 059c 1A70     		strb	r2, [r3]
+ 456:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       for (i=0;i<8;i++) {
+ 936              		.loc 1 456 0
+ 937 059e 0023     		movs	r3, #0
+ 938 05a0 FB73     		strb	r3, [r7, #15]
+ 939 05a2 07E0     		b	.L41
+ 940              	.L42:
+ 457:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****          addressToWrite64b->addr_64b[i] = 0xff;
+ 941              		.loc 1 457 0 discriminator 3
+ 942 05a4 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 943 05a6 3A68     		ldr	r2, [r7]
+ 944 05a8 1344     		add	r3, r3, r2
+ 945 05aa FF22     		movs	r2, #255
+ 946 05ac 5A70     		strb	r2, [r3, #1]
+ 456:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       for (i=0;i<8;i++) {
+ 947              		.loc 1 456 0 discriminator 3
+ 948 05ae FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 949 05b0 0133     		adds	r3, r3, #1
+ 950 05b2 FB73     		strb	r3, [r7, #15]
+ 951              	.L41:
+ 456:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       for (i=0;i<8;i++) {
+ 952              		.loc 1 456 0 is_stmt 0 discriminator 1
+ 953 05b4 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 954 05b6 072B     		cmp	r3, #7
+ 955 05b8 F4D9     		bls	.L42
+ 458:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       }
+ 459:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    } else {
+ 460:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       // destination is remote, send to preferred parent
+ 461:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****       icmpv6rpl_getPreferredParentEui64(addressToWrite64b);
+ 462:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    }
+ 463:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** }
+ 956              		.loc 1 463 0 is_stmt 1
+ 957 05ba 02E0     		b	.L44
+ 958              	.L40:
+ 461:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    }
+ 959              		.loc 1 461 0
+ 960 05bc 3868     		ldr	r0, [r7]
+ 961 05be FFF7FEFF 		bl	icmpv6rpl_getPreferredParentEui64
+ 962              	.L44:
+ 963              		.loc 1 463 0
+ 964 05c2 00BF     		nop
+ 965 05c4 1037     		adds	r7, r7, #16
+ 966              		.cfi_def_cfa_offset 8
+ 967 05c6 BD46     		mov	sp, r7
+ 968              		.cfi_def_cfa_register 13
+ 969              		@ sp needed
+ 970 05c8 80BD     		pop	{r7, pc}
+ 971              		.cfi_endproc
+ 972              	.LFE7:
+ 974              		.align	1
+ 975              		.global	forwarding_send_internal_RoutingTable
+ 976              		.syntax unified
+ 977              		.thumb
+ 978              		.thumb_func
+ 979              		.fpu softvfp
+ 981              	forwarding_send_internal_RoutingTable:
+ 982              	.LFB8:
+ 464:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 465:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** /**
+ 466:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \brief Send a packet using the routing table to find the next hop.
+ 467:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 468:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in,out] msg             The packet to send.
+ 469:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     ipv6_outer_header The packet's IPv6 outer header.
+ 470:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     ipv6_inner_header The packet's IPv6 inner header.
+ 471:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     rpl_option      The hop-by-hop option to add in this packet.
+ 472:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     flow_label      The flowlabel to add in the 6LoWPAN header.
+ 473:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     fw_SendOrfw_Rcv The packet is originating from this mote
+ 474:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****    (PCKTSEND), or forwarded (PCKTFORWARD).
+ 475:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** */
+ 476:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** owerror_t forwarding_send_internal_RoutingTable(
+ 477:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     OpenQueueEntry_t*      msg,
+ 478:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ipv6_header_iht*       ipv6_outer_header,
+ 479:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ipv6_header_iht*       ipv6_inner_header,
+ 480:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     rpl_option_ht*         rpl_option,
+ 481:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 482:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     deadline_option_ht*    deadline_option,
+ 483:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 484:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint32_t*              flow_label,
+ 485:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t                fw_SendOrfw_Rcv
+ 486:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** ) {
+ 983              		.loc 1 486 0
+ 984              		.cfi_startproc
+ 985              		@ args = 12, pretend = 0, frame = 40
+ 986              		@ frame_needed = 1, uses_anonymous_args = 0
+ 987 05ca 80B5     		push	{r7, lr}
+ 988              		.cfi_def_cfa_offset 8
+ 989              		.cfi_offset 7, -8
+ 990              		.cfi_offset 14, -4
+ 991 05cc 90B0     		sub	sp, sp, #64
+ 992              		.cfi_def_cfa_offset 72
+ 993 05ce 06AF     		add	r7, sp, #24
+ 994              		.cfi_def_cfa 7, 48
+ 995 05d0 F860     		str	r0, [r7, #12]
+ 996 05d2 B960     		str	r1, [r7, #8]
+ 997 05d4 7A60     		str	r2, [r7, #4]
+ 998 05d6 3B60     		str	r3, [r7]
+ 487:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 488:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t     temp_prefix64btoWrite;
+ 489:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 490:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // retrieve the next hop from the routing table
+ 491:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (
+ 492:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         msg->is_cjoin_response ||
+ 999              		.loc 1 492 0
+ 1000 05d8 FB68     		ldr	r3, [r7, #12]
+ 1001 05da 9B7B     		ldrb	r3, [r3, #14]	@ zero_extendqisi2
+ 491:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         msg->is_cjoin_response ||
+ 1002              		.loc 1 491 0
+ 1003 05dc 002B     		cmp	r3, #0
+ 1004 05de 03D1     		bne	.L46
+ 493:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         msg->creator==COMPONENT_CJOIN
+ 1005              		.loc 1 493 0
+ 1006 05e0 FB68     		ldr	r3, [r7, #12]
+ 1007 05e2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 492:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         msg->creator==COMPONENT_CJOIN
+ 1008              		.loc 1 492 0
+ 1009 05e4 272B     		cmp	r3, #39
+ 1010 05e6 17D1     		bne	.L47
+ 1011              	.L46:
+ 494:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ){
+ 495:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if (neighbors_isStableNeighbor(&(msg->l3_destinationAdd)) || msg->is_cjoin_response) {
+ 1012              		.loc 1 495 0
+ 1013 05e8 FB68     		ldr	r3, [r7, #12]
+ 1014 05ea 1D33     		adds	r3, r3, #29
+ 1015 05ec 1846     		mov	r0, r3
+ 1016 05ee FFF7FEFF 		bl	neighbors_isStableNeighbor
+ 1017 05f2 0346     		mov	r3, r0
+ 1018 05f4 002B     		cmp	r3, #0
+ 1019 05f6 03D1     		bne	.L48
+ 1020              		.loc 1 495 0 is_stmt 0 discriminator 1
+ 1021 05f8 FB68     		ldr	r3, [r7, #12]
+ 1022 05fa 9B7B     		ldrb	r3, [r3, #14]	@ zero_extendqisi2
+ 1023 05fc 002B     		cmp	r3, #0
+ 1024 05fe 15D0     		beq	.L55
+ 1025              	.L48:
+ 496:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // IP destination is 1-hop neighbor, send directly
+ 497:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             packetfunctions_ip128bToMac64b(&(msg->l3_destinationAdd),&temp_prefix64btoWrite,&(msg->
+ 1026              		.loc 1 497 0 is_stmt 1
+ 1027 0600 FB68     		ldr	r3, [r7, #12]
+ 1028 0602 03F11D00 		add	r0, r3, #29
+ 1029 0606 FB68     		ldr	r3, [r7, #12]
+ 1030 0608 03F14102 		add	r2, r3, #65
+ 1031 060c 07F11403 		add	r3, r7, #20
+ 1032 0610 1946     		mov	r1, r3
+ 1033 0612 FFF7FEFF 		bl	packetfunctions_ip128bToMac64b
+ 495:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // IP destination is 1-hop neighbor, send directly
+ 1034              		.loc 1 495 0
+ 1035 0616 09E0     		b	.L55
+ 1036              	.L47:
+ 498:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         }
+ 499:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     } else {
+ 500:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         forwarding_getNextHop(&(msg->l3_destinationAdd),&(msg->l2_nextORpreviousHop));
+ 1037              		.loc 1 500 0
+ 1038 0618 FB68     		ldr	r3, [r7, #12]
+ 1039 061a 03F11D02 		add	r2, r3, #29
+ 1040 061e FB68     		ldr	r3, [r7, #12]
+ 1041 0620 4133     		adds	r3, r3, #65
+ 1042 0622 1946     		mov	r1, r3
+ 1043 0624 1046     		mov	r0, r2
+ 1044 0626 FFF7FEFF 		bl	forwarding_getNextHop
+ 1045 062a 00E0     		b	.L50
+ 1046              	.L55:
+ 495:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // IP destination is 1-hop neighbor, send directly
+ 1047              		.loc 1 495 0
+ 1048 062c 00BF     		nop
+ 1049              	.L50:
+ 501:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 502:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 503:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (msg->l2_nextORpreviousHop.type==ADDR_NONE) {
+ 1050              		.loc 1 503 0
+ 1051 062e FB68     		ldr	r3, [r7, #12]
+ 1052 0630 93F84130 		ldrb	r3, [r3, #65]	@ zero_extendqisi2
+ 1053 0634 002B     		cmp	r3, #0
+ 1054 0636 0DD1     		bne	.L51
+ 504:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         openserial_printError(
+ 505:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             COMPONENT_FORWARDING,
+ 506:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             ERR_NO_NEXTHOP,
+ 507:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             (errorparameter_t)msg->l3_destinationAdd.addr_128b[14],
+ 1055              		.loc 1 507 0
+ 1056 0638 FB68     		ldr	r3, [r7, #12]
+ 1057 063a 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 504:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         openserial_printError(
+ 1058              		.loc 1 504 0
+ 1059 063e 9AB2     		uxth	r2, r3
+ 508:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             (errorparameter_t)msg->l3_destinationAdd.addr_128b[15]
+ 1060              		.loc 1 508 0
+ 1061 0640 FB68     		ldr	r3, [r7, #12]
+ 1062 0642 93F82D30 		ldrb	r3, [r3, #45]	@ zero_extendqisi2
+ 504:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         openserial_printError(
+ 1063              		.loc 1 504 0
+ 1064 0646 9BB2     		uxth	r3, r3
+ 1065 0648 0D21     		movs	r1, #13
+ 1066 064a 1220     		movs	r0, #18
+ 1067 064c FFF7FEFF 		bl	openserial_printError
+ 509:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         );
+ 510:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         return E_FAIL;
+ 1068              		.loc 1 510 0
+ 1069 0650 0123     		movs	r3, #1
+ 1070 0652 1DE0     		b	.L54
+ 1071              	.L51:
+ 511:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 512:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 513:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (ipv6_outer_header->src.type != ADDR_NONE){
+ 1072              		.loc 1 513 0
+ 1073 0654 BB68     		ldr	r3, [r7, #8]
+ 1074 0656 93F82230 		ldrb	r3, [r3, #34]	@ zero_extendqisi2
+ 1075 065a 002B     		cmp	r3, #0
+ 1076 065c 06D0     		beq	.L53
+ 514:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         packetfunctions_tossHeader(msg,ipv6_outer_header->header_length);
+ 1077              		.loc 1 514 0
+ 1078 065e BB68     		ldr	r3, [r7, #8]
+ 1079 0660 93F84430 		ldrb	r3, [r3, #68]	@ zero_extendqisi2
+ 1080 0664 1946     		mov	r1, r3
+ 1081 0666 F868     		ldr	r0, [r7, #12]
+ 1082 0668 FFF7FEFF 		bl	packetfunctions_tossHeader
+ 1083              	.L53:
+ 515:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 516:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 517:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // send to next lower layer
+ 518:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     return iphc_sendFromForwarding(
+ 1084              		.loc 1 518 0
+ 1085 066c 97F83830 		ldrb	r3, [r7, #56]	@ zero_extendqisi2
+ 1086 0670 0493     		str	r3, [sp, #16]
+ 1087 0672 0023     		movs	r3, #0
+ 1088 0674 0393     		str	r3, [sp, #12]
+ 1089 0676 0023     		movs	r3, #0
+ 1090 0678 0293     		str	r3, [sp, #8]
+ 1091 067a 7B6B     		ldr	r3, [r7, #52]
+ 1092 067c 0193     		str	r3, [sp, #4]
+ 1093 067e 3B6B     		ldr	r3, [r7, #48]
+ 1094 0680 0093     		str	r3, [sp]
+ 1095 0682 3B68     		ldr	r3, [r7]
+ 1096 0684 7A68     		ldr	r2, [r7, #4]
+ 1097 0686 B968     		ldr	r1, [r7, #8]
+ 1098 0688 F868     		ldr	r0, [r7, #12]
+ 1099 068a FFF7FEFF 		bl	iphc_sendFromForwarding
+ 1100 068e 0346     		mov	r3, r0
+ 1101              	.L54:
+ 519:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         msg,
+ 520:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         ipv6_outer_header,
+ 521:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         ipv6_inner_header,
+ 522:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         rpl_option,
+ 523:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 524:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         deadline_option,
+ 525:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 526:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         flow_label,
+ 527:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         NULL,  // no rh3
+ 528:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         0,
+ 529:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         fw_SendOrfw_Rcv
+ 530:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     );
+ 531:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** }
+ 1102              		.loc 1 531 0 discriminator 1
+ 1103 0690 1846     		mov	r0, r3
+ 1104 0692 2837     		adds	r7, r7, #40
+ 1105              		.cfi_def_cfa_offset 8
+ 1106 0694 BD46     		mov	sp, r7
+ 1107              		.cfi_def_cfa_register 13
+ 1108              		@ sp needed
+ 1109 0696 80BD     		pop	{r7, pc}
+ 1110              		.cfi_endproc
+ 1111              	.LFE8:
+ 1113              		.align	1
+ 1114              		.global	forwarding_send_internal_SourceRouting
+ 1115              		.syntax unified
+ 1116              		.thumb
+ 1117              		.thumb_func
+ 1118              		.fpu softvfp
+ 1120              	forwarding_send_internal_SourceRouting:
+ 1121              	.LFB9:
+ 532:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 533:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** /**
+ 534:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \brief Send a packet using the source rout to find the next hop.
+ 535:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 536:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \note This is always called for packets being forwarded.
+ 537:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 538:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** How to process the routing header is detailed in
+ 539:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** http://tools.ietf.org/html/rfc6554#page-9.
+ 540:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 541:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in,out] msg             The packet to send.
+ 542:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     ipv6_outer_header The packet's IPv6 outer header.
+ 543:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     ipv6_inner_header The packet's IPv6 inner header.
+ 544:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]     rpl_option        The hop-by-hop option to add in this packet.
+ 545:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** */
+ 546:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** owerror_t forwarding_send_internal_SourceRouting(
+ 547:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     OpenQueueEntry_t* msg,
+ 548:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ipv6_header_iht*  ipv6_outer_header,
+ 549:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ipv6_header_iht*  ipv6_inner_header,
+ 550:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 551:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     deadline_option_ht*	 	 deadline_option,
+ 552:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 553:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     rpl_option_ht*    rpl_option
+ 554:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ) {
+ 1122              		.loc 1 554 0
+ 1123              		.cfi_startproc
+ 1124              		@ args = 4, pretend = 0, frame = 240
+ 1125              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1126 0698 B0B5     		push	{r4, r5, r7, lr}
+ 1127              		.cfi_def_cfa_offset 16
+ 1128              		.cfi_offset 4, -16
+ 1129              		.cfi_offset 5, -12
+ 1130              		.cfi_offset 7, -8
+ 1131              		.cfi_offset 14, -4
+ 1132 069a C2B0     		sub	sp, sp, #264
+ 1133              		.cfi_def_cfa_offset 280
+ 1134 069c 06AF     		add	r7, sp, #24
+ 1135              		.cfi_def_cfa 7, 256
+ 1136 069e F860     		str	r0, [r7, #12]
+ 1137 06a0 B960     		str	r1, [r7, #8]
+ 1138 06a2 7A60     		str	r2, [r7, #4]
+ 1139 06a4 3B60     		str	r3, [r7]
+ 555:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              temp_8b;
+ 556:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              type;
+ 557:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              next_type;
+ 558:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              size;
+ 559:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              next_size;
+ 560:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              hlen;
+ 561:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t          firstAddr;
+ 562:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t          nextAddr;
+ 563:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t          temp_prefix;
+ 564:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     open_addr_t          temp_addr64;
+ 565:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 566:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              rpi_length;
+ 567:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              flags;
+ 568:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint16_t             senderRank;
+ 569:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 570:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              RH_copy[127];
+ 571:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t              RH_length;
+ 572:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 573:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t				 RH3_length;
+ 574:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 575:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t sizeRH=0;
+ 1140              		.loc 1 575 0
+ 1141 06a6 0023     		movs	r3, #0
+ 1142 06a8 87F8EB30 		strb	r3, [r7, #235]
+ 576:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 577:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     memset(&RH_copy[0],0,127);
+ 1143              		.loc 1 577 0
+ 1144 06ac 07F11403 		add	r3, r7, #20
+ 1145 06b0 7F22     		movs	r2, #127
+ 1146 06b2 0021     		movs	r1, #0
+ 1147 06b4 1846     		mov	r0, r3
+ 1148 06b6 FFF7FEFF 		bl	memset
+ 578:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     RH3_length = 0;
+ 1149              		.loc 1 578 0
+ 1150 06ba 0023     		movs	r3, #0
+ 1151 06bc 87F8EA30 		strb	r3, [r7, #234]
+ 579:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     RH_length = 0;
+ 1152              		.loc 1 579 0
+ 1153 06c0 0023     		movs	r3, #0
+ 1154 06c2 87F8EC30 		strb	r3, [r7, #236]
+ 580:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     memcpy(&msg->l3_destinationAdd,&ipv6_inner_header->dest,sizeof(open_addr_t));
+ 1155              		.loc 1 580 0
+ 1156 06c6 FB68     		ldr	r3, [r7, #12]
+ 1157 06c8 03F11D00 		add	r0, r3, #29
+ 1158 06cc 7B68     		ldr	r3, [r7, #4]
+ 1159 06ce 3333     		adds	r3, r3, #51
+ 1160 06d0 1122     		movs	r2, #17
+ 1161 06d2 1946     		mov	r1, r3
+ 1162 06d4 FFF7FEFF 		bl	memcpy
+ 581:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     memcpy(&msg->l3_sourceAdd,&ipv6_inner_header->src,sizeof(open_addr_t));
+ 1163              		.loc 1 581 0
+ 1164 06d8 FB68     		ldr	r3, [r7, #12]
+ 1165 06da 03F12E00 		add	r0, r3, #46
+ 1166 06de 7B68     		ldr	r3, [r7, #4]
+ 1167 06e0 2233     		adds	r3, r3, #34
+ 1168 06e2 1122     		movs	r2, #17
+ 1169 06e4 1946     		mov	r1, r3
+ 1170 06e6 FFF7FEFF 		bl	memcpy
+ 582:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 583:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // initial first Address by compression reference
+ 584:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     firstAddr.type = ADDR_128B;
+ 1171              		.loc 1 584 0
+ 1172 06ea 0323     		movs	r3, #3
+ 1173 06ec 87F8D030 		strb	r3, [r7, #208]
+ 585:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (ipv6_outer_header->src.type != ADDR_NONE){
+ 1174              		.loc 1 585 0
+ 1175 06f0 BB68     		ldr	r3, [r7, #8]
+ 1176 06f2 93F82230 		ldrb	r3, [r3, #34]	@ zero_extendqisi2
+ 1177 06f6 002B     		cmp	r3, #0
+ 1178 06f8 0BD0     		beq	.L57
+ 586:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if (rpl_option->rplInstanceID == 0){
+ 1179              		.loc 1 586 0
+ 1180 06fa D7F80031 		ldr	r3, [r7, #256]
+ 1181 06fe 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1182 0700 002B     		cmp	r3, #0
+ 1183 0702 12D1     		bne	.L59
+ 587:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             icmpv6rpl_getRPLDODAGid(&firstAddr.addr_128b[0]);
+ 1184              		.loc 1 587 0
+ 1185 0704 07F1D003 		add	r3, r7, #208
+ 1186 0708 0133     		adds	r3, r3, #1
+ 1187 070a 1846     		mov	r0, r3
+ 1188 070c FFF7FEFF 		bl	icmpv6rpl_getRPLDODAGid
+ 1189 0710 0BE0     		b	.L59
+ 1190              	.L57:
+ 588:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         }
+ 589:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     } else {
+ 590:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         memcpy(&firstAddr,&ipv6_inner_header->src,sizeof(open_addr_t));
+ 1191              		.loc 1 590 0
+ 1192 0712 7B68     		ldr	r3, [r7, #4]
+ 1193 0714 2233     		adds	r3, r3, #34
+ 1194 0716 07F1D004 		add	r4, r7, #208
+ 1195 071a 1D46     		mov	r5, r3
+ 1196 071c 2868     		ldr	r0, [r5]	@ unaligned
+ 1197 071e 6968     		ldr	r1, [r5, #4]	@ unaligned
+ 1198 0720 AA68     		ldr	r2, [r5, #8]	@ unaligned
+ 1199 0722 EB68     		ldr	r3, [r5, #12]	@ unaligned
+ 1200 0724 0FC4     		stmia	r4!, {r0, r1, r2, r3}
+ 1201 0726 2B7C     		ldrb	r3, [r5, #16]
+ 1202 0728 2370     		strb	r3, [r4]
+ 1203              	.L59:
+ 591:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 592:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 593:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     hlen = 0;
+ 1204              		.loc 1 593 0
+ 1205 072a 0023     		movs	r3, #0
+ 1206 072c 87F8ED30 		strb	r3, [r7, #237]
+ 594:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 595:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     temp_8b = *((uint8_t*)(msg->payload)+hlen);
+ 1207              		.loc 1 595 0
+ 1208 0730 FB68     		ldr	r3, [r7, #12]
+ 1209 0732 5A68     		ldr	r2, [r3, #4]
+ 1210 0734 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1211 0738 1344     		add	r3, r3, r2
+ 1212 073a 1B78     		ldrb	r3, [r3]
+ 1213 073c 87F8EF30 		strb	r3, [r7, #239]
+ 596:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     type    = *((uint8_t*)(msg->payload)+hlen+1);
+ 1214              		.loc 1 596 0
+ 1215 0740 FB68     		ldr	r3, [r7, #12]
+ 1216 0742 5A68     		ldr	r2, [r3, #4]
+ 1217 0744 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1218 0748 0133     		adds	r3, r3, #1
+ 1219 074a 1344     		add	r3, r3, r2
+ 1220 074c 1B78     		ldrb	r3, [r3]
+ 1221 074e 87F8EE30 		strb	r3, [r7, #238]
+ 597:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 598:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     //copy and toss any unknown 6LoRHE
+ 599:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     while((temp_8b&FORMAT_6LORH_MASK) == ELECTIVE_6LoRH){
+ 1222              		.loc 1 599 0
+ 1223 0752 34E0     		b	.L60
+ 1224              	.L61:
+ 600:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         sizeRH = temp_8b & IPINIP_LEN_6LORH_MASK;
+ 1225              		.loc 1 600 0
+ 1226 0754 97F8EF30 		ldrb	r3, [r7, #239]
+ 1227 0758 03F01F03 		and	r3, r3, #31
+ 1228 075c 87F8EB30 		strb	r3, [r7, #235]
+ 601:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     	memcpy(&RH_copy[RH_length], msg->payload, sizeRH+2);
+ 1229              		.loc 1 601 0
+ 1230 0760 97F8EC30 		ldrb	r3, [r7, #236]	@ zero_extendqisi2
+ 1231 0764 07F11402 		add	r2, r7, #20
+ 1232 0768 D018     		adds	r0, r2, r3
+ 1233 076a FB68     		ldr	r3, [r7, #12]
+ 1234 076c 5968     		ldr	r1, [r3, #4]
+ 1235 076e 97F8EB30 		ldrb	r3, [r7, #235]	@ zero_extendqisi2
+ 1236 0772 0233     		adds	r3, r3, #2
+ 1237 0774 1A46     		mov	r2, r3
+ 1238 0776 FFF7FEFF 		bl	memcpy
+ 602:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     	packetfunctions_tossHeader(msg, sizeRH+2);
+ 1239              		.loc 1 602 0
+ 1240 077a 97F8EB30 		ldrb	r3, [r7, #235]
+ 1241 077e 0233     		adds	r3, r3, #2
+ 1242 0780 DBB2     		uxtb	r3, r3
+ 1243 0782 1946     		mov	r1, r3
+ 1244 0784 F868     		ldr	r0, [r7, #12]
+ 1245 0786 FFF7FEFF 		bl	packetfunctions_tossHeader
+ 603:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     	RH_length += 2 + sizeRH;
+ 1246              		.loc 1 603 0
+ 1247 078a 97F8EB20 		ldrb	r2, [r7, #235]
+ 1248 078e 97F8EC30 		ldrb	r3, [r7, #236]
+ 1249 0792 1344     		add	r3, r3, r2
+ 1250 0794 DBB2     		uxtb	r3, r3
+ 1251 0796 0233     		adds	r3, r3, #2
+ 1252 0798 87F8EC30 		strb	r3, [r7, #236]
+ 604:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         temp_8b = *((uint8_t*)(msg->payload)+hlen);
+ 1253              		.loc 1 604 0
+ 1254 079c FB68     		ldr	r3, [r7, #12]
+ 1255 079e 5A68     		ldr	r2, [r3, #4]
+ 1256 07a0 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1257 07a4 1344     		add	r3, r3, r2
+ 1258 07a6 1B78     		ldrb	r3, [r3]
+ 1259 07a8 87F8EF30 		strb	r3, [r7, #239]
+ 605:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         type    = *((uint8_t*)(msg->payload)+hlen+1);
+ 1260              		.loc 1 605 0
+ 1261 07ac FB68     		ldr	r3, [r7, #12]
+ 1262 07ae 5A68     		ldr	r2, [r3, #4]
+ 1263 07b0 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1264 07b4 0133     		adds	r3, r3, #1
+ 1265 07b6 1344     		add	r3, r3, r2
+ 1266 07b8 1B78     		ldrb	r3, [r3]
+ 1267 07ba 87F8EE30 		strb	r3, [r7, #238]
+ 1268              	.L60:
+ 599:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         sizeRH = temp_8b & IPINIP_LEN_6LORH_MASK;
+ 1269              		.loc 1 599 0
+ 1270 07be 97F8EF30 		ldrb	r3, [r7, #239]	@ zero_extendqisi2
+ 1271 07c2 03F0E003 		and	r3, r3, #224
+ 1272 07c6 A02B     		cmp	r3, #160
+ 1273 07c8 C4D0     		beq	.L61
+ 606:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 607:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 608:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     hlen += 2;
+ 1274              		.loc 1 608 0
+ 1275 07ca 97F8ED30 		ldrb	r3, [r7, #237]
+ 1276 07ce 0233     		adds	r3, r3, #2
+ 1277 07d0 87F8ED30 		strb	r3, [r7, #237]
+ 609:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 610:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // get the first address
+ 611:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     switch(type){
+ 1278              		.loc 1 611 0
+ 1279 07d4 97F8EE30 		ldrb	r3, [r7, #238]	@ zero_extendqisi2
+ 1280 07d8 042B     		cmp	r3, #4
+ 1281 07da 5CD8     		bhi	.L62
+ 1282 07dc 01A2     		adr	r2, .L64
+ 1283 07de 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 1284 07e2 00BF     		.p2align 2
+ 1285              	.L64:
+ 1286 07e4 F9070000 		.word	.L63+1
+ 1287 07e8 15080000 		.word	.L65+1
+ 1288 07ec 33080000 		.word	.L66+1
+ 1289 07f0 4F080000 		.word	.L67+1
+ 1290 07f4 73080000 		.word	.L68+1
+ 1291              		.p2align 1
+ 1292              	.L63:
+ 612:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     case RH3_6LOTH_TYPE_0:
+ 613:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         memcpy(&firstAddr.addr_128b[15],msg->payload+hlen,1);
+ 1293              		.loc 1 613 0
+ 1294 07f8 FB68     		ldr	r3, [r7, #12]
+ 1295 07fa 5A68     		ldr	r2, [r3, #4]
+ 1296 07fc 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1297 0800 1344     		add	r3, r3, r2
+ 1298 0802 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1299 0804 87F8E030 		strb	r3, [r7, #224]
+ 614:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         hlen += 1;
+ 1300              		.loc 1 614 0
+ 1301 0808 97F8ED30 		ldrb	r3, [r7, #237]
+ 1302 080c 0133     		adds	r3, r3, #1
+ 1303 080e 87F8ED30 		strb	r3, [r7, #237]
+ 615:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         break;
+ 1304              		.loc 1 615 0
+ 1305 0812 40E0     		b	.L62
+ 1306              	.L65:
+ 616:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     case RH3_6LOTH_TYPE_1:
+ 617:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         memcpy(&firstAddr.addr_128b[14],msg->payload+hlen,2);
+ 1307              		.loc 1 617 0
+ 1308 0814 FB68     		ldr	r3, [r7, #12]
+ 1309 0816 5A68     		ldr	r2, [r3, #4]
+ 1310 0818 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1311 081c 1344     		add	r3, r3, r2
+ 1312 081e 1B88     		ldrh	r3, [r3]	@ unaligned
+ 1313 0820 9BB2     		uxth	r3, r3
+ 1314 0822 A7F8DF30 		strh	r3, [r7, #223]	@ unaligned
+ 618:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         hlen += 2;
+ 1315              		.loc 1 618 0
+ 1316 0826 97F8ED30 		ldrb	r3, [r7, #237]
+ 1317 082a 0233     		adds	r3, r3, #2
+ 1318 082c 87F8ED30 		strb	r3, [r7, #237]
+ 619:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         break;
+ 1319              		.loc 1 619 0
+ 1320 0830 31E0     		b	.L62
+ 1321              	.L66:
+ 620:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     case RH3_6LOTH_TYPE_2:
+ 621:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         memcpy(&firstAddr.addr_128b[12],msg->payload+hlen,4);
+ 1322              		.loc 1 621 0
+ 1323 0832 FB68     		ldr	r3, [r7, #12]
+ 1324 0834 5A68     		ldr	r2, [r3, #4]
+ 1325 0836 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1326 083a 1344     		add	r3, r3, r2
+ 1327 083c 1B68     		ldr	r3, [r3]	@ unaligned
+ 1328 083e C7F8DD30 		str	r3, [r7, #221]	@ unaligned
+ 622:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         hlen += 4;
+ 1329              		.loc 1 622 0
+ 1330 0842 97F8ED30 		ldrb	r3, [r7, #237]
+ 1331 0846 0433     		adds	r3, r3, #4
+ 1332 0848 87F8ED30 		strb	r3, [r7, #237]
+ 623:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         break;
+ 1333              		.loc 1 623 0
+ 1334 084c 23E0     		b	.L62
+ 1335              	.L67:
+ 624:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     case RH3_6LOTH_TYPE_3:
+ 625:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         memcpy(&firstAddr.addr_128b[8],msg->payload+hlen,8);
+ 1336              		.loc 1 625 0
+ 1337 084e FB68     		ldr	r3, [r7, #12]
+ 1338 0850 5A68     		ldr	r2, [r3, #4]
+ 1339 0852 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1340 0856 D118     		adds	r1, r2, r3
+ 1341 0858 07F1D003 		add	r3, r7, #208
+ 1342 085c 0933     		adds	r3, r3, #9
+ 1343 085e 0822     		movs	r2, #8
+ 1344 0860 1846     		mov	r0, r3
+ 1345 0862 FFF7FEFF 		bl	memcpy
+ 626:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         hlen += 8;
+ 1346              		.loc 1 626 0
+ 1347 0866 97F8ED30 		ldrb	r3, [r7, #237]
+ 1348 086a 0833     		adds	r3, r3, #8
+ 1349 086c 87F8ED30 		strb	r3, [r7, #237]
+ 627:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         break;
+ 1350              		.loc 1 627 0
+ 1351 0870 11E0     		b	.L62
+ 1352              	.L68:
+ 628:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     case RH3_6LOTH_TYPE_4:
+ 629:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         memcpy(&firstAddr.addr_128b[0],msg->payload+hlen,16);
+ 1353              		.loc 1 629 0
+ 1354 0872 FB68     		ldr	r3, [r7, #12]
+ 1355 0874 5A68     		ldr	r2, [r3, #4]
+ 1356 0876 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1357 087a D118     		adds	r1, r2, r3
+ 1358 087c 07F1D003 		add	r3, r7, #208
+ 1359 0880 0133     		adds	r3, r3, #1
+ 1360 0882 1022     		movs	r2, #16
+ 1361 0884 1846     		mov	r0, r3
+ 1362 0886 FFF7FEFF 		bl	memcpy
+ 630:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         hlen += 16;
+ 1363              		.loc 1 630 0
+ 1364 088a 97F8ED30 		ldrb	r3, [r7, #237]
+ 1365 088e 1033     		adds	r3, r3, #16
+ 1366 0890 87F8ED30 		strb	r3, [r7, #237]
+ 631:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         break;
+ 1367              		.loc 1 631 0
+ 1368 0894 00BF     		nop
+ 1369              	.L62:
+ 632:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 633:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 634:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     packetfunctions_ip128bToMac64b(&firstAddr,&temp_prefix,&temp_addr64);
+ 1370              		.loc 1 634 0
+ 1371 0896 07F19402 		add	r2, r7, #148
+ 1372 089a 07F1A801 		add	r1, r7, #168
+ 1373 089e 07F1D003 		add	r3, r7, #208
+ 1374 08a2 1846     		mov	r0, r3
+ 1375 08a4 FFF7FEFF 		bl	packetfunctions_ip128bToMac64b
+ 635:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (
+ 636:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         packetfunctions_sameAddress(&temp_prefix,idmanager_getMyID(ADDR_PREFIX)) &&
+ 1376              		.loc 1 636 0
+ 1377 08a8 0520     		movs	r0, #5
+ 1378 08aa FFF7FEFF 		bl	idmanager_getMyID
+ 1379 08ae 0246     		mov	r2, r0
+ 1380 08b0 07F1A803 		add	r3, r7, #168
+ 1381 08b4 1146     		mov	r1, r2
+ 1382 08b6 1846     		mov	r0, r3
+ 1383 08b8 FFF7FEFF 		bl	packetfunctions_sameAddress
+ 1384 08bc 0346     		mov	r3, r0
+ 635:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (
+ 1385              		.loc 1 635 0
+ 1386 08be 002B     		cmp	r3, #0
+ 1387 08c0 00F0F181 		beq	.L69
+ 637:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         packetfunctions_sameAddress(&temp_addr64,idmanager_getMyID(ADDR_64B))
+ 1388              		.loc 1 637 0
+ 1389 08c4 0220     		movs	r0, #2
+ 1390 08c6 FFF7FEFF 		bl	idmanager_getMyID
+ 1391 08ca 0246     		mov	r2, r0
+ 1392 08cc 07F19403 		add	r3, r7, #148
+ 1393 08d0 1146     		mov	r1, r2
+ 1394 08d2 1846     		mov	r0, r3
+ 1395 08d4 FFF7FEFF 		bl	packetfunctions_sameAddress
+ 1396 08d8 0346     		mov	r3, r0
+ 636:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         packetfunctions_sameAddress(&temp_addr64,idmanager_getMyID(ADDR_64B))
+ 1397              		.loc 1 636 0
+ 1398 08da 002B     		cmp	r3, #0
+ 1399 08dc 00F0E381 		beq	.L69
+ 638:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ){
+ 639:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         size = temp_8b & RH3_6LOTH_SIZE_MASK;
+ 1400              		.loc 1 639 0
+ 1401 08e0 97F8EF30 		ldrb	r3, [r7, #239]
+ 1402 08e4 03F01F03 		and	r3, r3, #31
+ 1403 08e8 87F8E930 		strb	r3, [r7, #233]
+ 640:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if (size > 0){
+ 1404              		.loc 1 640 0
+ 1405 08ec 97F8E930 		ldrb	r3, [r7, #233]	@ zero_extendqisi2
+ 1406 08f0 002B     		cmp	r3, #0
+ 1407 08f2 6CD0     		beq	.L70
+ 641:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // there are at least 2 entries in the header,
+ 642:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // the router removes the first entry and decrements the Size (by 1)
+ 643:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             size -= 1;
+ 1408              		.loc 1 643 0
+ 1409 08f4 97F8E930 		ldrb	r3, [r7, #233]
+ 1410 08f8 013B     		subs	r3, r3, #1
+ 1411 08fa 87F8E930 		strb	r3, [r7, #233]
+ 644:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             packetfunctions_tossHeader(msg,hlen);
+ 1412              		.loc 1 644 0
+ 1413 08fe 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1414 0902 1946     		mov	r1, r3
+ 1415 0904 F868     		ldr	r0, [r7, #12]
+ 1416 0906 FFF7FEFF 		bl	packetfunctions_tossHeader
+ 645:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             packetfunctions_reserveHeaderSize(msg,2);
+ 1417              		.loc 1 645 0
+ 1418 090a 0221     		movs	r1, #2
+ 1419 090c F868     		ldr	r0, [r7, #12]
+ 1420 090e FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 646:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             msg->payload[0] = CRITICAL_6LORH | size;
+ 1421              		.loc 1 646 0
+ 1422 0912 FB68     		ldr	r3, [r7, #12]
+ 1423 0914 5B68     		ldr	r3, [r3, #4]
+ 1424 0916 97F8E920 		ldrb	r2, [r7, #233]
+ 1425 091a 62F07F02 		orn	r2, r2, #127
+ 1426 091e D2B2     		uxtb	r2, r2
+ 1427 0920 1A70     		strb	r2, [r3]
+ 647:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             msg->payload[1] = type;
+ 1428              		.loc 1 647 0
+ 1429 0922 FB68     		ldr	r3, [r7, #12]
+ 1430 0924 5B68     		ldr	r3, [r3, #4]
+ 1431 0926 0133     		adds	r3, r3, #1
+ 1432 0928 97F8EE20 		ldrb	r2, [r7, #238]
+ 1433 092c 1A70     		strb	r2, [r3]
+ 648:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // get next hop
+ 649:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             memcpy(&nextAddr,&firstAddr,sizeof(open_addr_t));
+ 1434              		.loc 1 649 0
+ 1435 092e 07F1BC04 		add	r4, r7, #188
+ 1436 0932 07F1D005 		add	r5, r7, #208
+ 1437 0936 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 1438 0938 0FC4     		stmia	r4!, {r0, r1, r2, r3}
+ 1439 093a 2B68     		ldr	r3, [r5]
+ 1440 093c 2370     		strb	r3, [r4]
+ 650:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             switch(type){
+ 1441              		.loc 1 650 0
+ 1442 093e 97F8EE30 		ldrb	r3, [r7, #238]	@ zero_extendqisi2
+ 1443 0942 042B     		cmp	r3, #4
+ 1444 0944 38D8     		bhi	.L71
+ 1445 0946 01A2     		adr	r2, .L73
+ 1446 0948 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 1447              		.p2align 2
+ 1448              	.L73:
+ 1449 094c 61090000 		.word	.L72+1
+ 1450 0950 6F090000 		.word	.L74+1
+ 1451 0954 7F090000 		.word	.L75+1
+ 1452 0958 8D090000 		.word	.L76+1
+ 1453 095c A3090000 		.word	.L77+1
+ 1454              		.p2align 1
+ 1455              	.L72:
+ 651:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             case RH3_6LOTH_TYPE_0:
+ 652:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 memcpy(&nextAddr.addr_128b[15],msg->payload+2,1);
+ 1456              		.loc 1 652 0
+ 1457 0960 FB68     		ldr	r3, [r7, #12]
+ 1458 0962 5B68     		ldr	r3, [r3, #4]
+ 1459 0964 0233     		adds	r3, r3, #2
+ 1460 0966 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1461 0968 87F8CC30 		strb	r3, [r7, #204]
+ 653:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 break;
+ 1462              		.loc 1 653 0
+ 1463 096c 24E0     		b	.L71
+ 1464              	.L74:
+ 654:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             case RH3_6LOTH_TYPE_1:
+ 655:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 memcpy(&nextAddr.addr_128b[14],msg->payload+2,2);
+ 1465              		.loc 1 655 0
+ 1466 096e FB68     		ldr	r3, [r7, #12]
+ 1467 0970 5B68     		ldr	r3, [r3, #4]
+ 1468 0972 0233     		adds	r3, r3, #2
+ 1469 0974 1B88     		ldrh	r3, [r3]	@ unaligned
+ 1470 0976 9BB2     		uxth	r3, r3
+ 1471 0978 A7F8CB30 		strh	r3, [r7, #203]	@ unaligned
+ 656:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 break;
+ 1472              		.loc 1 656 0
+ 1473 097c 1CE0     		b	.L71
+ 1474              	.L75:
+ 657:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             case RH3_6LOTH_TYPE_2:
+ 658:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 memcpy(&nextAddr.addr_128b[12],msg->payload+2,4);
+ 1475              		.loc 1 658 0
+ 1476 097e FB68     		ldr	r3, [r7, #12]
+ 1477 0980 5B68     		ldr	r3, [r3, #4]
+ 1478 0982 0233     		adds	r3, r3, #2
+ 1479 0984 1B68     		ldr	r3, [r3]	@ unaligned
+ 1480 0986 C7F8C930 		str	r3, [r7, #201]	@ unaligned
+ 659:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 break;
+ 1481              		.loc 1 659 0
+ 1482 098a 15E0     		b	.L71
+ 1483              	.L76:
+ 660:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             case RH3_6LOTH_TYPE_3:
+ 661:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 memcpy(&nextAddr.addr_128b[8],msg->payload+2,8);
+ 1484              		.loc 1 661 0
+ 1485 098c FB68     		ldr	r3, [r7, #12]
+ 1486 098e 5B68     		ldr	r3, [r3, #4]
+ 1487 0990 991C     		adds	r1, r3, #2
+ 1488 0992 07F1BC03 		add	r3, r7, #188
+ 1489 0996 0933     		adds	r3, r3, #9
+ 1490 0998 0822     		movs	r2, #8
+ 1491 099a 1846     		mov	r0, r3
+ 1492 099c FFF7FEFF 		bl	memcpy
+ 662:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 break;
+ 1493              		.loc 1 662 0
+ 1494 09a0 0AE0     		b	.L71
+ 1495              	.L77:
+ 663:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             case RH3_6LOTH_TYPE_4:
+ 664:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 memcpy(&nextAddr.addr_128b[0],msg->payload+2,16);
+ 1496              		.loc 1 664 0
+ 1497 09a2 FB68     		ldr	r3, [r7, #12]
+ 1498 09a4 5B68     		ldr	r3, [r3, #4]
+ 1499 09a6 991C     		adds	r1, r3, #2
+ 1500 09a8 07F1BC03 		add	r3, r7, #188
+ 1501 09ac 0133     		adds	r3, r3, #1
+ 1502 09ae 1022     		movs	r2, #16
+ 1503 09b0 1846     		mov	r0, r3
+ 1504 09b2 FFF7FEFF 		bl	memcpy
+ 665:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 break;
+ 1505              		.loc 1 665 0
+ 1506 09b6 00BF     		nop
+ 1507              	.L71:
+ 666:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             }
+ 667:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             packetfunctions_ip128bToMac64b(
+ 1508              		.loc 1 667 0
+ 1509 09b8 FB68     		ldr	r3, [r7, #12]
+ 1510 09ba 03F14102 		add	r2, r3, #65
+ 1511 09be 07F1A801 		add	r1, r7, #168
+ 1512 09c2 07F1BC03 		add	r3, r7, #188
+ 1513 09c6 1846     		mov	r0, r3
+ 1514 09c8 FFF7FEFF 		bl	packetfunctions_ip128bToMac64b
+ 640:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // there are at least 2 entries in the header,
+ 1515              		.loc 1 640 0
+ 1516 09cc 73E1     		b	.L103
+ 1517              	.L70:
+ 668:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 &nextAddr,
+ 669:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 &temp_prefix,
+ 670:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 &msg->l2_nextORpreviousHop
+ 671:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             );
+ 672:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         } else {
+ 673:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             temp_8b   = *((uint8_t*)(msg->payload)+hlen);
+ 1518              		.loc 1 673 0
+ 1519 09ce FB68     		ldr	r3, [r7, #12]
+ 1520 09d0 5A68     		ldr	r2, [r3, #4]
+ 1521 09d2 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1522 09d6 1344     		add	r3, r3, r2
+ 1523 09d8 1B78     		ldrb	r3, [r3]
+ 1524 09da 87F8EF30 		strb	r3, [r7, #239]
+ 674:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             next_type = *((uint8_t*)(msg->payload)+hlen+1);
+ 1525              		.loc 1 674 0
+ 1526 09de FB68     		ldr	r3, [r7, #12]
+ 1527 09e0 5A68     		ldr	r2, [r3, #4]
+ 1528 09e2 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1529 09e6 0133     		adds	r3, r3, #1
+ 1530 09e8 1344     		add	r3, r3, r2
+ 1531 09ea 1B78     		ldrb	r3, [r3]
+ 1532 09ec 87F8E830 		strb	r3, [r7, #232]
+ 675:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             if (
+ 676:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 (temp_8b & FORMAT_6LORH_MASK) == CRITICAL_6LORH &&
+ 1533              		.loc 1 676 0
+ 1534 09f0 97F8EF30 		ldrb	r3, [r7, #239]	@ zero_extendqisi2
+ 1535 09f4 03F0E003 		and	r3, r3, #224
+ 675:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             if (
+ 1536              		.loc 1 675 0
+ 1537 09f8 802B     		cmp	r3, #128
+ 1538 09fa 40F04181 		bne	.L79
+ 1539              		.loc 1 676 0
+ 1540 09fe 97F8E830 		ldrb	r3, [r7, #232]	@ zero_extendqisi2
+ 1541 0a02 042B     		cmp	r3, #4
+ 1542 0a04 00F23C81 		bhi	.L79
+ 677:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 next_type<=RH3_6LOTH_TYPE_4
+ 678:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             ) {
+ 679:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 // there is another RH3-6LoRH following, check the type
+ 680:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 if (next_type >= type){
+ 1543              		.loc 1 680 0
+ 1544 0a08 97F8E820 		ldrb	r2, [r7, #232]	@ zero_extendqisi2
+ 1545 0a0c 97F8EE30 		ldrb	r3, [r7, #238]	@ zero_extendqisi2
+ 1546 0a10 9A42     		cmp	r2, r3
+ 1547 0a12 56D3     		bcc	.L80
+ 681:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     packetfunctions_tossHeader(msg,hlen);
+ 1548              		.loc 1 681 0
+ 1549 0a14 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1550 0a18 1946     		mov	r1, r3
+ 1551 0a1a F868     		ldr	r0, [r7, #12]
+ 1552 0a1c FFF7FEFF 		bl	packetfunctions_tossHeader
+ 682:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     // get next hop
+ 683:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     memcpy(&nextAddr,&firstAddr,sizeof(open_addr_t));
+ 1553              		.loc 1 683 0
+ 1554 0a20 07F1BC04 		add	r4, r7, #188
+ 1555 0a24 07F1D005 		add	r5, r7, #208
+ 1556 0a28 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 1557 0a2a 0FC4     		stmia	r4!, {r0, r1, r2, r3}
+ 1558 0a2c 2B68     		ldr	r3, [r5]
+ 1559 0a2e 2370     		strb	r3, [r4]
+ 684:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     switch(next_type){
+ 1560              		.loc 1 684 0
+ 1561 0a30 97F8E830 		ldrb	r3, [r7, #232]	@ zero_extendqisi2
+ 1562 0a34 042B     		cmp	r3, #4
+ 1563 0a36 39D8     		bhi	.L81
+ 1564 0a38 01A2     		adr	r2, .L83
+ 1565 0a3a 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 1566 0a3e 00BF     		.p2align 2
+ 1567              	.L83:
+ 1568 0a40 550A0000 		.word	.L82+1
+ 1569 0a44 630A0000 		.word	.L84+1
+ 1570 0a48 730A0000 		.word	.L85+1
+ 1571 0a4c 810A0000 		.word	.L86+1
+ 1572 0a50 970A0000 		.word	.L87+1
+ 1573              		.p2align 1
+ 1574              	.L82:
+ 685:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_0:
+ 686:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&nextAddr.addr_128b[15],msg->payload+2,1);
+ 1575              		.loc 1 686 0
+ 1576 0a54 FB68     		ldr	r3, [r7, #12]
+ 1577 0a56 5B68     		ldr	r3, [r3, #4]
+ 1578 0a58 0233     		adds	r3, r3, #2
+ 1579 0a5a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1580 0a5c 87F8CC30 		strb	r3, [r7, #204]
+ 687:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1581              		.loc 1 687 0
+ 1582 0a60 24E0     		b	.L81
+ 1583              	.L84:
+ 688:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_1:
+ 689:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&nextAddr.addr_128b[14],msg->payload+2,2);
+ 1584              		.loc 1 689 0
+ 1585 0a62 FB68     		ldr	r3, [r7, #12]
+ 1586 0a64 5B68     		ldr	r3, [r3, #4]
+ 1587 0a66 0233     		adds	r3, r3, #2
+ 1588 0a68 1B88     		ldrh	r3, [r3]	@ unaligned
+ 1589 0a6a 9BB2     		uxth	r3, r3
+ 1590 0a6c A7F8CB30 		strh	r3, [r7, #203]	@ unaligned
+ 690:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1591              		.loc 1 690 0
+ 1592 0a70 1CE0     		b	.L81
+ 1593              	.L85:
+ 691:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_2:
+ 692:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&nextAddr.addr_128b[12],msg->payload+2,4);
+ 1594              		.loc 1 692 0
+ 1595 0a72 FB68     		ldr	r3, [r7, #12]
+ 1596 0a74 5B68     		ldr	r3, [r3, #4]
+ 1597 0a76 0233     		adds	r3, r3, #2
+ 1598 0a78 1B68     		ldr	r3, [r3]	@ unaligned
+ 1599 0a7a C7F8C930 		str	r3, [r7, #201]	@ unaligned
+ 693:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1600              		.loc 1 693 0
+ 1601 0a7e 15E0     		b	.L81
+ 1602              	.L86:
+ 694:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_3:
+ 695:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&nextAddr.addr_128b[8],msg->payload+2,8);
+ 1603              		.loc 1 695 0
+ 1604 0a80 FB68     		ldr	r3, [r7, #12]
+ 1605 0a82 5B68     		ldr	r3, [r3, #4]
+ 1606 0a84 991C     		adds	r1, r3, #2
+ 1607 0a86 07F1BC03 		add	r3, r7, #188
+ 1608 0a8a 0933     		adds	r3, r3, #9
+ 1609 0a8c 0822     		movs	r2, #8
+ 1610 0a8e 1846     		mov	r0, r3
+ 1611 0a90 FFF7FEFF 		bl	memcpy
+ 696:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1612              		.loc 1 696 0
+ 1613 0a94 0AE0     		b	.L81
+ 1614              	.L87:
+ 697:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_4:
+ 698:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&nextAddr.addr_128b[0],msg->payload+2,16);
+ 1615              		.loc 1 698 0
+ 1616 0a96 FB68     		ldr	r3, [r7, #12]
+ 1617 0a98 5B68     		ldr	r3, [r3, #4]
+ 1618 0a9a 991C     		adds	r1, r3, #2
+ 1619 0a9c 07F1BC03 		add	r3, r7, #188
+ 1620 0aa0 0133     		adds	r3, r3, #1
+ 1621 0aa2 1022     		movs	r2, #16
+ 1622 0aa4 1846     		mov	r0, r3
+ 1623 0aa6 FFF7FEFF 		bl	memcpy
+ 699:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1624              		.loc 1 699 0
+ 1625 0aaa 00BF     		nop
+ 1626              	.L81:
+ 700:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     }
+ 701:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     packetfunctions_ip128bToMac64b(
+ 1627              		.loc 1 701 0
+ 1628 0aac FB68     		ldr	r3, [r7, #12]
+ 1629 0aae 03F14102 		add	r2, r3, #65
+ 1630 0ab2 07F1A801 		add	r1, r7, #168
+ 1631 0ab6 07F1BC03 		add	r3, r7, #188
+ 1632 0aba 1846     		mov	r0, r3
+ 1633 0abc FFF7FEFF 		bl	packetfunctions_ip128bToMac64b
+ 680:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     packetfunctions_tossHeader(msg,hlen);
+ 1634              		.loc 1 680 0
+ 1635 0ac0 F0E0     		b	.L78
+ 1636              	.L80:
+ 702:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         &nextAddr,
+ 703:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         &temp_prefix,
+ 704:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         &msg->l2_nextORpreviousHop
+ 705:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     );
+ 706:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 } else {
+ 707:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     hlen += 2;
+ 1637              		.loc 1 707 0
+ 1638 0ac2 97F8ED30 		ldrb	r3, [r7, #237]
+ 1639 0ac6 0233     		adds	r3, r3, #2
+ 1640 0ac8 87F8ED30 		strb	r3, [r7, #237]
+ 708:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     switch(next_type){
+ 1641              		.loc 1 708 0
+ 1642 0acc 97F8E830 		ldrb	r3, [r7, #232]	@ zero_extendqisi2
+ 1643 0ad0 032B     		cmp	r3, #3
+ 1644 0ad2 48D8     		bhi	.L89
+ 1645 0ad4 01A2     		adr	r2, .L91
+ 1646 0ad6 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 1647 0ada 00BF     		.p2align 2
+ 1648              	.L91:
+ 1649 0adc ED0A0000 		.word	.L90+1
+ 1650 0ae0 090B0000 		.word	.L92+1
+ 1651 0ae4 270B0000 		.word	.L93+1
+ 1652 0ae8 430B0000 		.word	.L94+1
+ 1653              		.p2align 1
+ 1654              	.L90:
+ 709:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_0:
+ 710:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&firstAddr.addr_128b[15],msg->payload+hlen,1);
+ 1655              		.loc 1 710 0
+ 1656 0aec FB68     		ldr	r3, [r7, #12]
+ 1657 0aee 5A68     		ldr	r2, [r3, #4]
+ 1658 0af0 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1659 0af4 1344     		add	r3, r3, r2
+ 1660 0af6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1661 0af8 87F8E030 		strb	r3, [r7, #224]
+ 711:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         hlen += 1;
+ 1662              		.loc 1 711 0
+ 1663 0afc 97F8ED30 		ldrb	r3, [r7, #237]
+ 1664 0b00 0133     		adds	r3, r3, #1
+ 1665 0b02 87F8ED30 		strb	r3, [r7, #237]
+ 712:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1666              		.loc 1 712 0
+ 1667 0b06 2EE0     		b	.L89
+ 1668              	.L92:
+ 713:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_1:
+ 714:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&firstAddr.addr_128b[14],msg->payload+hlen,2);
+ 1669              		.loc 1 714 0
+ 1670 0b08 FB68     		ldr	r3, [r7, #12]
+ 1671 0b0a 5A68     		ldr	r2, [r3, #4]
+ 1672 0b0c 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1673 0b10 1344     		add	r3, r3, r2
+ 1674 0b12 1B88     		ldrh	r3, [r3]	@ unaligned
+ 1675 0b14 9BB2     		uxth	r3, r3
+ 1676 0b16 A7F8DF30 		strh	r3, [r7, #223]	@ unaligned
+ 715:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         hlen += 2;
+ 1677              		.loc 1 715 0
+ 1678 0b1a 97F8ED30 		ldrb	r3, [r7, #237]
+ 1679 0b1e 0233     		adds	r3, r3, #2
+ 1680 0b20 87F8ED30 		strb	r3, [r7, #237]
+ 716:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1681              		.loc 1 716 0
+ 1682 0b24 1FE0     		b	.L89
+ 1683              	.L93:
+ 717:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_2:
+ 718:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&firstAddr.addr_128b[12],msg->payload+hlen,4);
+ 1684              		.loc 1 718 0
+ 1685 0b26 FB68     		ldr	r3, [r7, #12]
+ 1686 0b28 5A68     		ldr	r2, [r3, #4]
+ 1687 0b2a 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1688 0b2e 1344     		add	r3, r3, r2
+ 1689 0b30 1B68     		ldr	r3, [r3]	@ unaligned
+ 1690 0b32 C7F8DD30 		str	r3, [r7, #221]	@ unaligned
+ 719:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         hlen += 4;
+ 1691              		.loc 1 719 0
+ 1692 0b36 97F8ED30 		ldrb	r3, [r7, #237]
+ 1693 0b3a 0433     		adds	r3, r3, #4
+ 1694 0b3c 87F8ED30 		strb	r3, [r7, #237]
+ 720:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1695              		.loc 1 720 0
+ 1696 0b40 11E0     		b	.L89
+ 1697              	.L94:
+ 721:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_3:
+ 722:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&firstAddr.addr_128b[8],msg->payload+hlen,8);
+ 1698              		.loc 1 722 0
+ 1699 0b42 FB68     		ldr	r3, [r7, #12]
+ 1700 0b44 5A68     		ldr	r2, [r3, #4]
+ 1701 0b46 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1702 0b4a D118     		adds	r1, r2, r3
+ 1703 0b4c 07F1D003 		add	r3, r7, #208
+ 1704 0b50 0933     		adds	r3, r3, #9
+ 1705 0b52 0822     		movs	r2, #8
+ 1706 0b54 1846     		mov	r0, r3
+ 1707 0b56 FFF7FEFF 		bl	memcpy
+ 723:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         hlen += 8;
+ 1708              		.loc 1 723 0
+ 1709 0b5a 97F8ED30 		ldrb	r3, [r7, #237]
+ 1710 0b5e 0833     		adds	r3, r3, #8
+ 1711 0b60 87F8ED30 		strb	r3, [r7, #237]
+ 724:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1712              		.loc 1 724 0
+ 1713 0b64 00BF     		nop
+ 1714              	.L89:
+ 725:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     }
+ 726:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     next_size = temp_8b & RH3_6LOTH_SIZE_MASK;
+ 1715              		.loc 1 726 0
+ 1716 0b66 97F8EF30 		ldrb	r3, [r7, #239]
+ 1717 0b6a 03F01F03 		and	r3, r3, #31
+ 1718 0b6e 87F8E730 		strb	r3, [r7, #231]
+ 727:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     packetfunctions_tossHeader(msg,hlen);
+ 1719              		.loc 1 727 0
+ 1720 0b72 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1721 0b76 1946     		mov	r1, r3
+ 1722 0b78 F868     		ldr	r0, [r7, #12]
+ 1723 0b7a FFF7FEFF 		bl	packetfunctions_tossHeader
+ 728:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     if (next_size>0){
+ 1724              		.loc 1 728 0
+ 1725 0b7e 97F8E730 		ldrb	r3, [r7, #231]	@ zero_extendqisi2
+ 1726 0b82 002B     		cmp	r3, #0
+ 1727 0b84 16D0     		beq	.L95
+ 729:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         next_size -= 1;
+ 1728              		.loc 1 729 0
+ 1729 0b86 97F8E730 		ldrb	r3, [r7, #231]
+ 1730 0b8a 013B     		subs	r3, r3, #1
+ 1731 0b8c 87F8E730 		strb	r3, [r7, #231]
+ 730:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         packetfunctions_reserveHeaderSize(msg,2);
+ 1732              		.loc 1 730 0
+ 1733 0b90 0221     		movs	r1, #2
+ 1734 0b92 F868     		ldr	r0, [r7, #12]
+ 1735 0b94 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 731:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         msg->payload[0] = CRITICAL_6LORH | next_size;
+ 1736              		.loc 1 731 0
+ 1737 0b98 FB68     		ldr	r3, [r7, #12]
+ 1738 0b9a 5B68     		ldr	r3, [r3, #4]
+ 1739 0b9c 97F8E720 		ldrb	r2, [r7, #231]
+ 1740 0ba0 62F07F02 		orn	r2, r2, #127
+ 1741 0ba4 D2B2     		uxtb	r2, r2
+ 1742 0ba6 1A70     		strb	r2, [r3]
+ 732:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         msg->payload[1] = next_type;
+ 1743              		.loc 1 732 0
+ 1744 0ba8 FB68     		ldr	r3, [r7, #12]
+ 1745 0baa 5B68     		ldr	r3, [r3, #4]
+ 1746 0bac 0133     		adds	r3, r3, #1
+ 1747 0bae 97F8E820 		ldrb	r2, [r7, #232]
+ 1748 0bb2 1A70     		strb	r2, [r3]
+ 1749              	.L95:
+ 733:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     }
+ 734:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     // add first address
+ 735:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     switch(type){
+ 1750              		.loc 1 735 0
+ 1751 0bb4 97F8EE30 		ldrb	r3, [r7, #238]	@ zero_extendqisi2
+ 1752 0bb8 042B     		cmp	r3, #4
+ 1753 0bba 48D8     		bhi	.L96
+ 1754 0bbc 01A2     		adr	r2, .L98
+ 1755 0bbe 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 1756 0bc2 00BF     		.p2align 2
+ 1757              	.L98:
+ 1758 0bc4 D90B0000 		.word	.L97+1
+ 1759 0bc8 ED0B0000 		.word	.L99+1
+ 1760 0bcc 030C0000 		.word	.L100+1
+ 1761 0bd0 170C0000 		.word	.L101+1
+ 1762 0bd4 330C0000 		.word	.L102+1
+ 1763              		.p2align 1
+ 1764              	.L97:
+ 736:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_0:
+ 737:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         packetfunctions_reserveHeaderSize(msg,1);
+ 1765              		.loc 1 737 0
+ 1766 0bd8 0121     		movs	r1, #1
+ 1767 0bda F868     		ldr	r0, [r7, #12]
+ 1768 0bdc FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 738:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         msg->payload[0] = firstAddr.addr_128b[15];
+ 1769              		.loc 1 738 0
+ 1770 0be0 FB68     		ldr	r3, [r7, #12]
+ 1771 0be2 5B68     		ldr	r3, [r3, #4]
+ 1772 0be4 97F8E020 		ldrb	r2, [r7, #224]	@ zero_extendqisi2
+ 1773 0be8 1A70     		strb	r2, [r3]
+ 739:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1774              		.loc 1 739 0
+ 1775 0bea 30E0     		b	.L96
+ 1776              	.L99:
+ 740:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_1:
+ 741:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         packetfunctions_reserveHeaderSize(msg,2);
+ 1777              		.loc 1 741 0
+ 1778 0bec 0221     		movs	r1, #2
+ 1779 0bee F868     		ldr	r0, [r7, #12]
+ 1780 0bf0 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 742:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&msg->payload[0],&firstAddr.addr_128b[14],2);
+ 1781              		.loc 1 742 0
+ 1782 0bf4 FB68     		ldr	r3, [r7, #12]
+ 1783 0bf6 5B68     		ldr	r3, [r3, #4]
+ 1784 0bf8 B7F8DF20 		ldrh	r2, [r7, #223]	@ unaligned
+ 1785 0bfc 92B2     		uxth	r2, r2
+ 1786 0bfe 1A80     		strh	r2, [r3]	@ unaligned
+ 743:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1787              		.loc 1 743 0
+ 1788 0c00 25E0     		b	.L96
+ 1789              	.L100:
+ 744:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_2:
+ 745:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         packetfunctions_reserveHeaderSize(msg,4);
+ 1790              		.loc 1 745 0
+ 1791 0c02 0421     		movs	r1, #4
+ 1792 0c04 F868     		ldr	r0, [r7, #12]
+ 1793 0c06 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 746:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&msg->payload[0],&firstAddr.addr_128b[12],4);
+ 1794              		.loc 1 746 0
+ 1795 0c0a FB68     		ldr	r3, [r7, #12]
+ 1796 0c0c 5B68     		ldr	r3, [r3, #4]
+ 1797 0c0e D7F8DD20 		ldr	r2, [r7, #221]	@ unaligned
+ 1798 0c12 1A60     		str	r2, [r3]	@ unaligned
+ 747:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1799              		.loc 1 747 0
+ 1800 0c14 1BE0     		b	.L96
+ 1801              	.L101:
+ 748:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_3:
+ 749:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         packetfunctions_reserveHeaderSize(msg,8);
+ 1802              		.loc 1 749 0
+ 1803 0c16 0821     		movs	r1, #8
+ 1804 0c18 F868     		ldr	r0, [r7, #12]
+ 1805 0c1a FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 750:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&msg->payload[0],&firstAddr.addr_128b[8],8);
+ 1806              		.loc 1 750 0
+ 1807 0c1e FB68     		ldr	r3, [r7, #12]
+ 1808 0c20 5868     		ldr	r0, [r3, #4]
+ 1809 0c22 07F1D003 		add	r3, r7, #208
+ 1810 0c26 0933     		adds	r3, r3, #9
+ 1811 0c28 0822     		movs	r2, #8
+ 1812 0c2a 1946     		mov	r1, r3
+ 1813 0c2c FFF7FEFF 		bl	memcpy
+ 751:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1814              		.loc 1 751 0
+ 1815 0c30 0DE0     		b	.L96
+ 1816              	.L102:
+ 752:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     case RH3_6LOTH_TYPE_4:
+ 753:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         packetfunctions_reserveHeaderSize(msg,16);
+ 1817              		.loc 1 753 0
+ 1818 0c32 1021     		movs	r1, #16
+ 1819 0c34 F868     		ldr	r0, [r7, #12]
+ 1820 0c36 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 754:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         memcpy(&msg->payload[0],&firstAddr.addr_128b[0],16);
+ 1821              		.loc 1 754 0
+ 1822 0c3a FB68     		ldr	r3, [r7, #12]
+ 1823 0c3c 5868     		ldr	r0, [r3, #4]
+ 1824 0c3e 07F1D003 		add	r3, r7, #208
+ 1825 0c42 0133     		adds	r3, r3, #1
+ 1826 0c44 1022     		movs	r2, #16
+ 1827 0c46 1946     		mov	r1, r3
+ 1828 0c48 FFF7FEFF 		bl	memcpy
+ 755:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         break;
+ 1829              		.loc 1 755 0
+ 1830 0c4c 00BF     		nop
+ 1831              	.L96:
+ 756:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     }
+ 757:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     packetfunctions_reserveHeaderSize(msg,2);
+ 1832              		.loc 1 757 0
+ 1833 0c4e 0221     		movs	r1, #2
+ 1834 0c50 F868     		ldr	r0, [r7, #12]
+ 1835 0c52 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 758:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     msg->payload[0] = CRITICAL_6LORH | 0;
+ 1836              		.loc 1 758 0
+ 1837 0c56 FB68     		ldr	r3, [r7, #12]
+ 1838 0c58 5B68     		ldr	r3, [r3, #4]
+ 1839 0c5a 8022     		movs	r2, #128
+ 1840 0c5c 1A70     		strb	r2, [r3]
+ 759:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     msg->payload[1] = type;
+ 1841              		.loc 1 759 0
+ 1842 0c5e FB68     		ldr	r3, [r7, #12]
+ 1843 0c60 5B68     		ldr	r3, [r3, #4]
+ 1844 0c62 0133     		adds	r3, r3, #1
+ 1845 0c64 97F8EE20 		ldrb	r2, [r7, #238]
+ 1846 0c68 1A70     		strb	r2, [r3]
+ 760:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     packetfunctions_ip128bToMac64b(
+ 1847              		.loc 1 760 0
+ 1848 0c6a FB68     		ldr	r3, [r7, #12]
+ 1849 0c6c 03F14102 		add	r2, r3, #65
+ 1850 0c70 07F1A801 		add	r1, r7, #168
+ 1851 0c74 07F1D003 		add	r3, r7, #208
+ 1852 0c78 1846     		mov	r0, r3
+ 1853 0c7a FFF7FEFF 		bl	packetfunctions_ip128bToMac64b
+ 680:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     packetfunctions_tossHeader(msg,hlen);
+ 1854              		.loc 1 680 0
+ 1855 0c7e 11E0     		b	.L78
+ 1856              	.L79:
+ 761:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         &firstAddr,
+ 762:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         &temp_prefix,
+ 763:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                         &msg->l2_nextORpreviousHop
+ 764:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     );
+ 765:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 }
+ 766:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             } else {
+ 767:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 // there is no next RH3-6loRH, remove current one
+ 768:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 packetfunctions_tossHeader(msg,hlen);
+ 1857              		.loc 1 768 0
+ 1858 0c80 97F8ED30 		ldrb	r3, [r7, #237]	@ zero_extendqisi2
+ 1859 0c84 1946     		mov	r1, r3
+ 1860 0c86 F868     		ldr	r0, [r7, #12]
+ 1861 0c88 FFF7FEFF 		bl	packetfunctions_tossHeader
+ 769:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 packetfunctions_ip128bToMac64b(
+ 1862              		.loc 1 769 0
+ 1863 0c8c FB68     		ldr	r3, [r7, #12]
+ 1864 0c8e 03F11D00 		add	r0, r3, #29
+ 1865 0c92 FB68     		ldr	r3, [r7, #12]
+ 1866 0c94 03F14102 		add	r2, r3, #65
+ 1867 0c98 07F1A803 		add	r3, r7, #168
+ 1868 0c9c 1946     		mov	r1, r3
+ 1869 0c9e FFF7FEFF 		bl	packetfunctions_ip128bToMac64b
+ 640:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // there are at least 2 entries in the header,
+ 1870              		.loc 1 640 0
+ 1871 0ca2 08E0     		b	.L103
+ 1872              	.L78:
+ 640:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // there are at least 2 entries in the header,
+ 1873              		.loc 1 640 0 is_stmt 0 discriminator 1
+ 1874 0ca4 07E0     		b	.L103
+ 1875              	.L69:
+ 770:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     &msg->l3_destinationAdd,
+ 771:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     &temp_prefix,
+ 772:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                     &msg->l2_nextORpreviousHop
+ 773:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 );
+ 774:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             }
+ 775:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         }
+ 776:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     } else {
+ 777:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         // log error
+ 778:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         openserial_printError(
+ 779:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             COMPONENT_IPHC,
+ 780:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             ERR_6LOWPAN_UNSUPPORTED,
+ 781:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             (errorparameter_t)16,
+ 782:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             (errorparameter_t)(temp_addr64.addr_64b[7])
+ 1876              		.loc 1 782 0 is_stmt 1
+ 1877 0ca6 97F89C30 		ldrb	r3, [r7, #156]	@ zero_extendqisi2
+ 778:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             COMPONENT_IPHC,
+ 1878              		.loc 1 778 0
+ 1879 0caa 9BB2     		uxth	r3, r3
+ 1880 0cac 1022     		movs	r2, #16
+ 1881 0cae 0C21     		movs	r1, #12
+ 1882 0cb0 1120     		movs	r0, #17
+ 1883 0cb2 FFF7FEFF 		bl	openserial_printError
+ 1884              	.L103:
+ 783:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         );
+ 784:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 785:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // copy RH3s before toss them
+ 786:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (
+ 787:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         ipv6_outer_header->src.type != ADDR_NONE &&
+ 1885              		.loc 1 787 0
+ 1886 0cb6 BB68     		ldr	r3, [r7, #8]
+ 1887 0cb8 93F82230 		ldrb	r3, [r3, #34]	@ zero_extendqisi2
+ 786:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         ipv6_outer_header->src.type != ADDR_NONE &&
+ 1888              		.loc 1 786 0
+ 1889 0cbc 002B     		cmp	r3, #0
+ 1890 0cbe 00F08380 		beq	.L104
+ 788:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         ipv6_outer_header->hopByhop_option != NULL
+ 1891              		.loc 1 788 0
+ 1892 0cc2 BB68     		ldr	r3, [r7, #8]
+ 1893 0cc4 9B69     		ldr	r3, [r3, #24]
+ 787:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         ipv6_outer_header->hopByhop_option != NULL
+ 1894              		.loc 1 787 0
+ 1895 0cc6 002B     		cmp	r3, #0
+ 1896 0cc8 7ED0     		beq	.L104
+ 789:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     ){
+ 790:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         // check the length of RH3s
+ 791:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         RH3_length += ipv6_outer_header->hopByhop_option-msg->payload;
+ 1897              		.loc 1 791 0
+ 1898 0cca BB68     		ldr	r3, [r7, #8]
+ 1899 0ccc 9B69     		ldr	r3, [r3, #24]
+ 1900 0cce 1A46     		mov	r2, r3
+ 1901 0cd0 FB68     		ldr	r3, [r7, #12]
+ 1902 0cd2 5B68     		ldr	r3, [r3, #4]
+ 1903 0cd4 D31A     		subs	r3, r2, r3
+ 1904 0cd6 DAB2     		uxtb	r2, r3
+ 1905 0cd8 97F8EA30 		ldrb	r3, [r7, #234]
+ 1906 0cdc 1344     		add	r3, r3, r2
+ 1907 0cde 87F8EA30 		strb	r3, [r7, #234]
+ 792:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         memcpy(&RH_copy[RH_length],msg->payload,RH3_length);
+ 1908              		.loc 1 792 0
+ 1909 0ce2 97F8EC30 		ldrb	r3, [r7, #236]	@ zero_extendqisi2
+ 1910 0ce6 07F11402 		add	r2, r7, #20
+ 1911 0cea D018     		adds	r0, r2, r3
+ 1912 0cec FB68     		ldr	r3, [r7, #12]
+ 1913 0cee 5B68     		ldr	r3, [r3, #4]
+ 1914 0cf0 97F8EA20 		ldrb	r2, [r7, #234]	@ zero_extendqisi2
+ 1915 0cf4 1946     		mov	r1, r3
+ 1916 0cf6 FFF7FEFF 		bl	memcpy
+ 793:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         packetfunctions_tossHeader(msg,RH3_length);
+ 1917              		.loc 1 793 0
+ 1918 0cfa 97F8EA30 		ldrb	r3, [r7, #234]	@ zero_extendqisi2
+ 1919 0cfe 1946     		mov	r1, r3
+ 1920 0d00 F868     		ldr	r0, [r7, #12]
+ 1921 0d02 FFF7FEFF 		bl	packetfunctions_tossHeader
+ 794:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         RH_length += RH3_length;
+ 1922              		.loc 1 794 0
+ 1923 0d06 97F8EC20 		ldrb	r2, [r7, #236]
+ 1924 0d0a 97F8EA30 		ldrb	r3, [r7, #234]
+ 1925 0d0e 1344     		add	r3, r3, r2
+ 1926 0d10 87F8EC30 		strb	r3, [r7, #236]
+ 795:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 796:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         // retrieve hop-by-hop header (includes RPL option)
+ 797:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         rpi_length = iphc_retrieveIPv6HopByHopHeader(
+ 1927              		.loc 1 797 0
+ 1928 0d14 D7F80011 		ldr	r1, [r7, #256]
+ 1929 0d18 F868     		ldr	r0, [r7, #12]
+ 1930 0d1a FFF7FEFF 		bl	iphc_retrieveIPv6HopByHopHeader
+ 1931 0d1e 0346     		mov	r3, r0
+ 1932 0d20 87F8E630 		strb	r3, [r7, #230]
+ 798:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                           msg,
+ 799:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                           rpl_option
+ 800:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                      );
+ 801:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 802:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         // toss the headers
+ 803:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         packetfunctions_tossHeader(
+ 1933              		.loc 1 803 0
+ 1934 0d24 97F8E630 		ldrb	r3, [r7, #230]	@ zero_extendqisi2
+ 1935 0d28 1946     		mov	r1, r3
+ 1936 0d2a F868     		ldr	r0, [r7, #12]
+ 1937 0d2c FFF7FEFF 		bl	packetfunctions_tossHeader
+ 804:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             msg,
+ 805:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             rpi_length
+ 806:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         );
+ 807:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 808:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         flags = rpl_option->flags;
+ 1938              		.loc 1 808 0
+ 1939 0d30 D7F80031 		ldr	r3, [r7, #256]
+ 1940 0d34 5B78     		ldrb	r3, [r3, #1]
+ 1941 0d36 87F8E530 		strb	r3, [r7, #229]
+ 809:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         senderRank = rpl_option->senderRank;
+ 1942              		.loc 1 809 0
+ 1943 0d3a D7F80031 		ldr	r3, [r7, #256]
+ 1944 0d3e DA78     		ldrb	r2, [r3, #3]	@ zero_extendqisi2
+ 1945 0d40 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 1946 0d42 1B02     		lsls	r3, r3, #8
+ 1947 0d44 1343     		orrs	r3, r3, r2
+ 1948 0d46 A7F8E230 		strh	r3, [r7, #226]	@ movhi
+ 810:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if ((flags & O_FLAG)!=O_FLAG){
+ 1949              		.loc 1 810 0
+ 1950 0d4a 97F8E530 		ldrb	r3, [r7, #229]	@ zero_extendqisi2
+ 1951 0d4e 03F01003 		and	r3, r3, #16
+ 1952 0d52 002B     		cmp	r3, #0
+ 1953 0d54 08D1     		bne	.L105
+ 811:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // wrong direction
+ 812:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // log error
+ 813:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             openserial_printError(
+ 1954              		.loc 1 813 0
+ 1955 0d56 97F8E530 		ldrb	r3, [r7, #229]	@ zero_extendqisi2
+ 1956 0d5a 9AB2     		uxth	r2, r3
+ 1957 0d5c B7F8E230 		ldrh	r3, [r7, #226]
+ 1958 0d60 1321     		movs	r1, #19
+ 1959 0d62 1220     		movs	r0, #18
+ 1960 0d64 FFF7FEFF 		bl	openserial_printError
+ 1961              	.L105:
+ 814:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 COMPONENT_FORWARDING,
+ 815:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 ERR_WRONG_DIRECTION,
+ 816:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 (errorparameter_t)flags,
+ 817:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 (errorparameter_t)senderRank
+ 818:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             );
+ 819:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         }
+ 820:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if (senderRank > icmpv6rpl_getMyDAGrank()){
+ 1962              		.loc 1 820 0
+ 1963 0d68 FFF7FEFF 		bl	icmpv6rpl_getMyDAGrank
+ 1964 0d6c 0346     		mov	r3, r0
+ 1965 0d6e 1A46     		mov	r2, r3
+ 1966 0d70 B7F8E230 		ldrh	r3, [r7, #226]
+ 1967 0d74 9342     		cmp	r3, r2
+ 1968 0d76 11D9     		bls	.L106
+ 821:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // loop detected
+ 822:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // set flag
+ 823:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             rpl_option->flags |= R_FLAG;
+ 1969              		.loc 1 823 0
+ 1970 0d78 D7F80031 		ldr	r3, [r7, #256]
+ 1971 0d7c 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1972 0d7e 43F00803 		orr	r3, r3, #8
+ 1973 0d82 DAB2     		uxtb	r2, r3
+ 1974 0d84 D7F80031 		ldr	r3, [r7, #256]
+ 1975 0d88 5A70     		strb	r2, [r3, #1]
+ 824:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             // log error
+ 825:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             openserial_printError(
+ 826:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 COMPONENT_FORWARDING,
+ 827:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 ERR_LOOP_DETECTED,
+ 828:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 (errorparameter_t) senderRank,
+ 829:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 (errorparameter_t) icmpv6rpl_getMyDAGrank()
+ 1976              		.loc 1 829 0
+ 1977 0d8a FFF7FEFF 		bl	icmpv6rpl_getMyDAGrank
+ 1978 0d8e 0346     		mov	r3, r0
+ 825:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****                 COMPONENT_FORWARDING,
+ 1979              		.loc 1 825 0
+ 1980 0d90 B7F8E220 		ldrh	r2, [r7, #226]
+ 1981 0d94 1221     		movs	r1, #18
+ 1982 0d96 1220     		movs	r0, #18
+ 1983 0d98 FFF7FEFF 		bl	openserial_printError
+ 1984              	.L106:
+ 830:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             );
+ 831:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         }
+ 832:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         forwarding_createRplOption(rpl_option, rpl_option->flags);
+ 1985              		.loc 1 832 0
+ 1986 0d9c D7F80031 		ldr	r3, [r7, #256]
+ 1987 0da0 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1988 0da2 1946     		mov	r1, r3
+ 1989 0da4 D7F80001 		ldr	r0, [r7, #256]
+ 1990 0da8 FFF7FEFF 		bl	forwarding_createRplOption
+ 833:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 834:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 835:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         if (deadline_option != NULL)
+ 1991              		.loc 1 835 0
+ 1992 0dac 3B68     		ldr	r3, [r7]
+ 1993 0dae 002B     		cmp	r3, #0
+ 1994 0db0 02D0     		beq	.L107
+ 836:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****             forwarding_createDeadlineOption(deadline_option);
+ 1995              		.loc 1 836 0
+ 1996 0db2 3868     		ldr	r0, [r7]
+ 1997 0db4 FFF7FEFF 		bl	forwarding_createDeadlineOption
+ 1998              	.L107:
+ 837:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 838:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 839:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         // toss the IP in IP 6LoRH
+ 840:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         packetfunctions_tossHeader(msg, ipv6_outer_header->header_length);
+ 1999              		.loc 1 840 0
+ 2000 0db8 BB68     		ldr	r3, [r7, #8]
+ 2001 0dba 93F84430 		ldrb	r3, [r3, #68]	@ zero_extendqisi2
+ 2002 0dbe 1946     		mov	r1, r3
+ 2003 0dc0 F868     		ldr	r0, [r7, #12]
+ 2004 0dc2 FFF7FEFF 		bl	packetfunctions_tossHeader
+ 2005 0dc6 02E0     		b	.L108
+ 2006              	.L104:
+ 841:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     } else {
+ 842:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         RH3_length = 0;
+ 2007              		.loc 1 842 0
+ 2008 0dc8 0023     		movs	r3, #0
+ 2009 0dca 87F8EA30 		strb	r3, [r7, #234]
+ 2010              	.L108:
+ 843:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 844:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 845:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     msg->l3_useSourceRouting = TRUE;
+ 2011              		.loc 1 845 0
+ 2012 0dce FB68     		ldr	r3, [r7, #12]
+ 2013 0dd0 0122     		movs	r2, #1
+ 2014 0dd2 83F83F20 		strb	r2, [r3, #63]
+ 846:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 847:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     // send to next lower layer
+ 848:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     return iphc_sendFromForwarding(
+ 2015              		.loc 1 848 0
+ 2016 0dd6 BB68     		ldr	r3, [r7, #8]
+ 2017 0dd8 0433     		adds	r3, r3, #4
+ 2018 0dda 0122     		movs	r2, #1
+ 2019 0ddc 0492     		str	r2, [sp, #16]
+ 2020 0dde 97F8EC20 		ldrb	r2, [r7, #236]	@ zero_extendqisi2
+ 2021 0de2 0392     		str	r2, [sp, #12]
+ 2022 0de4 07F11402 		add	r2, r7, #20
+ 2023 0de8 0292     		str	r2, [sp, #8]
+ 2024 0dea 0193     		str	r3, [sp, #4]
+ 2025 0dec 3B68     		ldr	r3, [r7]
+ 2026 0dee 0093     		str	r3, [sp]
+ 2027 0df0 D7F80031 		ldr	r3, [r7, #256]
+ 2028 0df4 7A68     		ldr	r2, [r7, #4]
+ 2029 0df6 B968     		ldr	r1, [r7, #8]
+ 2030 0df8 F868     		ldr	r0, [r7, #12]
+ 2031 0dfa FFF7FEFF 		bl	iphc_sendFromForwarding
+ 2032 0dfe 0346     		mov	r3, r0
+ 849:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         msg,
+ 850:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         ipv6_outer_header,
+ 851:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         ipv6_inner_header,
+ 852:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         rpl_option,
+ 853:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 854:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         deadline_option,
+ 855:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #endif
+ 856:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         &ipv6_outer_header->flow_label,
+ 857:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         &RH_copy[0],
+ 858:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         RH_length,
+ 859:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         PCKTFORWARD
+ 860:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     );
+ 861:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** }
+ 2033              		.loc 1 861 0
+ 2034 0e00 1846     		mov	r0, r3
+ 2035 0e02 F037     		adds	r7, r7, #240
+ 2036              		.cfi_def_cfa_offset 16
+ 2037 0e04 BD46     		mov	sp, r7
+ 2038              		.cfi_def_cfa_register 13
+ 2039              		@ sp needed
+ 2040 0e06 B0BD     		pop	{r4, r5, r7, pc}
+ 2041              		.cfi_endproc
+ 2042              	.LFE9:
+ 2044              		.align	1
+ 2045              		.global	forwarding_createRplOption
+ 2046              		.syntax unified
+ 2047              		.thumb
+ 2048              		.thumb_func
+ 2049              		.fpu softvfp
+ 2051              	forwarding_createRplOption:
+ 2052              	.LFB10:
+ 862:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 863:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 864:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** /**
+ 865:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \brief Create a RPL option.
+ 866:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 867:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[out] rpl_option A pointer to the structure to fill in.
+ 868:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[in]  flags      The flags to indicate in the RPL option.
+ 869:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** */
+ 870:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** void forwarding_createRplOption(rpl_option_ht* rpl_option, uint8_t flags) {
+ 2053              		.loc 1 870 0
+ 2054              		.cfi_startproc
+ 2055              		@ args = 0, pretend = 0, frame = 16
+ 2056              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2057 0e08 80B5     		push	{r7, lr}
+ 2058              		.cfi_def_cfa_offset 8
+ 2059              		.cfi_offset 7, -8
+ 2060              		.cfi_offset 14, -4
+ 2061 0e0a 84B0     		sub	sp, sp, #16
+ 2062              		.cfi_def_cfa_offset 24
+ 2063 0e0c 00AF     		add	r7, sp, #0
+ 2064              		.cfi_def_cfa_register 7
+ 2065 0e0e 7860     		str	r0, [r7, #4]
+ 2066 0e10 0B46     		mov	r3, r1
+ 2067 0e12 FB70     		strb	r3, [r7, #3]
+ 871:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     uint8_t I,K;
+ 872:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     rpl_option->optionType         = RPL_HOPBYHOP_HEADER_OPTION_TYPE;
+ 2068              		.loc 1 872 0
+ 2069 0e14 7B68     		ldr	r3, [r7, #4]
+ 2070 0e16 6322     		movs	r2, #99
+ 2071 0e18 1A70     		strb	r2, [r3]
+ 873:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     rpl_option->rplInstanceID      = icmpv6rpl_getRPLIntanceID();
+ 2072              		.loc 1 873 0
+ 2073 0e1a FFF7FEFF 		bl	icmpv6rpl_getRPLIntanceID
+ 2074 0e1e 0346     		mov	r3, r0
+ 2075 0e20 1A46     		mov	r2, r3
+ 2076 0e22 7B68     		ldr	r3, [r7, #4]
+ 2077 0e24 9A70     		strb	r2, [r3, #2]
+ 874:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     rpl_option->senderRank         = icmpv6rpl_getMyDAGrank();
+ 2078              		.loc 1 874 0
+ 2079 0e26 FFF7FEFF 		bl	icmpv6rpl_getMyDAGrank
+ 2080 0e2a 0346     		mov	r3, r0
+ 2081 0e2c 1A46     		mov	r2, r3
+ 2082 0e2e 7B68     		ldr	r3, [r7, #4]
+ 2083 0e30 A3F80320 		strh	r2, [r3, #3]	@ unaligned
+ 875:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 876:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if (rpl_option->rplInstanceID == 0){
+ 2084              		.loc 1 876 0
+ 2085 0e34 7B68     		ldr	r3, [r7, #4]
+ 2086 0e36 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 2087 0e38 002B     		cmp	r3, #0
+ 2088 0e3a 02D1     		bne	.L111
+ 877:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****        I = 1;
+ 2089              		.loc 1 877 0
+ 2090 0e3c 0123     		movs	r3, #1
+ 2091 0e3e FB73     		strb	r3, [r7, #15]
+ 2092 0e40 01E0     		b	.L112
+ 2093              	.L111:
+ 878:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     } else {
+ 879:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****        I = 0;
+ 2094              		.loc 1 879 0
+ 2095 0e42 0023     		movs	r3, #0
+ 2096 0e44 FB73     		strb	r3, [r7, #15]
+ 2097              	.L112:
+ 880:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 881:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 882:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     if ((rpl_option->senderRank & 0x00FF) == 0){
+ 2098              		.loc 1 882 0
+ 2099 0e46 7B68     		ldr	r3, [r7, #4]
+ 2100 0e48 B3F80330 		ldrh	r3, [r3, #3]	@ unaligned
+ 2101 0e4c 9BB2     		uxth	r3, r3
+ 2102 0e4e DBB2     		uxtb	r3, r3
+ 2103 0e50 002B     		cmp	r3, #0
+ 2104 0e52 02D1     		bne	.L113
+ 883:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         K = 1;
+ 2105              		.loc 1 883 0
+ 2106 0e54 0123     		movs	r3, #1
+ 2107 0e56 BB73     		strb	r3, [r7, #14]
+ 2108 0e58 01E0     		b	.L114
+ 2109              	.L113:
+ 884:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     } else {
+ 885:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****         K = 0;
+ 2110              		.loc 1 885 0
+ 2111 0e5a 0023     		movs	r3, #0
+ 2112 0e5c BB73     		strb	r3, [r7, #14]
+ 2113              	.L114:
+ 886:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     }
+ 887:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 888:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     rpl_option->flags = (flags & ~I_FLAG & ~K_FLAG) | (I<<1) | K;
+ 2114              		.loc 1 888 0
+ 2115 0e5e 97F90330 		ldrsb	r3, [r7, #3]
+ 2116 0e62 23F00303 		bic	r3, r3, #3
+ 2117 0e66 5AB2     		sxtb	r2, r3
+ 2118 0e68 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2119 0e6a 5B00     		lsls	r3, r3, #1
+ 2120 0e6c 5BB2     		sxtb	r3, r3
+ 2121 0e6e 1343     		orrs	r3, r3, r2
+ 2122 0e70 5AB2     		sxtb	r2, r3
+ 2123 0e72 97F90E30 		ldrsb	r3, [r7, #14]
+ 2124 0e76 1343     		orrs	r3, r3, r2
+ 2125 0e78 5BB2     		sxtb	r3, r3
+ 2126 0e7a DAB2     		uxtb	r2, r3
+ 2127 0e7c 7B68     		ldr	r3, [r7, #4]
+ 2128 0e7e 5A70     		strb	r2, [r3, #1]
+ 889:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** }
+ 2129              		.loc 1 889 0
+ 2130 0e80 00BF     		nop
+ 2131 0e82 1037     		adds	r7, r7, #16
+ 2132              		.cfi_def_cfa_offset 8
+ 2133 0e84 BD46     		mov	sp, r7
+ 2134              		.cfi_def_cfa_register 13
+ 2135              		@ sp needed
+ 2136 0e86 80BD     		pop	{r7, pc}
+ 2137              		.cfi_endproc
+ 2138              	.LFE10:
+ 2140              		.align	1
+ 2141              		.global	forwarding_createDeadlineOption
+ 2142              		.syntax unified
+ 2143              		.thumb
+ 2144              		.thumb_func
+ 2145              		.fpu softvfp
+ 2147              	forwarding_createDeadlineOption:
+ 2148              	.LFB11:
+ 890:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 891:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** #ifdef DEADLINE_OPTION_ENABLED
+ 892:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** /**
+ 893:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \brief Create a Deadline-6LoRH .
+ 894:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 895:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** \param[out] delay_option A pointer to the structure to fill in.
+ 896:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** 
+ 897:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** */
+ 898:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** void forwarding_createDeadlineOption(deadline_option_ht* deadline_option) {
+ 2149              		.loc 1 898 0
+ 2150              		.cfi_startproc
+ 2151              		@ args = 0, pretend = 0, frame = 8
+ 2152              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2153              		@ link register save eliminated.
+ 2154 0e88 80B4     		push	{r7}
+ 2155              		.cfi_def_cfa_offset 4
+ 2156              		.cfi_offset 7, -4
+ 2157 0e8a 83B0     		sub	sp, sp, #12
+ 2158              		.cfi_def_cfa_offset 16
+ 2159 0e8c 00AF     		add	r7, sp, #0
+ 2160              		.cfi_def_cfa_register 7
+ 2161 0e8e 7860     		str	r0, [r7, #4]
+ 899:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c ****     deadline_option->optionType = DEADLINE_HOPBYHOP_HEADER_OPTION_TYPE;
+ 2162              		.loc 1 899 0
+ 2163 0e90 7B68     		ldr	r3, [r7, #4]
+ 2164 0e92 AB22     		movs	r2, #171
+ 2165 0e94 1A70     		strb	r2, [r3]
+ 900:build\openmote-cc2538_armgcc\openstack\03b-IPv6/forwarding.c **** }
+ 2166              		.loc 1 900 0
+ 2167 0e96 00BF     		nop
+ 2168 0e98 0C37     		adds	r7, r7, #12
+ 2169              		.cfi_def_cfa_offset 4
+ 2170 0e9a BD46     		mov	sp, r7
+ 2171              		.cfi_def_cfa_register 13
+ 2172              		@ sp needed
+ 2173 0e9c 80BC     		pop	{r7}
+ 2174              		.cfi_restore 7
+ 2175              		.cfi_def_cfa_offset 0
+ 2176 0e9e 7047     		bx	lr
+ 2177              		.cfi_endproc
+ 2178              	.LFE11:
+ 2180              	.Letext0:
+ 2181              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2182              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2183              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2184              		.file 5 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2185              		.file 6 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\lib\\gcc\\arm-none-eab
+ 2186              		.file 7 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2187              		.file 8 "bsp\\boards\\openmote-cc2538/board_info.h"
+ 2188              		.file 9 "inc/opendefs.h"
+ 2189              		.file 10 "openstack\\03a-IPHC/iphc.h"
+ 2190              		.file 11 "build\\openmote-cc2538_armgcc\\openstack\\03b-IPv6\\forwarding.h"
+ 2191              		.file 12 "openstack\\cross-layers/idmanager.h"
+ 2192              		.file 13 "openstack\\03b-IPv6/icmpv6rpl.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 forwarding.c
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:16     .rodata:00000000 $d
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:19     .rodata:00000000 rreg_uriquery
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:24     .rodata:00000008 infoBoardname
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:29     .rodata:00000010 infouCName
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:34     .rodata:00000018 infoRadioName
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:39     .rodata:00000024 infoStackName
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:44     .rodata:00000030 linklocalprefix
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:56     .rodata:00000038 all_routers_multicast
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:74     .text:00000000 $t
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:81     .text:00000000 forwarding_init
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:113    .text:0000000c forwarding_send
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:2051   .text:00000e08 forwarding_createRplOption
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:2147   .text:00000e88 forwarding_createDeadlineOption
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:981    .text:000005ca forwarding_send_internal_RoutingTable
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:489    .text:000002f8 forwarding_sendDone
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:582    .text:00000366 forwarding_receive
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1120   .text:00000698 forwarding_send_internal_SourceRouting
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:910    .text:00000582 forwarding_getNextHop
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1286   .text:000007e4 $d
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1291   .text:000007f8 $t
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1449   .text:0000094c $d
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1454   .text:00000960 $t
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1568   .text:00000a40 $d
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1573   .text:00000a54 $t
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1649   .text:00000adc $d
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1653   .text:00000aec $t
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1758   .text:00000bc4 $d
+C:\Users\Lee\AppData\Local\Temp\ccuQBTai.s:1763   .text:00000bd8 $t
+                           .group:00000000 wm4.0.93d65e4ff05d5af51629690e5b534e57
+                           .group:00000000 wm4._newlib_version.h.4.875b979a44719054cd750d0952ad3fd6
+                           .group:00000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.cce27fed8484c08a33f522034c30d2b5
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:00000000 wm4.newlib.h.8.f6e543eac3f2f65163ba2ffe3b04987b
+                           .group:00000000 wm4.ieeefp.h.77.220d9cccac42cd58761758bee2df4ce6
+                           .group:00000000 wm4.config.h.220.6cac6a9685cfce5e83c17784171638d9
+                           .group:00000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:00000000 wm4.stddef.h.39.a38874c8f8a57e66301090908ec2a69f
+                           .group:00000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:00000000 wm4._types.h.125.5cf8a495f1f7ef36777ad868a1e32068
+                           .group:00000000 wm4.stddef.h.161.5349cb105733e8777bfb0cf53c4e3f34
+                           .group:00000000 wm4._types.h.184.03611d4f6b5bec9997bcf4279eceba07
+                           .group:00000000 wm4.reent.h.17.90c2574d4acdcfce933db5cb09ff35fe
+                           .group:00000000 wm4.cdefs.h.47.0bcdf94cb40e176393dd1404056825b4
+                           .group:00000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:00000000 wm4.stddef.h.161.19e15733342b50ead2919490b095303e
+                           .group:00000000 wm4.stdbool.h.29.07dce69c3b78884144b7f7bd19483461
+                           .group:00000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:00000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:00000000 wm4.board_info.h.22.34c159473b0affd9f1a6f5aa8cf576c9
+                           .group:00000000 wm4.opendefs.h.23.3a22b672f37c862344b7aef3ebe35451
+                           .group:00000000 wm4.iphc.h.2.9e7d9d56ac728a3c0b3014283a59854e
+                           .group:00000000 wm4.forwarding.h.15.45cb0af1f91ed153925f6c7828496d3e
+                           .group:00000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:00000000 wm4.stdio.h.27.3fc80220048df77954e38daec3bb9670
+                           .group:00000000 wm4.stdarg.h.34.3a23a216c0c293b3d2ea2e89281481e6
+                           .group:00000000 wm4.types.h.40.e8c16e7ec36ba55f133d0616070e25fc
+                           .group:00000000 wm4._endian.h.31.65a10590763c3dde1ac4a7f66d7d4891
+                           .group:00000000 wm4.endian.h.9.49f3a4695c1b61e8a0808de3c4a106cb
+                           .group:00000000 wm4._timeval.h.30.0e8bfd94e85db17dda3286ee81496fe6
+                           .group:00000000 wm4.timespec.h.41.d855182eb0e690443ab8651bcedca6e1
+                           .group:00000000 wm4.select.h.19.97ca6fd0c752a0f3b6719fd314d361e6
+                           .group:00000000 wm4.types.h.69.ed3eae3cf73030a737515151ebcab7a1
+                           .group:00000000 wm4.sched.h.22.c60982713a5c428609783c78f9c78d95
+                           .group:00000000 wm4._pthreadtypes.h.36.fcee9961c35163dde6267ef772ad1972
+                           .group:00000000 wm4.stdio.h.2.4aa87247282eca6c8f36f9de33d8df1a
+                           .group:00000000 wm4.stdio.h.81.932d0c162786b883f622b8d05c120c78
+                           .group:00000000 wm4.stdarg.h.31.3fa7b8f6daaa31edd1696c08c77f2a73
+                           .group:00000000 wm4.openserial.h.32.ea1006cc0a4d06130c082222e630581b
+                           .group:00000000 wm4.idmanager.h.2.8c0e2159b32ef3125cbb1e984805cbfe
+                           .group:00000000 wm4.opentimers.h.8.eb1cab84a6e82ba9569a1990291c92ba
+                           .group:00000000 wm4.icmpv6rpl.h.15.ea1c33c2ed88145f3bad15ef7ace3b0f
+                           .group:00000000 wm4.neighbors.h.15.7d3ab5965b5b1193d3498491ae404451
+                           .group:00000000 wm4.scheduler.h.2.eb68556b8ec5a9773a999c64d41ac76c
+
+UNDEFINED SYMBOLS
+idmanager_getMyID
+packetfunctions_ip128bToMac64b
+packetfunctions_isLinkLocal
+packetfunctions_isAllRoutersMulticast
+packetfunctions_isAllHostsMulticast
+memset
+packetfunctions_sameAddress
+packetfunctions_isBroadcastMulticast
+memcpy
+iphc_prependIPv6Header
+openqueue_freePacketBuffer
+openudp_sendDone
+icmpv6_sendDone
+openserial_printCritical
+idmanager_isMyAddress
+packetfunctions_tossHeader
+openudp_receive
+icmpv6_receive
+openserial_printError
+openqueue_isHighPriorityEntryEnough
+icmpv6rpl_getMyDAGrank
+icmpv6rpl_getPreferredParentEui64
+neighbors_isStableNeighbor
+iphc_sendFromForwarding
+icmpv6rpl_getRPLDODAGid
+packetfunctions_reserveHeaderSize
+iphc_retrieveIPv6HopByHopHeader
+icmpv6rpl_getRPLIntanceID

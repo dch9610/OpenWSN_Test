@@ -1,0 +1,168 @@
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"eui64.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.align	1
+  16              		.global	eui64_get
+  17              		.syntax unified
+  18              		.thumb
+  19              		.thumb_func
+  20              		.fpu softvfp
+  22              	eui64_get:
+  23              	.LFB0:
+  24              		.file 1 "build\\openmote-cc2538_armgcc\\bsp\\boards\\openmote-cc2538\\eui64.c"
+   1:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** /**
+   2:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****  * Author: Xavier Vilajosana (xvilajosana@eecs.berkeley.edu)
+   3:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****  *         Pere Tuset (peretuset@openmote.com)
+   4:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****  * Date:   July 2013
+   5:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****  * Description: CC2538-specific definition of the "eui64" bsp module.
+   6:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****  */
+   7:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** 
+   8:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** #include <string.h>
+   9:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** 
+  10:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** #include "eui64.h"
+  11:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** 
+  12:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** //=========================== defines =========================================
+  13:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** 
+  14:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** #define BSP_EUI64_ADDRESS_HI_H      ( 0x0028002F )
+  15:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** #define BSP_EUI64_ADDRESS_HI_L      ( 0x0028002C )
+  16:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** #define BSP_EUI64_ADDRESS_LO_H      ( 0x0028002B )
+  17:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** #define BSP_EUI64_ADDRESS_LO_L      ( 0x00280028 )
+  18:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** 
+  19:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** //=========================== variables =======================================
+  20:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** 
+  21:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** //=========================== prototypes ======================================
+  22:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** 
+  23:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** //=========================== public ==========================================
+  24:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** 
+  25:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** void eui64_get(uint8_t* addressToWrite) {
+  25              		.loc 1 25 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 16
+  28              		@ frame_needed = 1, uses_anonymous_args = 0
+  29              		@ link register save eliminated.
+  30 0000 80B4     		push	{r7}
+  31              		.cfi_def_cfa_offset 4
+  32              		.cfi_offset 7, -4
+  33 0002 85B0     		sub	sp, sp, #20
+  34              		.cfi_def_cfa_offset 24
+  35 0004 00AF     		add	r7, sp, #0
+  36              		.cfi_def_cfa_register 7
+  37 0006 7860     		str	r0, [r7, #4]
+  26:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    uint8_t* eui64_flash;
+  27:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    
+  28:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    eui64_flash = (uint8_t*)BSP_EUI64_ADDRESS_LO_H;
+  38              		.loc 1 28 0
+  39 0008 114B     		ldr	r3, .L6
+  40 000a FB60     		str	r3, [r7, #12]
+  29:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    while(eui64_flash >= (uint8_t*)BSP_EUI64_ADDRESS_LO_L) {
+  41              		.loc 1 29 0
+  42 000c 07E0     		b	.L2
+  43              	.L3:
+  30:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****       *addressToWrite++ = *eui64_flash--;
+  44              		.loc 1 30 0
+  45 000e FA68     		ldr	r2, [r7, #12]
+  46 0010 531E     		subs	r3, r2, #1
+  47 0012 FB60     		str	r3, [r7, #12]
+  48 0014 7B68     		ldr	r3, [r7, #4]
+  49 0016 591C     		adds	r1, r3, #1
+  50 0018 7960     		str	r1, [r7, #4]
+  51 001a 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+  52 001c 1A70     		strb	r2, [r3]
+  53              	.L2:
+  29:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    while(eui64_flash >= (uint8_t*)BSP_EUI64_ADDRESS_LO_L) {
+  54              		.loc 1 29 0
+  55 001e FB68     		ldr	r3, [r7, #12]
+  56 0020 B3F1281F 		cmp	r3, #2621480
+  57 0024 F3D2     		bcs	.L3
+  31:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    }
+  32:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    
+  33:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    eui64_flash = (uint8_t*)BSP_EUI64_ADDRESS_HI_H;
+  58              		.loc 1 33 0
+  59 0026 0B4B     		ldr	r3, .L6+4
+  60 0028 FB60     		str	r3, [r7, #12]
+  34:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    while(eui64_flash >= (uint8_t*)BSP_EUI64_ADDRESS_HI_L) {
+  61              		.loc 1 34 0
+  62 002a 07E0     		b	.L4
+  63              	.L5:
+  35:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****       *addressToWrite++ = *eui64_flash--;
+  64              		.loc 1 35 0
+  65 002c FA68     		ldr	r2, [r7, #12]
+  66 002e 531E     		subs	r3, r2, #1
+  67 0030 FB60     		str	r3, [r7, #12]
+  68 0032 7B68     		ldr	r3, [r7, #4]
+  69 0034 591C     		adds	r1, r3, #1
+  70 0036 7960     		str	r1, [r7, #4]
+  71 0038 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+  72 003a 1A70     		strb	r2, [r3]
+  73              	.L4:
+  34:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    while(eui64_flash >= (uint8_t*)BSP_EUI64_ADDRESS_HI_L) {
+  74              		.loc 1 34 0
+  75 003c FB68     		ldr	r3, [r7, #12]
+  76 003e 044A     		ldr	r2, .L6
+  77 0040 9342     		cmp	r3, r2
+  78 0042 F3D8     		bhi	.L5
+  36:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c ****    }
+  37:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/eui64.c **** }
+  79              		.loc 1 37 0
+  80 0044 00BF     		nop
+  81 0046 1437     		adds	r7, r7, #20
+  82              		.cfi_def_cfa_offset 4
+  83 0048 BD46     		mov	sp, r7
+  84              		.cfi_def_cfa_register 13
+  85              		@ sp needed
+  86 004a 80BC     		pop	{r7}
+  87              		.cfi_restore 7
+  88              		.cfi_def_cfa_offset 0
+  89 004c 7047     		bx	lr
+  90              	.L7:
+  91 004e 00BF     		.align	2
+  92              	.L6:
+  93 0050 2B002800 		.word	2621483
+  94 0054 2F002800 		.word	2621487
+  95              		.cfi_endproc
+  96              	.LFE0:
+  98              	.Letext0:
+  99              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 100              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 101              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 102              		.file 5 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\lib\\gcc\\arm-none-eab
+ 103              		.file 6 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 104              		.file 7 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+DEFINED SYMBOLS
+                            *ABS*:00000000 eui64.c
+C:\Users\Lee\AppData\Local\Temp\ccmefNBm.s:15     .text:00000000 $t
+C:\Users\Lee\AppData\Local\Temp\ccmefNBm.s:22     .text:00000000 eui64_get
+C:\Users\Lee\AppData\Local\Temp\ccmefNBm.s:93     .text:00000050 $d
+                           .group:00000000 wm4.0.93d65e4ff05d5af51629690e5b534e57
+                           .group:00000000 wm4._newlib_version.h.4.875b979a44719054cd750d0952ad3fd6
+                           .group:00000000 wm4.newlib.h.18.5e5ca3429233af402d406a202f1fc1ac
+                           .group:00000000 wm4.ieeefp.h.77.220d9cccac42cd58761758bee2df4ce6
+                           .group:00000000 wm4.features.h.22.fad1cec3bc7ff06488171438dbdcfd02
+                           .group:00000000 wm4.config.h.220.6cac6a9685cfce5e83c17784171638d9
+                           .group:00000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:00000000 wm4.stddef.h.39.a38874c8f8a57e66301090908ec2a69f
+                           .group:00000000 wm4._default_types.h.6.959254cf5f09734ea7516c89e8bb21bd
+                           .group:00000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:00000000 wm4._types.h.125.5cf8a495f1f7ef36777ad868a1e32068
+                           .group:00000000 wm4.stddef.h.161.5349cb105733e8777bfb0cf53c4e3f34
+                           .group:00000000 wm4._types.h.184.03611d4f6b5bec9997bcf4279eceba07
+                           .group:00000000 wm4.reent.h.17.90c2574d4acdcfce933db5cb09ff35fe
+                           .group:00000000 wm4.cdefs.h.47.0bcdf94cb40e176393dd1404056825b4
+                           .group:00000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:00000000 wm4.stddef.h.161.19e15733342b50ead2919490b095303e
+                           .group:00000000 wm4._intsup.h.10.cce27fed8484c08a33f522034c30d2b5
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,2468 @@
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"openaes.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.rodata
+  16              		.align	2
+  19              	rreg_uriquery:
+  20 0000 683D7563 		.ascii	"h=ucb\000"
+  20      6200
+  21 0006 0000     		.align	2
+  24              	infoBoardname:
+  25 0008 43433235 		.ascii	"CC2538\000"
+  25      333800
+  26 000f 00       		.align	2
+  29              	infouCName:
+  30 0010 43433235 		.ascii	"CC2538\000"
+  30      333800
+  31 0017 00       		.align	2
+  34              	infoRadioName:
+  35 0018 43433235 		.ascii	"CC2538 SoC\000"
+  35      33382053 
+  35      6F4300
+  36 0023 00       		.align	2
+  39              	infoStackName:
+  40 0024 4F70656E 		.ascii	"OpenWSN \000"
+  40      57534E20 
+  40      00
+  41              		.global	sbox
+  42 002d 000000   		.align	2
+  45              	sbox:
+  46 0030 63       		.byte	99
+  47 0031 7C       		.byte	124
+  48 0032 77       		.byte	119
+  49 0033 7B       		.byte	123
+  50 0034 F2       		.byte	-14
+  51 0035 6B       		.byte	107
+  52 0036 6F       		.byte	111
+  53 0037 C5       		.byte	-59
+  54 0038 30       		.byte	48
+  55 0039 01       		.byte	1
+  56 003a 67       		.byte	103
+  57 003b 2B       		.byte	43
+  58 003c FE       		.byte	-2
+  59 003d D7       		.byte	-41
+  60 003e AB       		.byte	-85
+  61 003f 76       		.byte	118
+  62 0040 CA       		.byte	-54
+  63 0041 82       		.byte	-126
+  64 0042 C9       		.byte	-55
+  65 0043 7D       		.byte	125
+  66 0044 FA       		.byte	-6
+  67 0045 59       		.byte	89
+  68 0046 47       		.byte	71
+  69 0047 F0       		.byte	-16
+  70 0048 AD       		.byte	-83
+  71 0049 D4       		.byte	-44
+  72 004a A2       		.byte	-94
+  73 004b AF       		.byte	-81
+  74 004c 9C       		.byte	-100
+  75 004d A4       		.byte	-92
+  76 004e 72       		.byte	114
+  77 004f C0       		.byte	-64
+  78 0050 B7       		.byte	-73
+  79 0051 FD       		.byte	-3
+  80 0052 93       		.byte	-109
+  81 0053 26       		.byte	38
+  82 0054 36       		.byte	54
+  83 0055 3F       		.byte	63
+  84 0056 F7       		.byte	-9
+  85 0057 CC       		.byte	-52
+  86 0058 34       		.byte	52
+  87 0059 A5       		.byte	-91
+  88 005a E5       		.byte	-27
+  89 005b F1       		.byte	-15
+  90 005c 71       		.byte	113
+  91 005d D8       		.byte	-40
+  92 005e 31       		.byte	49
+  93 005f 15       		.byte	21
+  94 0060 04       		.byte	4
+  95 0061 C7       		.byte	-57
+  96 0062 23       		.byte	35
+  97 0063 C3       		.byte	-61
+  98 0064 18       		.byte	24
+  99 0065 96       		.byte	-106
+ 100 0066 05       		.byte	5
+ 101 0067 9A       		.byte	-102
+ 102 0068 07       		.byte	7
+ 103 0069 12       		.byte	18
+ 104 006a 80       		.byte	-128
+ 105 006b E2       		.byte	-30
+ 106 006c EB       		.byte	-21
+ 107 006d 27       		.byte	39
+ 108 006e B2       		.byte	-78
+ 109 006f 75       		.byte	117
+ 110 0070 09       		.byte	9
+ 111 0071 83       		.byte	-125
+ 112 0072 2C       		.byte	44
+ 113 0073 1A       		.byte	26
+ 114 0074 1B       		.byte	27
+ 115 0075 6E       		.byte	110
+ 116 0076 5A       		.byte	90
+ 117 0077 A0       		.byte	-96
+ 118 0078 52       		.byte	82
+ 119 0079 3B       		.byte	59
+ 120 007a D6       		.byte	-42
+ 121 007b B3       		.byte	-77
+ 122 007c 29       		.byte	41
+ 123 007d E3       		.byte	-29
+ 124 007e 2F       		.byte	47
+ 125 007f 84       		.byte	-124
+ 126 0080 53       		.byte	83
+ 127 0081 D1       		.byte	-47
+ 128 0082 00       		.byte	0
+ 129 0083 ED       		.byte	-19
+ 130 0084 20       		.byte	32
+ 131 0085 FC       		.byte	-4
+ 132 0086 B1       		.byte	-79
+ 133 0087 5B       		.byte	91
+ 134 0088 6A       		.byte	106
+ 135 0089 CB       		.byte	-53
+ 136 008a BE       		.byte	-66
+ 137 008b 39       		.byte	57
+ 138 008c 4A       		.byte	74
+ 139 008d 4C       		.byte	76
+ 140 008e 58       		.byte	88
+ 141 008f CF       		.byte	-49
+ 142 0090 D0       		.byte	-48
+ 143 0091 EF       		.byte	-17
+ 144 0092 AA       		.byte	-86
+ 145 0093 FB       		.byte	-5
+ 146 0094 43       		.byte	67
+ 147 0095 4D       		.byte	77
+ 148 0096 33       		.byte	51
+ 149 0097 85       		.byte	-123
+ 150 0098 45       		.byte	69
+ 151 0099 F9       		.byte	-7
+ 152 009a 02       		.byte	2
+ 153 009b 7F       		.byte	127
+ 154 009c 50       		.byte	80
+ 155 009d 3C       		.byte	60
+ 156 009e 9F       		.byte	-97
+ 157 009f A8       		.byte	-88
+ 158 00a0 51       		.byte	81
+ 159 00a1 A3       		.byte	-93
+ 160 00a2 40       		.byte	64
+ 161 00a3 8F       		.byte	-113
+ 162 00a4 92       		.byte	-110
+ 163 00a5 9D       		.byte	-99
+ 164 00a6 38       		.byte	56
+ 165 00a7 F5       		.byte	-11
+ 166 00a8 BC       		.byte	-68
+ 167 00a9 B6       		.byte	-74
+ 168 00aa DA       		.byte	-38
+ 169 00ab 21       		.byte	33
+ 170 00ac 10       		.byte	16
+ 171 00ad FF       		.byte	-1
+ 172 00ae F3       		.byte	-13
+ 173 00af D2       		.byte	-46
+ 174 00b0 CD       		.byte	-51
+ 175 00b1 0C       		.byte	12
+ 176 00b2 13       		.byte	19
+ 177 00b3 EC       		.byte	-20
+ 178 00b4 5F       		.byte	95
+ 179 00b5 97       		.byte	-105
+ 180 00b6 44       		.byte	68
+ 181 00b7 17       		.byte	23
+ 182 00b8 C4       		.byte	-60
+ 183 00b9 A7       		.byte	-89
+ 184 00ba 7E       		.byte	126
+ 185 00bb 3D       		.byte	61
+ 186 00bc 64       		.byte	100
+ 187 00bd 5D       		.byte	93
+ 188 00be 19       		.byte	25
+ 189 00bf 73       		.byte	115
+ 190 00c0 60       		.byte	96
+ 191 00c1 81       		.byte	-127
+ 192 00c2 4F       		.byte	79
+ 193 00c3 DC       		.byte	-36
+ 194 00c4 22       		.byte	34
+ 195 00c5 2A       		.byte	42
+ 196 00c6 90       		.byte	-112
+ 197 00c7 88       		.byte	-120
+ 198 00c8 46       		.byte	70
+ 199 00c9 EE       		.byte	-18
+ 200 00ca B8       		.byte	-72
+ 201 00cb 14       		.byte	20
+ 202 00cc DE       		.byte	-34
+ 203 00cd 5E       		.byte	94
+ 204 00ce 0B       		.byte	11
+ 205 00cf DB       		.byte	-37
+ 206 00d0 E0       		.byte	-32
+ 207 00d1 32       		.byte	50
+ 208 00d2 3A       		.byte	58
+ 209 00d3 0A       		.byte	10
+ 210 00d4 49       		.byte	73
+ 211 00d5 06       		.byte	6
+ 212 00d6 24       		.byte	36
+ 213 00d7 5C       		.byte	92
+ 214 00d8 C2       		.byte	-62
+ 215 00d9 D3       		.byte	-45
+ 216 00da AC       		.byte	-84
+ 217 00db 62       		.byte	98
+ 218 00dc 91       		.byte	-111
+ 219 00dd 95       		.byte	-107
+ 220 00de E4       		.byte	-28
+ 221 00df 79       		.byte	121
+ 222 00e0 E7       		.byte	-25
+ 223 00e1 C8       		.byte	-56
+ 224 00e2 37       		.byte	55
+ 225 00e3 6D       		.byte	109
+ 226 00e4 8D       		.byte	-115
+ 227 00e5 D5       		.byte	-43
+ 228 00e6 4E       		.byte	78
+ 229 00e7 A9       		.byte	-87
+ 230 00e8 6C       		.byte	108
+ 231 00e9 56       		.byte	86
+ 232 00ea F4       		.byte	-12
+ 233 00eb EA       		.byte	-22
+ 234 00ec 65       		.byte	101
+ 235 00ed 7A       		.byte	122
+ 236 00ee AE       		.byte	-82
+ 237 00ef 08       		.byte	8
+ 238 00f0 BA       		.byte	-70
+ 239 00f1 78       		.byte	120
+ 240 00f2 25       		.byte	37
+ 241 00f3 2E       		.byte	46
+ 242 00f4 1C       		.byte	28
+ 243 00f5 A6       		.byte	-90
+ 244 00f6 B4       		.byte	-76
+ 245 00f7 C6       		.byte	-58
+ 246 00f8 E8       		.byte	-24
+ 247 00f9 DD       		.byte	-35
+ 248 00fa 74       		.byte	116
+ 249 00fb 1F       		.byte	31
+ 250 00fc 4B       		.byte	75
+ 251 00fd BD       		.byte	-67
+ 252 00fe 8B       		.byte	-117
+ 253 00ff 8A       		.byte	-118
+ 254 0100 70       		.byte	112
+ 255 0101 3E       		.byte	62
+ 256 0102 B5       		.byte	-75
+ 257 0103 66       		.byte	102
+ 258 0104 48       		.byte	72
+ 259 0105 03       		.byte	3
+ 260 0106 F6       		.byte	-10
+ 261 0107 0E       		.byte	14
+ 262 0108 61       		.byte	97
+ 263 0109 35       		.byte	53
+ 264 010a 57       		.byte	87
+ 265 010b B9       		.byte	-71
+ 266 010c 86       		.byte	-122
+ 267 010d C1       		.byte	-63
+ 268 010e 1D       		.byte	29
+ 269 010f 9E       		.byte	-98
+ 270 0110 E1       		.byte	-31
+ 271 0111 F8       		.byte	-8
+ 272 0112 98       		.byte	-104
+ 273 0113 11       		.byte	17
+ 274 0114 69       		.byte	105
+ 275 0115 D9       		.byte	-39
+ 276 0116 8E       		.byte	-114
+ 277 0117 94       		.byte	-108
+ 278 0118 9B       		.byte	-101
+ 279 0119 1E       		.byte	30
+ 280 011a 87       		.byte	-121
+ 281 011b E9       		.byte	-23
+ 282 011c CE       		.byte	-50
+ 283 011d 55       		.byte	85
+ 284 011e 28       		.byte	40
+ 285 011f DF       		.byte	-33
+ 286 0120 8C       		.byte	-116
+ 287 0121 A1       		.byte	-95
+ 288 0122 89       		.byte	-119
+ 289 0123 0D       		.byte	13
+ 290 0124 BF       		.byte	-65
+ 291 0125 E6       		.byte	-26
+ 292 0126 42       		.byte	66
+ 293 0127 68       		.byte	104
+ 294 0128 41       		.byte	65
+ 295 0129 99       		.byte	-103
+ 296 012a 2D       		.byte	45
+ 297 012b 0F       		.byte	15
+ 298 012c B0       		.byte	-80
+ 299 012d 54       		.byte	84
+ 300 012e BB       		.byte	-69
+ 301 012f 16       		.byte	22
+ 302              		.global	Rcon
+ 303              		.align	2
+ 306              	Rcon:
+ 307 0130 8D       		.byte	-115
+ 308 0131 01       		.byte	1
+ 309 0132 02       		.byte	2
+ 310 0133 04       		.byte	4
+ 311 0134 08       		.byte	8
+ 312 0135 10       		.byte	16
+ 313 0136 20       		.byte	32
+ 314 0137 40       		.byte	64
+ 315 0138 80       		.byte	-128
+ 316 0139 1B       		.byte	27
+ 317 013a 36       		.byte	54
+ 318              		.text
+ 319              		.align	1
+ 320              		.global	openaes_enc
+ 321              		.syntax unified
+ 322              		.thumb
+ 323              		.thumb_func
+ 324              		.fpu softvfp
+ 326              	openaes_enc:
+ 327              	.LFB0:
+ 328              		.file 1 "build\\openmote-cc2538_armgcc\\bsp\\boards\\common\\openaes.c"
+   1:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** /**************************************************************
+   2:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** AES128
+   3:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** Author:   Uli Kretzschmar
+   4:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** MSP430 Systems
+   5:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** Freising
+   6:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** AES software support for encryption and decryption
+   7:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** ECCN 5D002 TSU - Technology / Software Unrestricted
+   8:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** Source: http://is.gd/o9RSPq
+   9:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** **************************************************************/
+  10:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** #include <stdint.h>
+  11:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** #include "opendefs.h"
+  12:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** #include "openaes.h"
+  13:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  14:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //=========================== variables =======================================
+  15:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  16:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** // foreward sbox
+  17:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** const unsigned char sbox[256] = {
+  18:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     //0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
+  19:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
+  20:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
+  21:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
+  22:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75,
+  23:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84,
+  24:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf,
+  25:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8,
+  26:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2,
+  27:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73,
+  28:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb,
+  29:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79,
+  30:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08,
+  31:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a,
+  32:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e,
+  33:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
+  34:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16 
+  35:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** // round constant
+  36:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** const unsigned char Rcon[11] = {
+  37:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 };
+  38:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  39:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //=========================== prototypes ======================================
+  40:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  41:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** void expandKey(unsigned char *expandedKey,unsigned char *key);
+  42:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** unsigned char galois_mul2(unsigned char value);
+  43:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** void aes_encr(unsigned char *state, unsigned char *expandedKey);
+  44:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  45:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //=========================== public ==========================================
+  46:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  47:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** /**
+  48:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** \brief Basic AES encryption of a single 16-octet block.
+  49:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** \param[in,out] buffer Single block plaintext. Will be overwritten by ciphertext.
+  50:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** \param[in] key Buffer containing the secret key (16 octets).
+  51:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  52:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** \returns E_SUCCESS when the encryption was successful. 
+  53:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** */
+  54:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** owerror_t openaes_enc(uint8_t buffer[16], uint8_t key[16])
+  55:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** {
+ 329              		.loc 1 55 0
+ 330              		.cfi_startproc
+ 331              		@ args = 0, pretend = 0, frame = 184
+ 332              		@ frame_needed = 1, uses_anonymous_args = 0
+ 333 0000 80B5     		push	{r7, lr}
+ 334              		.cfi_def_cfa_offset 8
+ 335              		.cfi_offset 7, -8
+ 336              		.cfi_offset 14, -4
+ 337 0002 AEB0     		sub	sp, sp, #184
+ 338              		.cfi_def_cfa_offset 192
+ 339 0004 00AF     		add	r7, sp, #0
+ 340              		.cfi_def_cfa_register 7
+ 341 0006 7860     		str	r0, [r7, #4]
+ 342 0008 3960     		str	r1, [r7]
+  56:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     uint8_t expandedKey[176];
+  57:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  58:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     expandKey(expandedKey, key);       // expand the key into 176 bytes
+ 343              		.loc 1 58 0
+ 344 000a 07F10803 		add	r3, r7, #8
+ 345 000e 3968     		ldr	r1, [r7]
+ 346 0010 1846     		mov	r0, r3
+ 347 0012 FFF7FEFF 		bl	expandKey
+  59:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     aes_encr(buffer, expandedKey);
+ 348              		.loc 1 59 0
+ 349 0016 07F10803 		add	r3, r7, #8
+ 350 001a 1946     		mov	r1, r3
+ 351 001c 7868     		ldr	r0, [r7, #4]
+ 352 001e FFF7FEFF 		bl	aes_encr
+  60:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  61:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     return E_SUCCESS;
+ 353              		.loc 1 61 0
+ 354 0022 0023     		movs	r3, #0
+  62:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** }
+ 355              		.loc 1 62 0
+ 356 0024 1846     		mov	r0, r3
+ 357 0026 B837     		adds	r7, r7, #184
+ 358              		.cfi_def_cfa_offset 8
+ 359 0028 BD46     		mov	sp, r7
+ 360              		.cfi_def_cfa_register 13
+ 361              		@ sp needed
+ 362 002a 80BD     		pop	{r7, pc}
+ 363              		.cfi_endproc
+ 364              	.LFE0:
+ 366              		.align	1
+ 367              		.global	expandKey
+ 368              		.syntax unified
+ 369              		.thumb
+ 370              		.thumb_func
+ 371              		.fpu softvfp
+ 373              	expandKey:
+ 374              	.LFB1:
+  63:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  64:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //=========================== private =========================================
+  65:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  66:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** // expand the key
+  67:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** void expandKey(unsigned char *expandedKey,
+  68:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     unsigned char *key)
+  69:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** {
+ 375              		.loc 1 69 0
+ 376              		.cfi_startproc
+ 377              		@ args = 0, pretend = 0, frame = 16
+ 378              		@ frame_needed = 1, uses_anonymous_args = 0
+ 379              		@ link register save eliminated.
+ 380 002c 80B4     		push	{r7}
+ 381              		.cfi_def_cfa_offset 4
+ 382              		.cfi_offset 7, -4
+ 383 002e 85B0     		sub	sp, sp, #20
+ 384              		.cfi_def_cfa_offset 24
+ 385 0030 00AF     		add	r7, sp, #0
+ 386              		.cfi_def_cfa_register 7
+ 387 0032 7860     		str	r0, [r7, #4]
+ 388 0034 3960     		str	r1, [r7]
+  70:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     unsigned short ii, buf1;
+  71:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     for (ii = 0; ii<16; ii++)
+ 389              		.loc 1 71 0
+ 390 0036 0023     		movs	r3, #0
+ 391 0038 FB81     		strh	r3, [r7, #14]	@ movhi
+ 392 003a 0AE0     		b	.L4
+ 393              	.L5:
+  72:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii] = key[ii];
+ 394              		.loc 1 72 0 discriminator 3
+ 395 003c FB89     		ldrh	r3, [r7, #14]
+ 396 003e 3A68     		ldr	r2, [r7]
+ 397 0040 1A44     		add	r2, r2, r3
+ 398 0042 FB89     		ldrh	r3, [r7, #14]
+ 399 0044 7968     		ldr	r1, [r7, #4]
+ 400 0046 0B44     		add	r3, r3, r1
+ 401 0048 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 402 004a 1A70     		strb	r2, [r3]
+  71:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii] = key[ii];
+ 403              		.loc 1 71 0 discriminator 3
+ 404 004c FB89     		ldrh	r3, [r7, #14]
+ 405 004e 0133     		adds	r3, r3, #1
+ 406 0050 FB81     		strh	r3, [r7, #14]	@ movhi
+ 407              	.L4:
+  71:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii] = key[ii];
+ 408              		.loc 1 71 0 is_stmt 0 discriminator 1
+ 409 0052 FB89     		ldrh	r3, [r7, #14]
+ 410 0054 0F2B     		cmp	r3, #15
+ 411 0056 F1D9     		bls	.L5
+  73:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     for (ii = 1; ii<11; ii++){
+ 412              		.loc 1 73 0 is_stmt 1
+ 413 0058 0123     		movs	r3, #1
+ 414 005a FB81     		strh	r3, [r7, #14]	@ movhi
+ 415 005c 64E1     		b	.L6
+ 416              	.L7:
+  74:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf1 = expandedKey[ii * 16 - 4];
+ 417              		.loc 1 74 0 discriminator 3
+ 418 005e FB89     		ldrh	r3, [r7, #14]
+ 419 0060 1B01     		lsls	r3, r3, #4
+ 420 0062 043B     		subs	r3, r3, #4
+ 421 0064 7A68     		ldr	r2, [r7, #4]
+ 422 0066 1344     		add	r3, r3, r2
+ 423 0068 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 424 006a BB81     		strh	r3, [r7, #12]	@ movhi
+  75:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 0] = sbox[expandedKey[ii * 16 - 3]] ^ expandedKey[(ii - 1) * 16 + 0] 
+ 425              		.loc 1 75 0 discriminator 3
+ 426 006c FB89     		ldrh	r3, [r7, #14]
+ 427 006e 1B01     		lsls	r3, r3, #4
+ 428 0070 033B     		subs	r3, r3, #3
+ 429 0072 7A68     		ldr	r2, [r7, #4]
+ 430 0074 1344     		add	r3, r3, r2
+ 431 0076 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 432 0078 1A46     		mov	r2, r3
+ 433 007a B04B     		ldr	r3, .L8
+ 434 007c 9A5C     		ldrb	r2, [r3, r2]	@ zero_extendqisi2
+ 435 007e FB89     		ldrh	r3, [r7, #14]
+ 436 0080 013B     		subs	r3, r3, #1
+ 437 0082 1B01     		lsls	r3, r3, #4
+ 438 0084 1946     		mov	r1, r3
+ 439 0086 7B68     		ldr	r3, [r7, #4]
+ 440 0088 0B44     		add	r3, r3, r1
+ 441 008a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 442 008c 5340     		eors	r3, r3, r2
+ 443 008e D9B2     		uxtb	r1, r3
+ 444 0090 FB89     		ldrh	r3, [r7, #14]
+ 445 0092 AB4A     		ldr	r2, .L8+4
+ 446 0094 D25C     		ldrb	r2, [r2, r3]	@ zero_extendqisi2
+ 447 0096 FB89     		ldrh	r3, [r7, #14]
+ 448 0098 1B01     		lsls	r3, r3, #4
+ 449 009a 1846     		mov	r0, r3
+ 450 009c 7B68     		ldr	r3, [r7, #4]
+ 451 009e 0344     		add	r3, r3, r0
+ 452 00a0 4A40     		eors	r2, r2, r1
+ 453 00a2 D2B2     		uxtb	r2, r2
+ 454 00a4 1A70     		strb	r2, [r3]
+  76:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 1] = sbox[expandedKey[ii * 16 - 2]] ^ expandedKey[(ii - 1) * 16 + 1];
+ 455              		.loc 1 76 0 discriminator 3
+ 456 00a6 FB89     		ldrh	r3, [r7, #14]
+ 457 00a8 1B01     		lsls	r3, r3, #4
+ 458 00aa 023B     		subs	r3, r3, #2
+ 459 00ac 7A68     		ldr	r2, [r7, #4]
+ 460 00ae 1344     		add	r3, r3, r2
+ 461 00b0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 462 00b2 1A46     		mov	r2, r3
+ 463 00b4 A14B     		ldr	r3, .L8
+ 464 00b6 995C     		ldrb	r1, [r3, r2]	@ zero_extendqisi2
+ 465 00b8 FB89     		ldrh	r3, [r7, #14]
+ 466 00ba 013B     		subs	r3, r3, #1
+ 467 00bc 1B01     		lsls	r3, r3, #4
+ 468 00be 0133     		adds	r3, r3, #1
+ 469 00c0 7A68     		ldr	r2, [r7, #4]
+ 470 00c2 1344     		add	r3, r3, r2
+ 471 00c4 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 472 00c6 FB89     		ldrh	r3, [r7, #14]
+ 473 00c8 1B01     		lsls	r3, r3, #4
+ 474 00ca 0133     		adds	r3, r3, #1
+ 475 00cc 7868     		ldr	r0, [r7, #4]
+ 476 00ce 0344     		add	r3, r3, r0
+ 477 00d0 4A40     		eors	r2, r2, r1
+ 478 00d2 D2B2     		uxtb	r2, r2
+ 479 00d4 1A70     		strb	r2, [r3]
+  77:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 2] = sbox[expandedKey[ii * 16 - 1]] ^ expandedKey[(ii - 1) * 16 + 2];
+ 480              		.loc 1 77 0 discriminator 3
+ 481 00d6 FB89     		ldrh	r3, [r7, #14]
+ 482 00d8 1B01     		lsls	r3, r3, #4
+ 483 00da 013B     		subs	r3, r3, #1
+ 484 00dc 7A68     		ldr	r2, [r7, #4]
+ 485 00de 1344     		add	r3, r3, r2
+ 486 00e0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 487 00e2 1A46     		mov	r2, r3
+ 488 00e4 954B     		ldr	r3, .L8
+ 489 00e6 995C     		ldrb	r1, [r3, r2]	@ zero_extendqisi2
+ 490 00e8 FB89     		ldrh	r3, [r7, #14]
+ 491 00ea 013B     		subs	r3, r3, #1
+ 492 00ec 1B01     		lsls	r3, r3, #4
+ 493 00ee 0233     		adds	r3, r3, #2
+ 494 00f0 7A68     		ldr	r2, [r7, #4]
+ 495 00f2 1344     		add	r3, r3, r2
+ 496 00f4 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 497 00f6 FB89     		ldrh	r3, [r7, #14]
+ 498 00f8 1B01     		lsls	r3, r3, #4
+ 499 00fa 0233     		adds	r3, r3, #2
+ 500 00fc 7868     		ldr	r0, [r7, #4]
+ 501 00fe 0344     		add	r3, r3, r0
+ 502 0100 4A40     		eors	r2, r2, r1
+ 503 0102 D2B2     		uxtb	r2, r2
+ 504 0104 1A70     		strb	r2, [r3]
+  78:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 3] = sbox[buf1] ^ expandedKey[(ii - 1) * 16 + 3];
+ 505              		.loc 1 78 0 discriminator 3
+ 506 0106 BB89     		ldrh	r3, [r7, #12]
+ 507 0108 8C4A     		ldr	r2, .L8
+ 508 010a D15C     		ldrb	r1, [r2, r3]	@ zero_extendqisi2
+ 509 010c FB89     		ldrh	r3, [r7, #14]
+ 510 010e 013B     		subs	r3, r3, #1
+ 511 0110 1B01     		lsls	r3, r3, #4
+ 512 0112 0333     		adds	r3, r3, #3
+ 513 0114 7A68     		ldr	r2, [r7, #4]
+ 514 0116 1344     		add	r3, r3, r2
+ 515 0118 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 516 011a FB89     		ldrh	r3, [r7, #14]
+ 517 011c 1B01     		lsls	r3, r3, #4
+ 518 011e 0333     		adds	r3, r3, #3
+ 519 0120 7868     		ldr	r0, [r7, #4]
+ 520 0122 0344     		add	r3, r3, r0
+ 521 0124 4A40     		eors	r2, r2, r1
+ 522 0126 D2B2     		uxtb	r2, r2
+ 523 0128 1A70     		strb	r2, [r3]
+  79:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 4] = expandedKey[(ii - 1) * 16 + 4] ^ expandedKey[ii * 16 + 0];
+ 524              		.loc 1 79 0 discriminator 3
+ 525 012a FB89     		ldrh	r3, [r7, #14]
+ 526 012c 013B     		subs	r3, r3, #1
+ 527 012e 1B01     		lsls	r3, r3, #4
+ 528 0130 0433     		adds	r3, r3, #4
+ 529 0132 7A68     		ldr	r2, [r7, #4]
+ 530 0134 1344     		add	r3, r3, r2
+ 531 0136 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 532 0138 FB89     		ldrh	r3, [r7, #14]
+ 533 013a 1B01     		lsls	r3, r3, #4
+ 534 013c 1A46     		mov	r2, r3
+ 535 013e 7B68     		ldr	r3, [r7, #4]
+ 536 0140 1344     		add	r3, r3, r2
+ 537 0142 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 538 0144 FB89     		ldrh	r3, [r7, #14]
+ 539 0146 1B01     		lsls	r3, r3, #4
+ 540 0148 0433     		adds	r3, r3, #4
+ 541 014a 7868     		ldr	r0, [r7, #4]
+ 542 014c 0344     		add	r3, r3, r0
+ 543 014e 4A40     		eors	r2, r2, r1
+ 544 0150 D2B2     		uxtb	r2, r2
+ 545 0152 1A70     		strb	r2, [r3]
+  80:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 5] = expandedKey[(ii - 1) * 16 + 5] ^ expandedKey[ii * 16 + 1];
+ 546              		.loc 1 80 0 discriminator 3
+ 547 0154 FB89     		ldrh	r3, [r7, #14]
+ 548 0156 013B     		subs	r3, r3, #1
+ 549 0158 1B01     		lsls	r3, r3, #4
+ 550 015a 0533     		adds	r3, r3, #5
+ 551 015c 7A68     		ldr	r2, [r7, #4]
+ 552 015e 1344     		add	r3, r3, r2
+ 553 0160 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 554 0162 FB89     		ldrh	r3, [r7, #14]
+ 555 0164 1B01     		lsls	r3, r3, #4
+ 556 0166 0133     		adds	r3, r3, #1
+ 557 0168 7A68     		ldr	r2, [r7, #4]
+ 558 016a 1344     		add	r3, r3, r2
+ 559 016c 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 560 016e FB89     		ldrh	r3, [r7, #14]
+ 561 0170 1B01     		lsls	r3, r3, #4
+ 562 0172 0533     		adds	r3, r3, #5
+ 563 0174 7868     		ldr	r0, [r7, #4]
+ 564 0176 0344     		add	r3, r3, r0
+ 565 0178 4A40     		eors	r2, r2, r1
+ 566 017a D2B2     		uxtb	r2, r2
+ 567 017c 1A70     		strb	r2, [r3]
+  81:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 6] = expandedKey[(ii - 1) * 16 + 6] ^ expandedKey[ii * 16 + 2];
+ 568              		.loc 1 81 0 discriminator 3
+ 569 017e FB89     		ldrh	r3, [r7, #14]
+ 570 0180 013B     		subs	r3, r3, #1
+ 571 0182 1B01     		lsls	r3, r3, #4
+ 572 0184 0633     		adds	r3, r3, #6
+ 573 0186 7A68     		ldr	r2, [r7, #4]
+ 574 0188 1344     		add	r3, r3, r2
+ 575 018a 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 576 018c FB89     		ldrh	r3, [r7, #14]
+ 577 018e 1B01     		lsls	r3, r3, #4
+ 578 0190 0233     		adds	r3, r3, #2
+ 579 0192 7A68     		ldr	r2, [r7, #4]
+ 580 0194 1344     		add	r3, r3, r2
+ 581 0196 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 582 0198 FB89     		ldrh	r3, [r7, #14]
+ 583 019a 1B01     		lsls	r3, r3, #4
+ 584 019c 0633     		adds	r3, r3, #6
+ 585 019e 7868     		ldr	r0, [r7, #4]
+ 586 01a0 0344     		add	r3, r3, r0
+ 587 01a2 4A40     		eors	r2, r2, r1
+ 588 01a4 D2B2     		uxtb	r2, r2
+ 589 01a6 1A70     		strb	r2, [r3]
+  82:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 7] = expandedKey[(ii - 1) * 16 + 7] ^ expandedKey[ii * 16 + 3];
+ 590              		.loc 1 82 0 discriminator 3
+ 591 01a8 FB89     		ldrh	r3, [r7, #14]
+ 592 01aa 013B     		subs	r3, r3, #1
+ 593 01ac 1B01     		lsls	r3, r3, #4
+ 594 01ae 0733     		adds	r3, r3, #7
+ 595 01b0 7A68     		ldr	r2, [r7, #4]
+ 596 01b2 1344     		add	r3, r3, r2
+ 597 01b4 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 598 01b6 FB89     		ldrh	r3, [r7, #14]
+ 599 01b8 1B01     		lsls	r3, r3, #4
+ 600 01ba 0333     		adds	r3, r3, #3
+ 601 01bc 7A68     		ldr	r2, [r7, #4]
+ 602 01be 1344     		add	r3, r3, r2
+ 603 01c0 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 604 01c2 FB89     		ldrh	r3, [r7, #14]
+ 605 01c4 1B01     		lsls	r3, r3, #4
+ 606 01c6 0733     		adds	r3, r3, #7
+ 607 01c8 7868     		ldr	r0, [r7, #4]
+ 608 01ca 0344     		add	r3, r3, r0
+ 609 01cc 4A40     		eors	r2, r2, r1
+ 610 01ce D2B2     		uxtb	r2, r2
+ 611 01d0 1A70     		strb	r2, [r3]
+  83:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 8] = expandedKey[(ii - 1) * 16 + 8] ^ expandedKey[ii * 16 + 4];
+ 612              		.loc 1 83 0 discriminator 3
+ 613 01d2 FB89     		ldrh	r3, [r7, #14]
+ 614 01d4 013B     		subs	r3, r3, #1
+ 615 01d6 1B01     		lsls	r3, r3, #4
+ 616 01d8 0833     		adds	r3, r3, #8
+ 617 01da 7A68     		ldr	r2, [r7, #4]
+ 618 01dc 1344     		add	r3, r3, r2
+ 619 01de 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 620 01e0 FB89     		ldrh	r3, [r7, #14]
+ 621 01e2 1B01     		lsls	r3, r3, #4
+ 622 01e4 0433     		adds	r3, r3, #4
+ 623 01e6 7A68     		ldr	r2, [r7, #4]
+ 624 01e8 1344     		add	r3, r3, r2
+ 625 01ea 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 626 01ec FB89     		ldrh	r3, [r7, #14]
+ 627 01ee 1B01     		lsls	r3, r3, #4
+ 628 01f0 0833     		adds	r3, r3, #8
+ 629 01f2 7868     		ldr	r0, [r7, #4]
+ 630 01f4 0344     		add	r3, r3, r0
+ 631 01f6 4A40     		eors	r2, r2, r1
+ 632 01f8 D2B2     		uxtb	r2, r2
+ 633 01fa 1A70     		strb	r2, [r3]
+  84:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 9] = expandedKey[(ii - 1) * 16 + 9] ^ expandedKey[ii * 16 + 5];
+ 634              		.loc 1 84 0 discriminator 3
+ 635 01fc FB89     		ldrh	r3, [r7, #14]
+ 636 01fe 013B     		subs	r3, r3, #1
+ 637 0200 1B01     		lsls	r3, r3, #4
+ 638 0202 0933     		adds	r3, r3, #9
+ 639 0204 7A68     		ldr	r2, [r7, #4]
+ 640 0206 1344     		add	r3, r3, r2
+ 641 0208 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 642 020a FB89     		ldrh	r3, [r7, #14]
+ 643 020c 1B01     		lsls	r3, r3, #4
+ 644 020e 0533     		adds	r3, r3, #5
+ 645 0210 7A68     		ldr	r2, [r7, #4]
+ 646 0212 1344     		add	r3, r3, r2
+ 647 0214 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 648 0216 FB89     		ldrh	r3, [r7, #14]
+ 649 0218 1B01     		lsls	r3, r3, #4
+ 650 021a 0933     		adds	r3, r3, #9
+ 651 021c 7868     		ldr	r0, [r7, #4]
+ 652 021e 0344     		add	r3, r3, r0
+ 653 0220 4A40     		eors	r2, r2, r1
+ 654 0222 D2B2     		uxtb	r2, r2
+ 655 0224 1A70     		strb	r2, [r3]
+  85:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 10] = expandedKey[(ii - 1) * 16 + 10] ^ expandedKey[ii * 16 + 6];
+ 656              		.loc 1 85 0 discriminator 3
+ 657 0226 FB89     		ldrh	r3, [r7, #14]
+ 658 0228 013B     		subs	r3, r3, #1
+ 659 022a 1B01     		lsls	r3, r3, #4
+ 660 022c 0A33     		adds	r3, r3, #10
+ 661 022e 7A68     		ldr	r2, [r7, #4]
+ 662 0230 1344     		add	r3, r3, r2
+ 663 0232 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 664 0234 FB89     		ldrh	r3, [r7, #14]
+ 665 0236 1B01     		lsls	r3, r3, #4
+ 666 0238 0633     		adds	r3, r3, #6
+ 667 023a 7A68     		ldr	r2, [r7, #4]
+ 668 023c 1344     		add	r3, r3, r2
+ 669 023e 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 670 0240 FB89     		ldrh	r3, [r7, #14]
+ 671 0242 1B01     		lsls	r3, r3, #4
+ 672 0244 0A33     		adds	r3, r3, #10
+ 673 0246 7868     		ldr	r0, [r7, #4]
+ 674 0248 0344     		add	r3, r3, r0
+ 675 024a 4A40     		eors	r2, r2, r1
+ 676 024c D2B2     		uxtb	r2, r2
+ 677 024e 1A70     		strb	r2, [r3]
+  86:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 11] = expandedKey[(ii - 1) * 16 + 11] ^ expandedKey[ii * 16 + 7];
+ 678              		.loc 1 86 0 discriminator 3
+ 679 0250 FB89     		ldrh	r3, [r7, #14]
+ 680 0252 013B     		subs	r3, r3, #1
+ 681 0254 1B01     		lsls	r3, r3, #4
+ 682 0256 0B33     		adds	r3, r3, #11
+ 683 0258 7A68     		ldr	r2, [r7, #4]
+ 684 025a 1344     		add	r3, r3, r2
+ 685 025c 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 686 025e FB89     		ldrh	r3, [r7, #14]
+ 687 0260 1B01     		lsls	r3, r3, #4
+ 688 0262 0733     		adds	r3, r3, #7
+ 689 0264 7A68     		ldr	r2, [r7, #4]
+ 690 0266 1344     		add	r3, r3, r2
+ 691 0268 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 692 026a FB89     		ldrh	r3, [r7, #14]
+ 693 026c 1B01     		lsls	r3, r3, #4
+ 694 026e 0B33     		adds	r3, r3, #11
+ 695 0270 7868     		ldr	r0, [r7, #4]
+ 696 0272 0344     		add	r3, r3, r0
+ 697 0274 4A40     		eors	r2, r2, r1
+ 698 0276 D2B2     		uxtb	r2, r2
+ 699 0278 1A70     		strb	r2, [r3]
+  87:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 12] = expandedKey[(ii - 1) * 16 + 12] ^ expandedKey[ii * 16 + 8];
+ 700              		.loc 1 87 0 discriminator 3
+ 701 027a FB89     		ldrh	r3, [r7, #14]
+ 702 027c 013B     		subs	r3, r3, #1
+ 703 027e 1B01     		lsls	r3, r3, #4
+ 704 0280 0C33     		adds	r3, r3, #12
+ 705 0282 7A68     		ldr	r2, [r7, #4]
+ 706 0284 1344     		add	r3, r3, r2
+ 707 0286 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 708 0288 FB89     		ldrh	r3, [r7, #14]
+ 709 028a 1B01     		lsls	r3, r3, #4
+ 710 028c 0833     		adds	r3, r3, #8
+ 711 028e 7A68     		ldr	r2, [r7, #4]
+ 712 0290 1344     		add	r3, r3, r2
+ 713 0292 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 714 0294 FB89     		ldrh	r3, [r7, #14]
+ 715 0296 1B01     		lsls	r3, r3, #4
+ 716 0298 0C33     		adds	r3, r3, #12
+ 717 029a 7868     		ldr	r0, [r7, #4]
+ 718 029c 0344     		add	r3, r3, r0
+ 719 029e 4A40     		eors	r2, r2, r1
+ 720 02a0 D2B2     		uxtb	r2, r2
+ 721 02a2 1A70     		strb	r2, [r3]
+  88:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 13] = expandedKey[(ii - 1) * 16 + 13] ^ expandedKey[ii * 16 + 9];
+ 722              		.loc 1 88 0 discriminator 3
+ 723 02a4 FB89     		ldrh	r3, [r7, #14]
+ 724 02a6 013B     		subs	r3, r3, #1
+ 725 02a8 1B01     		lsls	r3, r3, #4
+ 726 02aa 0D33     		adds	r3, r3, #13
+ 727 02ac 7A68     		ldr	r2, [r7, #4]
+ 728 02ae 1344     		add	r3, r3, r2
+ 729 02b0 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 730 02b2 FB89     		ldrh	r3, [r7, #14]
+ 731 02b4 1B01     		lsls	r3, r3, #4
+ 732 02b6 0933     		adds	r3, r3, #9
+ 733 02b8 7A68     		ldr	r2, [r7, #4]
+ 734 02ba 1344     		add	r3, r3, r2
+ 735 02bc 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 736 02be FB89     		ldrh	r3, [r7, #14]
+ 737 02c0 1B01     		lsls	r3, r3, #4
+ 738 02c2 0D33     		adds	r3, r3, #13
+ 739 02c4 7868     		ldr	r0, [r7, #4]
+ 740 02c6 0344     		add	r3, r3, r0
+ 741 02c8 4A40     		eors	r2, r2, r1
+ 742 02ca D2B2     		uxtb	r2, r2
+ 743 02cc 1A70     		strb	r2, [r3]
+  89:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 14] = expandedKey[(ii - 1) * 16 + 14] ^ expandedKey[ii * 16 + 10];
+ 744              		.loc 1 89 0 discriminator 3
+ 745 02ce FB89     		ldrh	r3, [r7, #14]
+ 746 02d0 013B     		subs	r3, r3, #1
+ 747 02d2 1B01     		lsls	r3, r3, #4
+ 748 02d4 0E33     		adds	r3, r3, #14
+ 749 02d6 7A68     		ldr	r2, [r7, #4]
+ 750 02d8 1344     		add	r3, r3, r2
+ 751 02da 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 752 02dc FB89     		ldrh	r3, [r7, #14]
+ 753 02de 1B01     		lsls	r3, r3, #4
+ 754 02e0 0A33     		adds	r3, r3, #10
+ 755 02e2 7A68     		ldr	r2, [r7, #4]
+ 756 02e4 1344     		add	r3, r3, r2
+ 757 02e6 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 758 02e8 FB89     		ldrh	r3, [r7, #14]
+ 759 02ea 1B01     		lsls	r3, r3, #4
+ 760 02ec 0E33     		adds	r3, r3, #14
+ 761 02ee 7868     		ldr	r0, [r7, #4]
+ 762 02f0 0344     		add	r3, r3, r0
+ 763 02f2 4A40     		eors	r2, r2, r1
+ 764 02f4 D2B2     		uxtb	r2, r2
+ 765 02f6 1A70     		strb	r2, [r3]
+  90:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         expandedKey[ii * 16 + 15] = expandedKey[(ii - 1) * 16 + 15] ^ expandedKey[ii * 16 + 11];
+ 766              		.loc 1 90 0 discriminator 3
+ 767 02f8 FB89     		ldrh	r3, [r7, #14]
+ 768 02fa 013B     		subs	r3, r3, #1
+ 769 02fc 1B01     		lsls	r3, r3, #4
+ 770 02fe 0F33     		adds	r3, r3, #15
+ 771 0300 7A68     		ldr	r2, [r7, #4]
+ 772 0302 1344     		add	r3, r3, r2
+ 773 0304 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 774 0306 FB89     		ldrh	r3, [r7, #14]
+ 775 0308 1B01     		lsls	r3, r3, #4
+ 776 030a 0B33     		adds	r3, r3, #11
+ 777 030c 7A68     		ldr	r2, [r7, #4]
+ 778 030e 1344     		add	r3, r3, r2
+ 779 0310 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 780 0312 FB89     		ldrh	r3, [r7, #14]
+ 781 0314 1B01     		lsls	r3, r3, #4
+ 782 0316 0F33     		adds	r3, r3, #15
+ 783 0318 7868     		ldr	r0, [r7, #4]
+ 784 031a 0344     		add	r3, r3, r0
+ 785 031c 4A40     		eors	r2, r2, r1
+ 786 031e D2B2     		uxtb	r2, r2
+ 787 0320 1A70     		strb	r2, [r3]
+  73:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf1 = expandedKey[ii * 16 - 4];
+ 788              		.loc 1 73 0 discriminator 3
+ 789 0322 FB89     		ldrh	r3, [r7, #14]
+ 790 0324 0133     		adds	r3, r3, #1
+ 791 0326 FB81     		strh	r3, [r7, #14]	@ movhi
+ 792              	.L6:
+  73:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf1 = expandedKey[ii * 16 - 4];
+ 793              		.loc 1 73 0 is_stmt 0 discriminator 1
+ 794 0328 FB89     		ldrh	r3, [r7, #14]
+ 795 032a 0A2B     		cmp	r3, #10
+ 796 032c 7FF697AE 		bls	.L7
+  91:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     }
+  92:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  93:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  94:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** }
+ 797              		.loc 1 94 0 is_stmt 1
+ 798 0330 00BF     		nop
+ 799 0332 1437     		adds	r7, r7, #20
+ 800              		.cfi_def_cfa_offset 4
+ 801 0334 BD46     		mov	sp, r7
+ 802              		.cfi_def_cfa_register 13
+ 803              		@ sp needed
+ 804 0336 80BC     		pop	{r7}
+ 805              		.cfi_restore 7
+ 806              		.cfi_def_cfa_offset 0
+ 807 0338 7047     		bx	lr
+ 808              	.L9:
+ 809 033a 00BF     		.align	2
+ 810              	.L8:
+ 811 033c 00000000 		.word	sbox
+ 812 0340 00000000 		.word	Rcon
+ 813              		.cfi_endproc
+ 814              	.LFE1:
+ 816              		.align	1
+ 817              		.global	galois_mul2
+ 818              		.syntax unified
+ 819              		.thumb
+ 820              		.thumb_func
+ 821              		.fpu softvfp
+ 823              	galois_mul2:
+ 824              	.LFB2:
+  95:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+  96:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** // multiply by 2 in the galois field
+  97:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** unsigned char galois_mul2(unsigned char value)
+  98:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** {
+ 825              		.loc 1 98 0
+ 826              		.cfi_startproc
+ 827              		@ args = 0, pretend = 0, frame = 8
+ 828              		@ frame_needed = 1, uses_anonymous_args = 0
+ 829              		@ link register save eliminated.
+ 830 0344 80B4     		push	{r7}
+ 831              		.cfi_def_cfa_offset 4
+ 832              		.cfi_offset 7, -4
+ 833 0346 83B0     		sub	sp, sp, #12
+ 834              		.cfi_def_cfa_offset 16
+ 835 0348 00AF     		add	r7, sp, #0
+ 836              		.cfi_def_cfa_register 7
+ 837 034a 0346     		mov	r3, r0
+ 838 034c FB71     		strb	r3, [r7, #7]
+  99:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     if (value >> 7)
+ 839              		.loc 1 99 0
+ 840 034e 97F90730 		ldrsb	r3, [r7, #7]
+ 841 0352 002B     		cmp	r3, #0
+ 842 0354 07DA     		bge	.L11
+ 100:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     {
+ 101:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         value = value << 1;
+ 843              		.loc 1 101 0
+ 844 0356 FB79     		ldrb	r3, [r7, #7]
+ 845 0358 5B00     		lsls	r3, r3, #1
+ 846 035a FB71     		strb	r3, [r7, #7]
+ 102:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         return (value ^ 0x1b);
+ 847              		.loc 1 102 0
+ 848 035c FB79     		ldrb	r3, [r7, #7]
+ 849 035e 83F01B03 		eor	r3, r3, #27
+ 850 0362 DBB2     		uxtb	r3, r3
+ 851 0364 02E0     		b	.L12
+ 852              	.L11:
+ 103:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     }
+ 104:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     else
+ 105:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         return value << 1;
+ 853              		.loc 1 105 0
+ 854 0366 FB79     		ldrb	r3, [r7, #7]
+ 855 0368 5B00     		lsls	r3, r3, #1
+ 856 036a DBB2     		uxtb	r3, r3
+ 857              	.L12:
+ 106:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** }
+ 858              		.loc 1 106 0
+ 859 036c 1846     		mov	r0, r3
+ 860 036e 0C37     		adds	r7, r7, #12
+ 861              		.cfi_def_cfa_offset 4
+ 862 0370 BD46     		mov	sp, r7
+ 863              		.cfi_def_cfa_register 13
+ 864              		@ sp needed
+ 865 0372 80BC     		pop	{r7}
+ 866              		.cfi_restore 7
+ 867              		.cfi_def_cfa_offset 0
+ 868 0374 7047     		bx	lr
+ 869              		.cfi_endproc
+ 870              	.LFE2:
+ 872              		.align	1
+ 873              		.global	aes_encr
+ 874              		.syntax unified
+ 875              		.thumb
+ 876              		.thumb_func
+ 877              		.fpu softvfp
+ 879              	aes_encr:
+ 880              	.LFB3:
+ 107:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+ 108:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** // straight foreward aes encryption implementation
+ 109:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //   first the group of operations
+ 110:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //     - addroundkey
+ 111:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //     - subbytes
+ 112:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //     - shiftrows
+ 113:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //     - mixcolums
+ 114:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //   is executed 9 times, after this addroundkey to finish the 9th round, 
+ 115:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //   after that the 10th round without mixcolums
+ 116:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //   no further subfunctions to save cycles for function calls
+ 117:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** //   no structuring with "for (....)" to save cycles
+ 118:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** void aes_encr(unsigned char *state, unsigned char *expandedKey)
+ 119:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** {
+ 881              		.loc 1 119 0
+ 882              		.cfi_startproc
+ 883              		@ args = 0, pretend = 0, frame = 16
+ 884              		@ frame_needed = 1, uses_anonymous_args = 0
+ 885 0376 80B5     		push	{r7, lr}
+ 886              		.cfi_def_cfa_offset 8
+ 887              		.cfi_offset 7, -8
+ 888              		.cfi_offset 14, -4
+ 889 0378 84B0     		sub	sp, sp, #16
+ 890              		.cfi_def_cfa_offset 24
+ 891 037a 00AF     		add	r7, sp, #0
+ 892              		.cfi_def_cfa_register 7
+ 893 037c 7860     		str	r0, [r7, #4]
+ 894 037e 3960     		str	r1, [r7]
+ 120:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     unsigned char buf1, buf2, buf3, round;
+ 121:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+ 122:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+ 123:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     for (round = 0; round < 9; round++){
+ 895              		.loc 1 123 0
+ 896 0380 0023     		movs	r3, #0
+ 897 0382 FB73     		strb	r3, [r7, #15]
+ 898 0384 FBE2     		b	.L14
+ 899              	.L15:
+ 124:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // addroundkey, sbox and shiftrows
+ 125:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // row 0
+ 126:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[0] = sbox[(state[0] ^ expandedKey[(round * 16)])];
+ 900              		.loc 1 126 0 discriminator 3
+ 901 0386 7B68     		ldr	r3, [r7, #4]
+ 902 0388 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 903 038a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 904 038c 1B01     		lsls	r3, r3, #4
+ 905 038e 1946     		mov	r1, r3
+ 906 0390 3B68     		ldr	r3, [r7]
+ 907 0392 0B44     		add	r3, r3, r1
+ 908 0394 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 909 0396 5340     		eors	r3, r3, r2
+ 910 0398 DBB2     		uxtb	r3, r3
+ 911 039a 1A46     		mov	r2, r3
+ 912 039c A74B     		ldr	r3, .L16
+ 913 039e 9A5C     		ldrb	r2, [r3, r2]	@ zero_extendqisi2
+ 914 03a0 7B68     		ldr	r3, [r7, #4]
+ 915 03a2 1A70     		strb	r2, [r3]
+ 127:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[4] = sbox[(state[4] ^ expandedKey[(round * 16) + 4])];
+ 916              		.loc 1 127 0 discriminator 3
+ 917 03a4 7B68     		ldr	r3, [r7, #4]
+ 918 03a6 0433     		adds	r3, r3, #4
+ 919 03a8 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 920 03aa FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 921 03ac 1B01     		lsls	r3, r3, #4
+ 922 03ae 0433     		adds	r3, r3, #4
+ 923 03b0 3968     		ldr	r1, [r7]
+ 924 03b2 0B44     		add	r3, r3, r1
+ 925 03b4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 926 03b6 5340     		eors	r3, r3, r2
+ 927 03b8 DBB2     		uxtb	r3, r3
+ 928 03ba 1946     		mov	r1, r3
+ 929 03bc 7B68     		ldr	r3, [r7, #4]
+ 930 03be 0433     		adds	r3, r3, #4
+ 931 03c0 9E4A     		ldr	r2, .L16
+ 932 03c2 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 933 03c4 1A70     		strb	r2, [r3]
+ 128:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[8] = sbox[(state[8] ^ expandedKey[(round * 16) + 8])];
+ 934              		.loc 1 128 0 discriminator 3
+ 935 03c6 7B68     		ldr	r3, [r7, #4]
+ 936 03c8 0833     		adds	r3, r3, #8
+ 937 03ca 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 938 03cc FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 939 03ce 1B01     		lsls	r3, r3, #4
+ 940 03d0 0833     		adds	r3, r3, #8
+ 941 03d2 3968     		ldr	r1, [r7]
+ 942 03d4 0B44     		add	r3, r3, r1
+ 943 03d6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 944 03d8 5340     		eors	r3, r3, r2
+ 945 03da DBB2     		uxtb	r3, r3
+ 946 03dc 1946     		mov	r1, r3
+ 947 03de 7B68     		ldr	r3, [r7, #4]
+ 948 03e0 0833     		adds	r3, r3, #8
+ 949 03e2 964A     		ldr	r2, .L16
+ 950 03e4 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 951 03e6 1A70     		strb	r2, [r3]
+ 129:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[12] = sbox[(state[12] ^ expandedKey[(round * 16) + 12])];
+ 952              		.loc 1 129 0 discriminator 3
+ 953 03e8 7B68     		ldr	r3, [r7, #4]
+ 954 03ea 0C33     		adds	r3, r3, #12
+ 955 03ec 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 956 03ee FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 957 03f0 1B01     		lsls	r3, r3, #4
+ 958 03f2 0C33     		adds	r3, r3, #12
+ 959 03f4 3968     		ldr	r1, [r7]
+ 960 03f6 0B44     		add	r3, r3, r1
+ 961 03f8 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 962 03fa 5340     		eors	r3, r3, r2
+ 963 03fc DBB2     		uxtb	r3, r3
+ 964 03fe 1946     		mov	r1, r3
+ 965 0400 7B68     		ldr	r3, [r7, #4]
+ 966 0402 0C33     		adds	r3, r3, #12
+ 967 0404 8D4A     		ldr	r2, .L16
+ 968 0406 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 969 0408 1A70     		strb	r2, [r3]
+ 130:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // row 1
+ 131:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf1 = state[1] ^ expandedKey[(round * 16) + 1];
+ 970              		.loc 1 131 0 discriminator 3
+ 971 040a 7B68     		ldr	r3, [r7, #4]
+ 972 040c 0133     		adds	r3, r3, #1
+ 973 040e 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 974 0410 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 975 0412 1B01     		lsls	r3, r3, #4
+ 976 0414 0133     		adds	r3, r3, #1
+ 977 0416 3968     		ldr	r1, [r7]
+ 978 0418 0B44     		add	r3, r3, r1
+ 979 041a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 980 041c 5340     		eors	r3, r3, r2
+ 981 041e BB73     		strb	r3, [r7, #14]
+ 132:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[1] = sbox[(state[5] ^ expandedKey[(round * 16) + 5])];
+ 982              		.loc 1 132 0 discriminator 3
+ 983 0420 7B68     		ldr	r3, [r7, #4]
+ 984 0422 0533     		adds	r3, r3, #5
+ 985 0424 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 986 0426 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 987 0428 1B01     		lsls	r3, r3, #4
+ 988 042a 0533     		adds	r3, r3, #5
+ 989 042c 3968     		ldr	r1, [r7]
+ 990 042e 0B44     		add	r3, r3, r1
+ 991 0430 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 992 0432 5340     		eors	r3, r3, r2
+ 993 0434 DBB2     		uxtb	r3, r3
+ 994 0436 1946     		mov	r1, r3
+ 995 0438 7B68     		ldr	r3, [r7, #4]
+ 996 043a 0133     		adds	r3, r3, #1
+ 997 043c 7F4A     		ldr	r2, .L16
+ 998 043e 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 999 0440 1A70     		strb	r2, [r3]
+ 133:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[5] = sbox[(state[9] ^ expandedKey[(round * 16) + 9])];
+ 1000              		.loc 1 133 0 discriminator 3
+ 1001 0442 7B68     		ldr	r3, [r7, #4]
+ 1002 0444 0933     		adds	r3, r3, #9
+ 1003 0446 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1004 0448 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1005 044a 1B01     		lsls	r3, r3, #4
+ 1006 044c 0933     		adds	r3, r3, #9
+ 1007 044e 3968     		ldr	r1, [r7]
+ 1008 0450 0B44     		add	r3, r3, r1
+ 1009 0452 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1010 0454 5340     		eors	r3, r3, r2
+ 1011 0456 DBB2     		uxtb	r3, r3
+ 1012 0458 1946     		mov	r1, r3
+ 1013 045a 7B68     		ldr	r3, [r7, #4]
+ 1014 045c 0533     		adds	r3, r3, #5
+ 1015 045e 774A     		ldr	r2, .L16
+ 1016 0460 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1017 0462 1A70     		strb	r2, [r3]
+ 134:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[9] = sbox[(state[13] ^ expandedKey[(round * 16) + 13])];
+ 1018              		.loc 1 134 0 discriminator 3
+ 1019 0464 7B68     		ldr	r3, [r7, #4]
+ 1020 0466 0D33     		adds	r3, r3, #13
+ 1021 0468 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1022 046a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1023 046c 1B01     		lsls	r3, r3, #4
+ 1024 046e 0D33     		adds	r3, r3, #13
+ 1025 0470 3968     		ldr	r1, [r7]
+ 1026 0472 0B44     		add	r3, r3, r1
+ 1027 0474 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1028 0476 5340     		eors	r3, r3, r2
+ 1029 0478 DBB2     		uxtb	r3, r3
+ 1030 047a 1946     		mov	r1, r3
+ 1031 047c 7B68     		ldr	r3, [r7, #4]
+ 1032 047e 0933     		adds	r3, r3, #9
+ 1033 0480 6E4A     		ldr	r2, .L16
+ 1034 0482 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1035 0484 1A70     		strb	r2, [r3]
+ 135:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[13] = sbox[buf1];
+ 1036              		.loc 1 135 0 discriminator 3
+ 1037 0486 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 1038 0488 7B68     		ldr	r3, [r7, #4]
+ 1039 048a 0D33     		adds	r3, r3, #13
+ 1040 048c 6B49     		ldr	r1, .L16
+ 1041 048e 8A5C     		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 1042 0490 1A70     		strb	r2, [r3]
+ 136:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // row 2
+ 137:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf1 = state[2] ^ expandedKey[(round * 16) + 2];
+ 1043              		.loc 1 137 0 discriminator 3
+ 1044 0492 7B68     		ldr	r3, [r7, #4]
+ 1045 0494 0233     		adds	r3, r3, #2
+ 1046 0496 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1047 0498 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1048 049a 1B01     		lsls	r3, r3, #4
+ 1049 049c 0233     		adds	r3, r3, #2
+ 1050 049e 3968     		ldr	r1, [r7]
+ 1051 04a0 0B44     		add	r3, r3, r1
+ 1052 04a2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1053 04a4 5340     		eors	r3, r3, r2
+ 1054 04a6 BB73     		strb	r3, [r7, #14]
+ 138:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf2 = state[6] ^ expandedKey[(round * 16) + 6];
+ 1055              		.loc 1 138 0 discriminator 3
+ 1056 04a8 7B68     		ldr	r3, [r7, #4]
+ 1057 04aa 0633     		adds	r3, r3, #6
+ 1058 04ac 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1059 04ae FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1060 04b0 1B01     		lsls	r3, r3, #4
+ 1061 04b2 0633     		adds	r3, r3, #6
+ 1062 04b4 3968     		ldr	r1, [r7]
+ 1063 04b6 0B44     		add	r3, r3, r1
+ 1064 04b8 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1065 04ba 5340     		eors	r3, r3, r2
+ 1066 04bc 7B73     		strb	r3, [r7, #13]
+ 139:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[2] = sbox[(state[10] ^ expandedKey[(round * 16) + 10])];
+ 1067              		.loc 1 139 0 discriminator 3
+ 1068 04be 7B68     		ldr	r3, [r7, #4]
+ 1069 04c0 0A33     		adds	r3, r3, #10
+ 1070 04c2 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1071 04c4 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1072 04c6 1B01     		lsls	r3, r3, #4
+ 1073 04c8 0A33     		adds	r3, r3, #10
+ 1074 04ca 3968     		ldr	r1, [r7]
+ 1075 04cc 0B44     		add	r3, r3, r1
+ 1076 04ce 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1077 04d0 5340     		eors	r3, r3, r2
+ 1078 04d2 DBB2     		uxtb	r3, r3
+ 1079 04d4 1946     		mov	r1, r3
+ 1080 04d6 7B68     		ldr	r3, [r7, #4]
+ 1081 04d8 0233     		adds	r3, r3, #2
+ 1082 04da 584A     		ldr	r2, .L16
+ 1083 04dc 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1084 04de 1A70     		strb	r2, [r3]
+ 140:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[6] = sbox[(state[14] ^ expandedKey[(round * 16) + 14])];
+ 1085              		.loc 1 140 0 discriminator 3
+ 1086 04e0 7B68     		ldr	r3, [r7, #4]
+ 1087 04e2 0E33     		adds	r3, r3, #14
+ 1088 04e4 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1089 04e6 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1090 04e8 1B01     		lsls	r3, r3, #4
+ 1091 04ea 0E33     		adds	r3, r3, #14
+ 1092 04ec 3968     		ldr	r1, [r7]
+ 1093 04ee 0B44     		add	r3, r3, r1
+ 1094 04f0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1095 04f2 5340     		eors	r3, r3, r2
+ 1096 04f4 DBB2     		uxtb	r3, r3
+ 1097 04f6 1946     		mov	r1, r3
+ 1098 04f8 7B68     		ldr	r3, [r7, #4]
+ 1099 04fa 0633     		adds	r3, r3, #6
+ 1100 04fc 4F4A     		ldr	r2, .L16
+ 1101 04fe 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1102 0500 1A70     		strb	r2, [r3]
+ 141:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[10] = sbox[buf1];
+ 1103              		.loc 1 141 0 discriminator 3
+ 1104 0502 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 1105 0504 7B68     		ldr	r3, [r7, #4]
+ 1106 0506 0A33     		adds	r3, r3, #10
+ 1107 0508 4C49     		ldr	r1, .L16
+ 1108 050a 8A5C     		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 1109 050c 1A70     		strb	r2, [r3]
+ 142:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[14] = sbox[buf2];
+ 1110              		.loc 1 142 0 discriminator 3
+ 1111 050e 7A7B     		ldrb	r2, [r7, #13]	@ zero_extendqisi2
+ 1112 0510 7B68     		ldr	r3, [r7, #4]
+ 1113 0512 0E33     		adds	r3, r3, #14
+ 1114 0514 4949     		ldr	r1, .L16
+ 1115 0516 8A5C     		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 1116 0518 1A70     		strb	r2, [r3]
+ 143:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // row 3
+ 144:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf1 = state[15] ^ expandedKey[(round * 16) + 15];
+ 1117              		.loc 1 144 0 discriminator 3
+ 1118 051a 7B68     		ldr	r3, [r7, #4]
+ 1119 051c 0F33     		adds	r3, r3, #15
+ 1120 051e 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1121 0520 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1122 0522 1B01     		lsls	r3, r3, #4
+ 1123 0524 0F33     		adds	r3, r3, #15
+ 1124 0526 3968     		ldr	r1, [r7]
+ 1125 0528 0B44     		add	r3, r3, r1
+ 1126 052a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1127 052c 5340     		eors	r3, r3, r2
+ 1128 052e BB73     		strb	r3, [r7, #14]
+ 145:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[15] = sbox[(state[11] ^ expandedKey[(round * 16) + 11])];
+ 1129              		.loc 1 145 0 discriminator 3
+ 1130 0530 7B68     		ldr	r3, [r7, #4]
+ 1131 0532 0B33     		adds	r3, r3, #11
+ 1132 0534 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1133 0536 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1134 0538 1B01     		lsls	r3, r3, #4
+ 1135 053a 0B33     		adds	r3, r3, #11
+ 1136 053c 3968     		ldr	r1, [r7]
+ 1137 053e 0B44     		add	r3, r3, r1
+ 1138 0540 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1139 0542 5340     		eors	r3, r3, r2
+ 1140 0544 DBB2     		uxtb	r3, r3
+ 1141 0546 1946     		mov	r1, r3
+ 1142 0548 7B68     		ldr	r3, [r7, #4]
+ 1143 054a 0F33     		adds	r3, r3, #15
+ 1144 054c 3B4A     		ldr	r2, .L16
+ 1145 054e 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1146 0550 1A70     		strb	r2, [r3]
+ 146:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[11] = sbox[(state[7] ^ expandedKey[(round * 16) + 7])];
+ 1147              		.loc 1 146 0 discriminator 3
+ 1148 0552 7B68     		ldr	r3, [r7, #4]
+ 1149 0554 0733     		adds	r3, r3, #7
+ 1150 0556 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1151 0558 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1152 055a 1B01     		lsls	r3, r3, #4
+ 1153 055c 0733     		adds	r3, r3, #7
+ 1154 055e 3968     		ldr	r1, [r7]
+ 1155 0560 0B44     		add	r3, r3, r1
+ 1156 0562 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1157 0564 5340     		eors	r3, r3, r2
+ 1158 0566 DBB2     		uxtb	r3, r3
+ 1159 0568 1946     		mov	r1, r3
+ 1160 056a 7B68     		ldr	r3, [r7, #4]
+ 1161 056c 0B33     		adds	r3, r3, #11
+ 1162 056e 334A     		ldr	r2, .L16
+ 1163 0570 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1164 0572 1A70     		strb	r2, [r3]
+ 147:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[7] = sbox[(state[3] ^ expandedKey[(round * 16) + 3])];
+ 1165              		.loc 1 147 0 discriminator 3
+ 1166 0574 7B68     		ldr	r3, [r7, #4]
+ 1167 0576 0333     		adds	r3, r3, #3
+ 1168 0578 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1169 057a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1170 057c 1B01     		lsls	r3, r3, #4
+ 1171 057e 0333     		adds	r3, r3, #3
+ 1172 0580 3968     		ldr	r1, [r7]
+ 1173 0582 0B44     		add	r3, r3, r1
+ 1174 0584 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1175 0586 5340     		eors	r3, r3, r2
+ 1176 0588 DBB2     		uxtb	r3, r3
+ 1177 058a 1946     		mov	r1, r3
+ 1178 058c 7B68     		ldr	r3, [r7, #4]
+ 1179 058e 0733     		adds	r3, r3, #7
+ 1180 0590 2A4A     		ldr	r2, .L16
+ 1181 0592 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1182 0594 1A70     		strb	r2, [r3]
+ 148:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         state[3] = sbox[buf1];
+ 1183              		.loc 1 148 0 discriminator 3
+ 1184 0596 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 1185 0598 7B68     		ldr	r3, [r7, #4]
+ 1186 059a 0333     		adds	r3, r3, #3
+ 1187 059c 2749     		ldr	r1, .L16
+ 1188 059e 8A5C     		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 1189 05a0 1A70     		strb	r2, [r3]
+ 149:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+ 150:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // mixcolums //////////
+ 151:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // col1
+ 152:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf1 = state[0] ^ state[1] ^ state[2] ^ state[3];
+ 1190              		.loc 1 152 0 discriminator 3
+ 1191 05a2 7B68     		ldr	r3, [r7, #4]
+ 1192 05a4 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1193 05a6 7B68     		ldr	r3, [r7, #4]
+ 1194 05a8 0133     		adds	r3, r3, #1
+ 1195 05aa 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1196 05ac 5340     		eors	r3, r3, r2
+ 1197 05ae DAB2     		uxtb	r2, r3
+ 1198 05b0 7B68     		ldr	r3, [r7, #4]
+ 1199 05b2 0233     		adds	r3, r3, #2
+ 1200 05b4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1201 05b6 5340     		eors	r3, r3, r2
+ 1202 05b8 DAB2     		uxtb	r2, r3
+ 1203 05ba 7B68     		ldr	r3, [r7, #4]
+ 1204 05bc 0333     		adds	r3, r3, #3
+ 1205 05be 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1206 05c0 5340     		eors	r3, r3, r2
+ 1207 05c2 BB73     		strb	r3, [r7, #14]
+ 153:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf2 = state[0];
+ 1208              		.loc 1 153 0 discriminator 3
+ 1209 05c4 7B68     		ldr	r3, [r7, #4]
+ 1210 05c6 1B78     		ldrb	r3, [r3]
+ 1211 05c8 7B73     		strb	r3, [r7, #13]
+ 154:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[0] ^ state[1]; buf3 = galois_mul2(buf3); state[0] = state[0] ^ buf3 ^ buf1;
+ 1212              		.loc 1 154 0 discriminator 3
+ 1213 05ca 7B68     		ldr	r3, [r7, #4]
+ 1214 05cc 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1215 05ce 7B68     		ldr	r3, [r7, #4]
+ 1216 05d0 0133     		adds	r3, r3, #1
+ 1217 05d2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1218 05d4 5340     		eors	r3, r3, r2
+ 1219 05d6 3B73     		strb	r3, [r7, #12]
+ 1220 05d8 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1221 05da 1846     		mov	r0, r3
+ 1222 05dc FFF7FEFF 		bl	galois_mul2
+ 1223 05e0 0346     		mov	r3, r0
+ 1224 05e2 3B73     		strb	r3, [r7, #12]
+ 1225 05e4 7B68     		ldr	r3, [r7, #4]
+ 1226 05e6 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1227 05e8 3B7B     		ldrb	r3, [r7, #12]
+ 1228 05ea 5340     		eors	r3, r3, r2
+ 1229 05ec DAB2     		uxtb	r2, r3
+ 1230 05ee BB7B     		ldrb	r3, [r7, #14]
+ 1231 05f0 5340     		eors	r3, r3, r2
+ 1232 05f2 DAB2     		uxtb	r2, r3
+ 1233 05f4 7B68     		ldr	r3, [r7, #4]
+ 1234 05f6 1A70     		strb	r2, [r3]
+ 155:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[1] ^ state[2]; buf3 = galois_mul2(buf3); state[1] = state[1] ^ buf3 ^ buf1;
+ 1235              		.loc 1 155 0 discriminator 3
+ 1236 05f8 7B68     		ldr	r3, [r7, #4]
+ 1237 05fa 0133     		adds	r3, r3, #1
+ 1238 05fc 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1239 05fe 7B68     		ldr	r3, [r7, #4]
+ 1240 0600 0233     		adds	r3, r3, #2
+ 1241 0602 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1242 0604 5340     		eors	r3, r3, r2
+ 1243 0606 3B73     		strb	r3, [r7, #12]
+ 1244 0608 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1245 060a 1846     		mov	r0, r3
+ 1246 060c FFF7FEFF 		bl	galois_mul2
+ 1247 0610 0346     		mov	r3, r0
+ 1248 0612 3B73     		strb	r3, [r7, #12]
+ 1249 0614 7B68     		ldr	r3, [r7, #4]
+ 1250 0616 0133     		adds	r3, r3, #1
+ 1251 0618 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1252 061a 3B7B     		ldrb	r3, [r7, #12]
+ 1253 061c 5340     		eors	r3, r3, r2
+ 1254 061e D9B2     		uxtb	r1, r3
+ 1255 0620 7B68     		ldr	r3, [r7, #4]
+ 1256 0622 0133     		adds	r3, r3, #1
+ 1257 0624 BA7B     		ldrb	r2, [r7, #14]
+ 1258 0626 4A40     		eors	r2, r2, r1
+ 1259 0628 D2B2     		uxtb	r2, r2
+ 1260 062a 1A70     		strb	r2, [r3]
+ 156:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[2] ^ state[3]; buf3 = galois_mul2(buf3); state[2] = state[2] ^ buf3 ^ buf1;
+ 1261              		.loc 1 156 0 discriminator 3
+ 1262 062c 7B68     		ldr	r3, [r7, #4]
+ 1263 062e 0233     		adds	r3, r3, #2
+ 1264 0630 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1265 0632 7B68     		ldr	r3, [r7, #4]
+ 1266 0634 0333     		adds	r3, r3, #3
+ 1267 0636 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1268 0638 5340     		eors	r3, r3, r2
+ 1269 063a 01E0     		b	.L17
+ 1270              	.L18:
+ 1271              		.align	2
+ 1272              	.L16:
+ 1273 063c 00000000 		.word	sbox
+ 1274              	.L17:
+ 1275 0640 3B73     		strb	r3, [r7, #12]
+ 1276 0642 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1277 0644 1846     		mov	r0, r3
+ 1278 0646 FFF7FEFF 		bl	galois_mul2
+ 1279 064a 0346     		mov	r3, r0
+ 1280 064c 3B73     		strb	r3, [r7, #12]
+ 1281 064e 7B68     		ldr	r3, [r7, #4]
+ 1282 0650 0233     		adds	r3, r3, #2
+ 1283 0652 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1284 0654 3B7B     		ldrb	r3, [r7, #12]
+ 1285 0656 5340     		eors	r3, r3, r2
+ 1286 0658 D9B2     		uxtb	r1, r3
+ 1287 065a 7B68     		ldr	r3, [r7, #4]
+ 1288 065c 0233     		adds	r3, r3, #2
+ 1289 065e BA7B     		ldrb	r2, [r7, #14]
+ 1290 0660 4A40     		eors	r2, r2, r1
+ 1291 0662 D2B2     		uxtb	r2, r2
+ 1292 0664 1A70     		strb	r2, [r3]
+ 157:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[3] ^ buf2;     buf3 = galois_mul2(buf3); state[3] = state[3] ^ buf3 ^ buf1;
+ 1293              		.loc 1 157 0 discriminator 3
+ 1294 0666 7B68     		ldr	r3, [r7, #4]
+ 1295 0668 0333     		adds	r3, r3, #3
+ 1296 066a 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1297 066c 7B7B     		ldrb	r3, [r7, #13]
+ 1298 066e 5340     		eors	r3, r3, r2
+ 1299 0670 3B73     		strb	r3, [r7, #12]
+ 1300 0672 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1301 0674 1846     		mov	r0, r3
+ 1302 0676 FFF7FEFF 		bl	galois_mul2
+ 1303 067a 0346     		mov	r3, r0
+ 1304 067c 3B73     		strb	r3, [r7, #12]
+ 1305 067e 7B68     		ldr	r3, [r7, #4]
+ 1306 0680 0333     		adds	r3, r3, #3
+ 1307 0682 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1308 0684 3B7B     		ldrb	r3, [r7, #12]
+ 1309 0686 5340     		eors	r3, r3, r2
+ 1310 0688 D9B2     		uxtb	r1, r3
+ 1311 068a 7B68     		ldr	r3, [r7, #4]
+ 1312 068c 0333     		adds	r3, r3, #3
+ 1313 068e BA7B     		ldrb	r2, [r7, #14]
+ 1314 0690 4A40     		eors	r2, r2, r1
+ 1315 0692 D2B2     		uxtb	r2, r2
+ 1316 0694 1A70     		strb	r2, [r3]
+ 158:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // col2
+ 159:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf1 = state[4] ^ state[5] ^ state[6] ^ state[7];
+ 1317              		.loc 1 159 0 discriminator 3
+ 1318 0696 7B68     		ldr	r3, [r7, #4]
+ 1319 0698 0433     		adds	r3, r3, #4
+ 1320 069a 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1321 069c 7B68     		ldr	r3, [r7, #4]
+ 1322 069e 0533     		adds	r3, r3, #5
+ 1323 06a0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1324 06a2 5340     		eors	r3, r3, r2
+ 1325 06a4 DAB2     		uxtb	r2, r3
+ 1326 06a6 7B68     		ldr	r3, [r7, #4]
+ 1327 06a8 0633     		adds	r3, r3, #6
+ 1328 06aa 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1329 06ac 5340     		eors	r3, r3, r2
+ 1330 06ae DAB2     		uxtb	r2, r3
+ 1331 06b0 7B68     		ldr	r3, [r7, #4]
+ 1332 06b2 0733     		adds	r3, r3, #7
+ 1333 06b4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1334 06b6 5340     		eors	r3, r3, r2
+ 1335 06b8 BB73     		strb	r3, [r7, #14]
+ 160:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf2 = state[4];
+ 1336              		.loc 1 160 0 discriminator 3
+ 1337 06ba 7B68     		ldr	r3, [r7, #4]
+ 1338 06bc 1B79     		ldrb	r3, [r3, #4]
+ 1339 06be 7B73     		strb	r3, [r7, #13]
+ 161:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[4] ^ state[5]; buf3 = galois_mul2(buf3); state[4] = state[4] ^ buf3 ^ buf1;
+ 1340              		.loc 1 161 0 discriminator 3
+ 1341 06c0 7B68     		ldr	r3, [r7, #4]
+ 1342 06c2 0433     		adds	r3, r3, #4
+ 1343 06c4 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1344 06c6 7B68     		ldr	r3, [r7, #4]
+ 1345 06c8 0533     		adds	r3, r3, #5
+ 1346 06ca 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1347 06cc 5340     		eors	r3, r3, r2
+ 1348 06ce 3B73     		strb	r3, [r7, #12]
+ 1349 06d0 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1350 06d2 1846     		mov	r0, r3
+ 1351 06d4 FFF7FEFF 		bl	galois_mul2
+ 1352 06d8 0346     		mov	r3, r0
+ 1353 06da 3B73     		strb	r3, [r7, #12]
+ 1354 06dc 7B68     		ldr	r3, [r7, #4]
+ 1355 06de 0433     		adds	r3, r3, #4
+ 1356 06e0 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1357 06e2 3B7B     		ldrb	r3, [r7, #12]
+ 1358 06e4 5340     		eors	r3, r3, r2
+ 1359 06e6 D9B2     		uxtb	r1, r3
+ 1360 06e8 7B68     		ldr	r3, [r7, #4]
+ 1361 06ea 0433     		adds	r3, r3, #4
+ 1362 06ec BA7B     		ldrb	r2, [r7, #14]
+ 1363 06ee 4A40     		eors	r2, r2, r1
+ 1364 06f0 D2B2     		uxtb	r2, r2
+ 1365 06f2 1A70     		strb	r2, [r3]
+ 162:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[5] ^ state[6]; buf3 = galois_mul2(buf3); state[5] = state[5] ^ buf3 ^ buf1;
+ 1366              		.loc 1 162 0 discriminator 3
+ 1367 06f4 7B68     		ldr	r3, [r7, #4]
+ 1368 06f6 0533     		adds	r3, r3, #5
+ 1369 06f8 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1370 06fa 7B68     		ldr	r3, [r7, #4]
+ 1371 06fc 0633     		adds	r3, r3, #6
+ 1372 06fe 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1373 0700 5340     		eors	r3, r3, r2
+ 1374 0702 3B73     		strb	r3, [r7, #12]
+ 1375 0704 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1376 0706 1846     		mov	r0, r3
+ 1377 0708 FFF7FEFF 		bl	galois_mul2
+ 1378 070c 0346     		mov	r3, r0
+ 1379 070e 3B73     		strb	r3, [r7, #12]
+ 1380 0710 7B68     		ldr	r3, [r7, #4]
+ 1381 0712 0533     		adds	r3, r3, #5
+ 1382 0714 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1383 0716 3B7B     		ldrb	r3, [r7, #12]
+ 1384 0718 5340     		eors	r3, r3, r2
+ 1385 071a D9B2     		uxtb	r1, r3
+ 1386 071c 7B68     		ldr	r3, [r7, #4]
+ 1387 071e 0533     		adds	r3, r3, #5
+ 1388 0720 BA7B     		ldrb	r2, [r7, #14]
+ 1389 0722 4A40     		eors	r2, r2, r1
+ 1390 0724 D2B2     		uxtb	r2, r2
+ 1391 0726 1A70     		strb	r2, [r3]
+ 163:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[6] ^ state[7]; buf3 = galois_mul2(buf3); state[6] = state[6] ^ buf3 ^ buf1;
+ 1392              		.loc 1 163 0 discriminator 3
+ 1393 0728 7B68     		ldr	r3, [r7, #4]
+ 1394 072a 0633     		adds	r3, r3, #6
+ 1395 072c 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1396 072e 7B68     		ldr	r3, [r7, #4]
+ 1397 0730 0733     		adds	r3, r3, #7
+ 1398 0732 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1399 0734 5340     		eors	r3, r3, r2
+ 1400 0736 3B73     		strb	r3, [r7, #12]
+ 1401 0738 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1402 073a 1846     		mov	r0, r3
+ 1403 073c FFF7FEFF 		bl	galois_mul2
+ 1404 0740 0346     		mov	r3, r0
+ 1405 0742 3B73     		strb	r3, [r7, #12]
+ 1406 0744 7B68     		ldr	r3, [r7, #4]
+ 1407 0746 0633     		adds	r3, r3, #6
+ 1408 0748 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1409 074a 3B7B     		ldrb	r3, [r7, #12]
+ 1410 074c 5340     		eors	r3, r3, r2
+ 1411 074e D9B2     		uxtb	r1, r3
+ 1412 0750 7B68     		ldr	r3, [r7, #4]
+ 1413 0752 0633     		adds	r3, r3, #6
+ 1414 0754 BA7B     		ldrb	r2, [r7, #14]
+ 1415 0756 4A40     		eors	r2, r2, r1
+ 1416 0758 D2B2     		uxtb	r2, r2
+ 1417 075a 1A70     		strb	r2, [r3]
+ 164:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[7] ^ buf2;     buf3 = galois_mul2(buf3); state[7] = state[7] ^ buf3 ^ buf1;
+ 1418              		.loc 1 164 0 discriminator 3
+ 1419 075c 7B68     		ldr	r3, [r7, #4]
+ 1420 075e 0733     		adds	r3, r3, #7
+ 1421 0760 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1422 0762 7B7B     		ldrb	r3, [r7, #13]
+ 1423 0764 5340     		eors	r3, r3, r2
+ 1424 0766 3B73     		strb	r3, [r7, #12]
+ 1425 0768 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1426 076a 1846     		mov	r0, r3
+ 1427 076c FFF7FEFF 		bl	galois_mul2
+ 1428 0770 0346     		mov	r3, r0
+ 1429 0772 3B73     		strb	r3, [r7, #12]
+ 1430 0774 7B68     		ldr	r3, [r7, #4]
+ 1431 0776 0733     		adds	r3, r3, #7
+ 1432 0778 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1433 077a 3B7B     		ldrb	r3, [r7, #12]
+ 1434 077c 5340     		eors	r3, r3, r2
+ 1435 077e D9B2     		uxtb	r1, r3
+ 1436 0780 7B68     		ldr	r3, [r7, #4]
+ 1437 0782 0733     		adds	r3, r3, #7
+ 1438 0784 BA7B     		ldrb	r2, [r7, #14]
+ 1439 0786 4A40     		eors	r2, r2, r1
+ 1440 0788 D2B2     		uxtb	r2, r2
+ 1441 078a 1A70     		strb	r2, [r3]
+ 165:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // col3
+ 166:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf1 = state[8] ^ state[9] ^ state[10] ^ state[11];
+ 1442              		.loc 1 166 0 discriminator 3
+ 1443 078c 7B68     		ldr	r3, [r7, #4]
+ 1444 078e 0833     		adds	r3, r3, #8
+ 1445 0790 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1446 0792 7B68     		ldr	r3, [r7, #4]
+ 1447 0794 0933     		adds	r3, r3, #9
+ 1448 0796 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1449 0798 5340     		eors	r3, r3, r2
+ 1450 079a DAB2     		uxtb	r2, r3
+ 1451 079c 7B68     		ldr	r3, [r7, #4]
+ 1452 079e 0A33     		adds	r3, r3, #10
+ 1453 07a0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1454 07a2 5340     		eors	r3, r3, r2
+ 1455 07a4 DAB2     		uxtb	r2, r3
+ 1456 07a6 7B68     		ldr	r3, [r7, #4]
+ 1457 07a8 0B33     		adds	r3, r3, #11
+ 1458 07aa 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1459 07ac 5340     		eors	r3, r3, r2
+ 1460 07ae BB73     		strb	r3, [r7, #14]
+ 167:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf2 = state[8];
+ 1461              		.loc 1 167 0 discriminator 3
+ 1462 07b0 7B68     		ldr	r3, [r7, #4]
+ 1463 07b2 1B7A     		ldrb	r3, [r3, #8]
+ 1464 07b4 7B73     		strb	r3, [r7, #13]
+ 168:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[8] ^ state[9];   buf3 = galois_mul2(buf3); state[8] = state[8] ^ buf3 ^ buf1;
+ 1465              		.loc 1 168 0 discriminator 3
+ 1466 07b6 7B68     		ldr	r3, [r7, #4]
+ 1467 07b8 0833     		adds	r3, r3, #8
+ 1468 07ba 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1469 07bc 7B68     		ldr	r3, [r7, #4]
+ 1470 07be 0933     		adds	r3, r3, #9
+ 1471 07c0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1472 07c2 5340     		eors	r3, r3, r2
+ 1473 07c4 3B73     		strb	r3, [r7, #12]
+ 1474 07c6 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1475 07c8 1846     		mov	r0, r3
+ 1476 07ca FFF7FEFF 		bl	galois_mul2
+ 1477 07ce 0346     		mov	r3, r0
+ 1478 07d0 3B73     		strb	r3, [r7, #12]
+ 1479 07d2 7B68     		ldr	r3, [r7, #4]
+ 1480 07d4 0833     		adds	r3, r3, #8
+ 1481 07d6 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1482 07d8 3B7B     		ldrb	r3, [r7, #12]
+ 1483 07da 5340     		eors	r3, r3, r2
+ 1484 07dc D9B2     		uxtb	r1, r3
+ 1485 07de 7B68     		ldr	r3, [r7, #4]
+ 1486 07e0 0833     		adds	r3, r3, #8
+ 1487 07e2 BA7B     		ldrb	r2, [r7, #14]
+ 1488 07e4 4A40     		eors	r2, r2, r1
+ 1489 07e6 D2B2     		uxtb	r2, r2
+ 1490 07e8 1A70     		strb	r2, [r3]
+ 169:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[9] ^ state[10];  buf3 = galois_mul2(buf3); state[9] = state[9] ^ buf3 ^ buf1;
+ 1491              		.loc 1 169 0 discriminator 3
+ 1492 07ea 7B68     		ldr	r3, [r7, #4]
+ 1493 07ec 0933     		adds	r3, r3, #9
+ 1494 07ee 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1495 07f0 7B68     		ldr	r3, [r7, #4]
+ 1496 07f2 0A33     		adds	r3, r3, #10
+ 1497 07f4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1498 07f6 5340     		eors	r3, r3, r2
+ 1499 07f8 3B73     		strb	r3, [r7, #12]
+ 1500 07fa 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1501 07fc 1846     		mov	r0, r3
+ 1502 07fe FFF7FEFF 		bl	galois_mul2
+ 1503 0802 0346     		mov	r3, r0
+ 1504 0804 3B73     		strb	r3, [r7, #12]
+ 1505 0806 7B68     		ldr	r3, [r7, #4]
+ 1506 0808 0933     		adds	r3, r3, #9
+ 1507 080a 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1508 080c 3B7B     		ldrb	r3, [r7, #12]
+ 1509 080e 5340     		eors	r3, r3, r2
+ 1510 0810 D9B2     		uxtb	r1, r3
+ 1511 0812 7B68     		ldr	r3, [r7, #4]
+ 1512 0814 0933     		adds	r3, r3, #9
+ 1513 0816 BA7B     		ldrb	r2, [r7, #14]
+ 1514 0818 4A40     		eors	r2, r2, r1
+ 1515 081a D2B2     		uxtb	r2, r2
+ 1516 081c 1A70     		strb	r2, [r3]
+ 170:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[10] ^ state[11]; buf3 = galois_mul2(buf3); state[10] = state[10] ^ buf3 ^ buf1
+ 1517              		.loc 1 170 0 discriminator 3
+ 1518 081e 7B68     		ldr	r3, [r7, #4]
+ 1519 0820 0A33     		adds	r3, r3, #10
+ 1520 0822 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1521 0824 7B68     		ldr	r3, [r7, #4]
+ 1522 0826 0B33     		adds	r3, r3, #11
+ 1523 0828 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1524 082a 5340     		eors	r3, r3, r2
+ 1525 082c 3B73     		strb	r3, [r7, #12]
+ 1526 082e 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1527 0830 1846     		mov	r0, r3
+ 1528 0832 FFF7FEFF 		bl	galois_mul2
+ 1529 0836 0346     		mov	r3, r0
+ 1530 0838 3B73     		strb	r3, [r7, #12]
+ 1531 083a 7B68     		ldr	r3, [r7, #4]
+ 1532 083c 0A33     		adds	r3, r3, #10
+ 1533 083e 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1534 0840 3B7B     		ldrb	r3, [r7, #12]
+ 1535 0842 5340     		eors	r3, r3, r2
+ 1536 0844 D9B2     		uxtb	r1, r3
+ 1537 0846 7B68     		ldr	r3, [r7, #4]
+ 1538 0848 0A33     		adds	r3, r3, #10
+ 1539 084a BA7B     		ldrb	r2, [r7, #14]
+ 1540 084c 4A40     		eors	r2, r2, r1
+ 1541 084e D2B2     		uxtb	r2, r2
+ 1542 0850 1A70     		strb	r2, [r3]
+ 171:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[11] ^ buf2;      buf3 = galois_mul2(buf3); state[11] = state[11] ^ buf3 ^ buf1
+ 1543              		.loc 1 171 0 discriminator 3
+ 1544 0852 7B68     		ldr	r3, [r7, #4]
+ 1545 0854 0B33     		adds	r3, r3, #11
+ 1546 0856 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1547 0858 7B7B     		ldrb	r3, [r7, #13]
+ 1548 085a 5340     		eors	r3, r3, r2
+ 1549 085c 3B73     		strb	r3, [r7, #12]
+ 1550 085e 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1551 0860 1846     		mov	r0, r3
+ 1552 0862 FFF7FEFF 		bl	galois_mul2
+ 1553 0866 0346     		mov	r3, r0
+ 1554 0868 3B73     		strb	r3, [r7, #12]
+ 1555 086a 7B68     		ldr	r3, [r7, #4]
+ 1556 086c 0B33     		adds	r3, r3, #11
+ 1557 086e 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1558 0870 3B7B     		ldrb	r3, [r7, #12]
+ 1559 0872 5340     		eors	r3, r3, r2
+ 1560 0874 D9B2     		uxtb	r1, r3
+ 1561 0876 7B68     		ldr	r3, [r7, #4]
+ 1562 0878 0B33     		adds	r3, r3, #11
+ 1563 087a BA7B     		ldrb	r2, [r7, #14]
+ 1564 087c 4A40     		eors	r2, r2, r1
+ 1565 087e D2B2     		uxtb	r2, r2
+ 1566 0880 1A70     		strb	r2, [r3]
+ 172:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // col4
+ 173:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf1 = state[12] ^ state[13] ^ state[14] ^ state[15];
+ 1567              		.loc 1 173 0 discriminator 3
+ 1568 0882 7B68     		ldr	r3, [r7, #4]
+ 1569 0884 0C33     		adds	r3, r3, #12
+ 1570 0886 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1571 0888 7B68     		ldr	r3, [r7, #4]
+ 1572 088a 0D33     		adds	r3, r3, #13
+ 1573 088c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1574 088e 5340     		eors	r3, r3, r2
+ 1575 0890 DAB2     		uxtb	r2, r3
+ 1576 0892 7B68     		ldr	r3, [r7, #4]
+ 1577 0894 0E33     		adds	r3, r3, #14
+ 1578 0896 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1579 0898 5340     		eors	r3, r3, r2
+ 1580 089a DAB2     		uxtb	r2, r3
+ 1581 089c 7B68     		ldr	r3, [r7, #4]
+ 1582 089e 0F33     		adds	r3, r3, #15
+ 1583 08a0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1584 08a2 5340     		eors	r3, r3, r2
+ 1585 08a4 BB73     		strb	r3, [r7, #14]
+ 174:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf2 = state[12];
+ 1586              		.loc 1 174 0 discriminator 3
+ 1587 08a6 7B68     		ldr	r3, [r7, #4]
+ 1588 08a8 1B7B     		ldrb	r3, [r3, #12]
+ 1589 08aa 7B73     		strb	r3, [r7, #13]
+ 175:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[12] ^ state[13]; buf3 = galois_mul2(buf3); state[12] = state[12] ^ buf3 ^ buf1
+ 1590              		.loc 1 175 0 discriminator 3
+ 1591 08ac 7B68     		ldr	r3, [r7, #4]
+ 1592 08ae 0C33     		adds	r3, r3, #12
+ 1593 08b0 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1594 08b2 7B68     		ldr	r3, [r7, #4]
+ 1595 08b4 0D33     		adds	r3, r3, #13
+ 1596 08b6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1597 08b8 5340     		eors	r3, r3, r2
+ 1598 08ba 3B73     		strb	r3, [r7, #12]
+ 1599 08bc 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1600 08be 1846     		mov	r0, r3
+ 1601 08c0 FFF7FEFF 		bl	galois_mul2
+ 1602 08c4 0346     		mov	r3, r0
+ 1603 08c6 3B73     		strb	r3, [r7, #12]
+ 1604 08c8 7B68     		ldr	r3, [r7, #4]
+ 1605 08ca 0C33     		adds	r3, r3, #12
+ 1606 08cc 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1607 08ce 3B7B     		ldrb	r3, [r7, #12]
+ 1608 08d0 5340     		eors	r3, r3, r2
+ 1609 08d2 D9B2     		uxtb	r1, r3
+ 1610 08d4 7B68     		ldr	r3, [r7, #4]
+ 1611 08d6 0C33     		adds	r3, r3, #12
+ 1612 08d8 BA7B     		ldrb	r2, [r7, #14]
+ 1613 08da 4A40     		eors	r2, r2, r1
+ 1614 08dc D2B2     		uxtb	r2, r2
+ 1615 08de 1A70     		strb	r2, [r3]
+ 176:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[13] ^ state[14]; buf3 = galois_mul2(buf3); state[13] = state[13] ^ buf3 ^ buf1
+ 1616              		.loc 1 176 0 discriminator 3
+ 1617 08e0 7B68     		ldr	r3, [r7, #4]
+ 1618 08e2 0D33     		adds	r3, r3, #13
+ 1619 08e4 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1620 08e6 7B68     		ldr	r3, [r7, #4]
+ 1621 08e8 0E33     		adds	r3, r3, #14
+ 1622 08ea 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1623 08ec 5340     		eors	r3, r3, r2
+ 1624 08ee 3B73     		strb	r3, [r7, #12]
+ 1625 08f0 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1626 08f2 1846     		mov	r0, r3
+ 1627 08f4 FFF7FEFF 		bl	galois_mul2
+ 1628 08f8 0346     		mov	r3, r0
+ 1629 08fa 3B73     		strb	r3, [r7, #12]
+ 1630 08fc 7B68     		ldr	r3, [r7, #4]
+ 1631 08fe 0D33     		adds	r3, r3, #13
+ 1632 0900 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1633 0902 3B7B     		ldrb	r3, [r7, #12]
+ 1634 0904 5340     		eors	r3, r3, r2
+ 1635 0906 D9B2     		uxtb	r1, r3
+ 1636 0908 7B68     		ldr	r3, [r7, #4]
+ 1637 090a 0D33     		adds	r3, r3, #13
+ 1638 090c BA7B     		ldrb	r2, [r7, #14]
+ 1639 090e 4A40     		eors	r2, r2, r1
+ 1640 0910 D2B2     		uxtb	r2, r2
+ 1641 0912 1A70     		strb	r2, [r3]
+ 177:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[14] ^ state[15]; buf3 = galois_mul2(buf3); state[14] = state[14] ^ buf3 ^ buf1
+ 1642              		.loc 1 177 0 discriminator 3
+ 1643 0914 7B68     		ldr	r3, [r7, #4]
+ 1644 0916 0E33     		adds	r3, r3, #14
+ 1645 0918 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1646 091a 7B68     		ldr	r3, [r7, #4]
+ 1647 091c 0F33     		adds	r3, r3, #15
+ 1648 091e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1649 0920 5340     		eors	r3, r3, r2
+ 1650 0922 3B73     		strb	r3, [r7, #12]
+ 1651 0924 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1652 0926 1846     		mov	r0, r3
+ 1653 0928 FFF7FEFF 		bl	galois_mul2
+ 1654 092c 0346     		mov	r3, r0
+ 1655 092e 3B73     		strb	r3, [r7, #12]
+ 1656 0930 7B68     		ldr	r3, [r7, #4]
+ 1657 0932 0E33     		adds	r3, r3, #14
+ 1658 0934 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1659 0936 3B7B     		ldrb	r3, [r7, #12]
+ 1660 0938 5340     		eors	r3, r3, r2
+ 1661 093a D9B2     		uxtb	r1, r3
+ 1662 093c 7B68     		ldr	r3, [r7, #4]
+ 1663 093e 0E33     		adds	r3, r3, #14
+ 1664 0940 BA7B     		ldrb	r2, [r7, #14]
+ 1665 0942 4A40     		eors	r2, r2, r1
+ 1666 0944 D2B2     		uxtb	r2, r2
+ 1667 0946 1A70     		strb	r2, [r3]
+ 178:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         buf3 = state[15] ^ buf2;      buf3 = galois_mul2(buf3); state[15] = state[15] ^ buf3 ^ buf1
+ 1668              		.loc 1 178 0 discriminator 3
+ 1669 0948 7B68     		ldr	r3, [r7, #4]
+ 1670 094a 0F33     		adds	r3, r3, #15
+ 1671 094c 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1672 094e 7B7B     		ldrb	r3, [r7, #13]
+ 1673 0950 5340     		eors	r3, r3, r2
+ 1674 0952 3B73     		strb	r3, [r7, #12]
+ 1675 0954 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 1676 0956 1846     		mov	r0, r3
+ 1677 0958 FFF7FEFF 		bl	galois_mul2
+ 1678 095c 0346     		mov	r3, r0
+ 1679 095e 3B73     		strb	r3, [r7, #12]
+ 1680 0960 7B68     		ldr	r3, [r7, #4]
+ 1681 0962 0F33     		adds	r3, r3, #15
+ 1682 0964 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1683 0966 3B7B     		ldrb	r3, [r7, #12]
+ 1684 0968 5340     		eors	r3, r3, r2
+ 1685 096a D9B2     		uxtb	r1, r3
+ 1686 096c 7B68     		ldr	r3, [r7, #4]
+ 1687 096e 0F33     		adds	r3, r3, #15
+ 1688 0970 BA7B     		ldrb	r2, [r7, #14]
+ 1689 0972 4A40     		eors	r2, r2, r1
+ 1690 0974 D2B2     		uxtb	r2, r2
+ 1691 0976 1A70     		strb	r2, [r3]
+ 123:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // addroundkey, sbox and shiftrows
+ 1692              		.loc 1 123 0 discriminator 3
+ 1693 0978 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1694 097a 0133     		adds	r3, r3, #1
+ 1695 097c FB73     		strb	r3, [r7, #15]
+ 1696              	.L14:
+ 123:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****         // addroundkey, sbox and shiftrows
+ 1697              		.loc 1 123 0 is_stmt 0 discriminator 1
+ 1698 097e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1699 0980 082B     		cmp	r3, #8
+ 1700 0982 7FF600AD 		bls	.L15
+ 179:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** 
+ 180:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     }
+ 181:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     // 10th round without mixcols
+ 182:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[0] = sbox[(state[0] ^ expandedKey[(round * 16)])];
+ 1701              		.loc 1 182 0 is_stmt 1
+ 1702 0986 7B68     		ldr	r3, [r7, #4]
+ 1703 0988 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1704 098a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1705 098c 1B01     		lsls	r3, r3, #4
+ 1706 098e 1946     		mov	r1, r3
+ 1707 0990 3B68     		ldr	r3, [r7]
+ 1708 0992 0B44     		add	r3, r3, r1
+ 1709 0994 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1710 0996 5340     		eors	r3, r3, r2
+ 1711 0998 DBB2     		uxtb	r3, r3
+ 1712 099a 1A46     		mov	r2, r3
+ 1713 099c A44B     		ldr	r3, .L19
+ 1714 099e 9A5C     		ldrb	r2, [r3, r2]	@ zero_extendqisi2
+ 1715 09a0 7B68     		ldr	r3, [r7, #4]
+ 1716 09a2 1A70     		strb	r2, [r3]
+ 183:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[4] = sbox[(state[4] ^ expandedKey[(round * 16) + 4])];
+ 1717              		.loc 1 183 0
+ 1718 09a4 7B68     		ldr	r3, [r7, #4]
+ 1719 09a6 0433     		adds	r3, r3, #4
+ 1720 09a8 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1721 09aa FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1722 09ac 1B01     		lsls	r3, r3, #4
+ 1723 09ae 0433     		adds	r3, r3, #4
+ 1724 09b0 3968     		ldr	r1, [r7]
+ 1725 09b2 0B44     		add	r3, r3, r1
+ 1726 09b4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1727 09b6 5340     		eors	r3, r3, r2
+ 1728 09b8 DBB2     		uxtb	r3, r3
+ 1729 09ba 1946     		mov	r1, r3
+ 1730 09bc 7B68     		ldr	r3, [r7, #4]
+ 1731 09be 0433     		adds	r3, r3, #4
+ 1732 09c0 9B4A     		ldr	r2, .L19
+ 1733 09c2 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1734 09c4 1A70     		strb	r2, [r3]
+ 184:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[8] = sbox[(state[8] ^ expandedKey[(round * 16) + 8])];
+ 1735              		.loc 1 184 0
+ 1736 09c6 7B68     		ldr	r3, [r7, #4]
+ 1737 09c8 0833     		adds	r3, r3, #8
+ 1738 09ca 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1739 09cc FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1740 09ce 1B01     		lsls	r3, r3, #4
+ 1741 09d0 0833     		adds	r3, r3, #8
+ 1742 09d2 3968     		ldr	r1, [r7]
+ 1743 09d4 0B44     		add	r3, r3, r1
+ 1744 09d6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1745 09d8 5340     		eors	r3, r3, r2
+ 1746 09da DBB2     		uxtb	r3, r3
+ 1747 09dc 1946     		mov	r1, r3
+ 1748 09de 7B68     		ldr	r3, [r7, #4]
+ 1749 09e0 0833     		adds	r3, r3, #8
+ 1750 09e2 934A     		ldr	r2, .L19
+ 1751 09e4 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1752 09e6 1A70     		strb	r2, [r3]
+ 185:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[12] = sbox[(state[12] ^ expandedKey[(round * 16) + 12])];
+ 1753              		.loc 1 185 0
+ 1754 09e8 7B68     		ldr	r3, [r7, #4]
+ 1755 09ea 0C33     		adds	r3, r3, #12
+ 1756 09ec 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1757 09ee FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1758 09f0 1B01     		lsls	r3, r3, #4
+ 1759 09f2 0C33     		adds	r3, r3, #12
+ 1760 09f4 3968     		ldr	r1, [r7]
+ 1761 09f6 0B44     		add	r3, r3, r1
+ 1762 09f8 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1763 09fa 5340     		eors	r3, r3, r2
+ 1764 09fc DBB2     		uxtb	r3, r3
+ 1765 09fe 1946     		mov	r1, r3
+ 1766 0a00 7B68     		ldr	r3, [r7, #4]
+ 1767 0a02 0C33     		adds	r3, r3, #12
+ 1768 0a04 8A4A     		ldr	r2, .L19
+ 1769 0a06 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1770 0a08 1A70     		strb	r2, [r3]
+ 186:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     // row 1
+ 187:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     buf1 = state[1] ^ expandedKey[(round * 16) + 1];
+ 1771              		.loc 1 187 0
+ 1772 0a0a 7B68     		ldr	r3, [r7, #4]
+ 1773 0a0c 0133     		adds	r3, r3, #1
+ 1774 0a0e 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1775 0a10 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1776 0a12 1B01     		lsls	r3, r3, #4
+ 1777 0a14 0133     		adds	r3, r3, #1
+ 1778 0a16 3968     		ldr	r1, [r7]
+ 1779 0a18 0B44     		add	r3, r3, r1
+ 1780 0a1a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1781 0a1c 5340     		eors	r3, r3, r2
+ 1782 0a1e BB73     		strb	r3, [r7, #14]
+ 188:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[1] = sbox[(state[5] ^ expandedKey[(round * 16) + 5])];
+ 1783              		.loc 1 188 0
+ 1784 0a20 7B68     		ldr	r3, [r7, #4]
+ 1785 0a22 0533     		adds	r3, r3, #5
+ 1786 0a24 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1787 0a26 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1788 0a28 1B01     		lsls	r3, r3, #4
+ 1789 0a2a 0533     		adds	r3, r3, #5
+ 1790 0a2c 3968     		ldr	r1, [r7]
+ 1791 0a2e 0B44     		add	r3, r3, r1
+ 1792 0a30 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1793 0a32 5340     		eors	r3, r3, r2
+ 1794 0a34 DBB2     		uxtb	r3, r3
+ 1795 0a36 1946     		mov	r1, r3
+ 1796 0a38 7B68     		ldr	r3, [r7, #4]
+ 1797 0a3a 0133     		adds	r3, r3, #1
+ 1798 0a3c 7C4A     		ldr	r2, .L19
+ 1799 0a3e 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1800 0a40 1A70     		strb	r2, [r3]
+ 189:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[5] = sbox[(state[9] ^ expandedKey[(round * 16) + 9])];
+ 1801              		.loc 1 189 0
+ 1802 0a42 7B68     		ldr	r3, [r7, #4]
+ 1803 0a44 0933     		adds	r3, r3, #9
+ 1804 0a46 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1805 0a48 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1806 0a4a 1B01     		lsls	r3, r3, #4
+ 1807 0a4c 0933     		adds	r3, r3, #9
+ 1808 0a4e 3968     		ldr	r1, [r7]
+ 1809 0a50 0B44     		add	r3, r3, r1
+ 1810 0a52 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1811 0a54 5340     		eors	r3, r3, r2
+ 1812 0a56 DBB2     		uxtb	r3, r3
+ 1813 0a58 1946     		mov	r1, r3
+ 1814 0a5a 7B68     		ldr	r3, [r7, #4]
+ 1815 0a5c 0533     		adds	r3, r3, #5
+ 1816 0a5e 744A     		ldr	r2, .L19
+ 1817 0a60 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1818 0a62 1A70     		strb	r2, [r3]
+ 190:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[9] = sbox[(state[13] ^ expandedKey[(round * 16) + 13])];
+ 1819              		.loc 1 190 0
+ 1820 0a64 7B68     		ldr	r3, [r7, #4]
+ 1821 0a66 0D33     		adds	r3, r3, #13
+ 1822 0a68 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1823 0a6a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1824 0a6c 1B01     		lsls	r3, r3, #4
+ 1825 0a6e 0D33     		adds	r3, r3, #13
+ 1826 0a70 3968     		ldr	r1, [r7]
+ 1827 0a72 0B44     		add	r3, r3, r1
+ 1828 0a74 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1829 0a76 5340     		eors	r3, r3, r2
+ 1830 0a78 DBB2     		uxtb	r3, r3
+ 1831 0a7a 1946     		mov	r1, r3
+ 1832 0a7c 7B68     		ldr	r3, [r7, #4]
+ 1833 0a7e 0933     		adds	r3, r3, #9
+ 1834 0a80 6B4A     		ldr	r2, .L19
+ 1835 0a82 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1836 0a84 1A70     		strb	r2, [r3]
+ 191:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[13] = sbox[buf1];
+ 1837              		.loc 1 191 0
+ 1838 0a86 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 1839 0a88 7B68     		ldr	r3, [r7, #4]
+ 1840 0a8a 0D33     		adds	r3, r3, #13
+ 1841 0a8c 6849     		ldr	r1, .L19
+ 1842 0a8e 8A5C     		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 1843 0a90 1A70     		strb	r2, [r3]
+ 192:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     // row 2
+ 193:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     buf1 = state[2] ^ expandedKey[(round * 16) + 2];
+ 1844              		.loc 1 193 0
+ 1845 0a92 7B68     		ldr	r3, [r7, #4]
+ 1846 0a94 0233     		adds	r3, r3, #2
+ 1847 0a96 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1848 0a98 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1849 0a9a 1B01     		lsls	r3, r3, #4
+ 1850 0a9c 0233     		adds	r3, r3, #2
+ 1851 0a9e 3968     		ldr	r1, [r7]
+ 1852 0aa0 0B44     		add	r3, r3, r1
+ 1853 0aa2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1854 0aa4 5340     		eors	r3, r3, r2
+ 1855 0aa6 BB73     		strb	r3, [r7, #14]
+ 194:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     buf2 = state[6] ^ expandedKey[(round * 16) + 6];
+ 1856              		.loc 1 194 0
+ 1857 0aa8 7B68     		ldr	r3, [r7, #4]
+ 1858 0aaa 0633     		adds	r3, r3, #6
+ 1859 0aac 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1860 0aae FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1861 0ab0 1B01     		lsls	r3, r3, #4
+ 1862 0ab2 0633     		adds	r3, r3, #6
+ 1863 0ab4 3968     		ldr	r1, [r7]
+ 1864 0ab6 0B44     		add	r3, r3, r1
+ 1865 0ab8 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1866 0aba 5340     		eors	r3, r3, r2
+ 1867 0abc 7B73     		strb	r3, [r7, #13]
+ 195:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[2] = sbox[(state[10] ^ expandedKey[(round * 16) + 10])];
+ 1868              		.loc 1 195 0
+ 1869 0abe 7B68     		ldr	r3, [r7, #4]
+ 1870 0ac0 0A33     		adds	r3, r3, #10
+ 1871 0ac2 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1872 0ac4 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1873 0ac6 1B01     		lsls	r3, r3, #4
+ 1874 0ac8 0A33     		adds	r3, r3, #10
+ 1875 0aca 3968     		ldr	r1, [r7]
+ 1876 0acc 0B44     		add	r3, r3, r1
+ 1877 0ace 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1878 0ad0 5340     		eors	r3, r3, r2
+ 1879 0ad2 DBB2     		uxtb	r3, r3
+ 1880 0ad4 1946     		mov	r1, r3
+ 1881 0ad6 7B68     		ldr	r3, [r7, #4]
+ 1882 0ad8 0233     		adds	r3, r3, #2
+ 1883 0ada 554A     		ldr	r2, .L19
+ 1884 0adc 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1885 0ade 1A70     		strb	r2, [r3]
+ 196:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[6] = sbox[(state[14] ^ expandedKey[(round * 16) + 14])];
+ 1886              		.loc 1 196 0
+ 1887 0ae0 7B68     		ldr	r3, [r7, #4]
+ 1888 0ae2 0E33     		adds	r3, r3, #14
+ 1889 0ae4 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1890 0ae6 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1891 0ae8 1B01     		lsls	r3, r3, #4
+ 1892 0aea 0E33     		adds	r3, r3, #14
+ 1893 0aec 3968     		ldr	r1, [r7]
+ 1894 0aee 0B44     		add	r3, r3, r1
+ 1895 0af0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1896 0af2 5340     		eors	r3, r3, r2
+ 1897 0af4 DBB2     		uxtb	r3, r3
+ 1898 0af6 1946     		mov	r1, r3
+ 1899 0af8 7B68     		ldr	r3, [r7, #4]
+ 1900 0afa 0633     		adds	r3, r3, #6
+ 1901 0afc 4C4A     		ldr	r2, .L19
+ 1902 0afe 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1903 0b00 1A70     		strb	r2, [r3]
+ 197:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[10] = sbox[buf1];
+ 1904              		.loc 1 197 0
+ 1905 0b02 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 1906 0b04 7B68     		ldr	r3, [r7, #4]
+ 1907 0b06 0A33     		adds	r3, r3, #10
+ 1908 0b08 4949     		ldr	r1, .L19
+ 1909 0b0a 8A5C     		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 1910 0b0c 1A70     		strb	r2, [r3]
+ 198:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[14] = sbox[buf2];
+ 1911              		.loc 1 198 0
+ 1912 0b0e 7A7B     		ldrb	r2, [r7, #13]	@ zero_extendqisi2
+ 1913 0b10 7B68     		ldr	r3, [r7, #4]
+ 1914 0b12 0E33     		adds	r3, r3, #14
+ 1915 0b14 4649     		ldr	r1, .L19
+ 1916 0b16 8A5C     		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 1917 0b18 1A70     		strb	r2, [r3]
+ 199:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     // row 3
+ 200:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     buf1 = state[15] ^ expandedKey[(round * 16) + 15];
+ 1918              		.loc 1 200 0
+ 1919 0b1a 7B68     		ldr	r3, [r7, #4]
+ 1920 0b1c 0F33     		adds	r3, r3, #15
+ 1921 0b1e 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1922 0b20 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1923 0b22 1B01     		lsls	r3, r3, #4
+ 1924 0b24 0F33     		adds	r3, r3, #15
+ 1925 0b26 3968     		ldr	r1, [r7]
+ 1926 0b28 0B44     		add	r3, r3, r1
+ 1927 0b2a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1928 0b2c 5340     		eors	r3, r3, r2
+ 1929 0b2e BB73     		strb	r3, [r7, #14]
+ 201:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[15] = sbox[(state[11] ^ expandedKey[(round * 16) + 11])];
+ 1930              		.loc 1 201 0
+ 1931 0b30 7B68     		ldr	r3, [r7, #4]
+ 1932 0b32 0B33     		adds	r3, r3, #11
+ 1933 0b34 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1934 0b36 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1935 0b38 1B01     		lsls	r3, r3, #4
+ 1936 0b3a 0B33     		adds	r3, r3, #11
+ 1937 0b3c 3968     		ldr	r1, [r7]
+ 1938 0b3e 0B44     		add	r3, r3, r1
+ 1939 0b40 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1940 0b42 5340     		eors	r3, r3, r2
+ 1941 0b44 DBB2     		uxtb	r3, r3
+ 1942 0b46 1946     		mov	r1, r3
+ 1943 0b48 7B68     		ldr	r3, [r7, #4]
+ 1944 0b4a 0F33     		adds	r3, r3, #15
+ 1945 0b4c 384A     		ldr	r2, .L19
+ 1946 0b4e 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1947 0b50 1A70     		strb	r2, [r3]
+ 202:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[11] = sbox[(state[7] ^ expandedKey[(round * 16) + 7])];
+ 1948              		.loc 1 202 0
+ 1949 0b52 7B68     		ldr	r3, [r7, #4]
+ 1950 0b54 0733     		adds	r3, r3, #7
+ 1951 0b56 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1952 0b58 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1953 0b5a 1B01     		lsls	r3, r3, #4
+ 1954 0b5c 0733     		adds	r3, r3, #7
+ 1955 0b5e 3968     		ldr	r1, [r7]
+ 1956 0b60 0B44     		add	r3, r3, r1
+ 1957 0b62 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1958 0b64 5340     		eors	r3, r3, r2
+ 1959 0b66 DBB2     		uxtb	r3, r3
+ 1960 0b68 1946     		mov	r1, r3
+ 1961 0b6a 7B68     		ldr	r3, [r7, #4]
+ 1962 0b6c 0B33     		adds	r3, r3, #11
+ 1963 0b6e 304A     		ldr	r2, .L19
+ 1964 0b70 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1965 0b72 1A70     		strb	r2, [r3]
+ 203:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[7] = sbox[(state[3] ^ expandedKey[(round * 16) + 3])];
+ 1966              		.loc 1 203 0
+ 1967 0b74 7B68     		ldr	r3, [r7, #4]
+ 1968 0b76 0333     		adds	r3, r3, #3
+ 1969 0b78 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1970 0b7a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1971 0b7c 1B01     		lsls	r3, r3, #4
+ 1972 0b7e 0333     		adds	r3, r3, #3
+ 1973 0b80 3968     		ldr	r1, [r7]
+ 1974 0b82 0B44     		add	r3, r3, r1
+ 1975 0b84 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1976 0b86 5340     		eors	r3, r3, r2
+ 1977 0b88 DBB2     		uxtb	r3, r3
+ 1978 0b8a 1946     		mov	r1, r3
+ 1979 0b8c 7B68     		ldr	r3, [r7, #4]
+ 1980 0b8e 0733     		adds	r3, r3, #7
+ 1981 0b90 274A     		ldr	r2, .L19
+ 1982 0b92 525C     		ldrb	r2, [r2, r1]	@ zero_extendqisi2
+ 1983 0b94 1A70     		strb	r2, [r3]
+ 204:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[3] = sbox[buf1];
+ 1984              		.loc 1 204 0
+ 1985 0b96 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 1986 0b98 7B68     		ldr	r3, [r7, #4]
+ 1987 0b9a 0333     		adds	r3, r3, #3
+ 1988 0b9c 2449     		ldr	r1, .L19
+ 1989 0b9e 8A5C     		ldrb	r2, [r1, r2]	@ zero_extendqisi2
+ 1990 0ba0 1A70     		strb	r2, [r3]
+ 205:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     // last addroundkey
+ 206:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[0] ^= expandedKey[160];
+ 1991              		.loc 1 206 0
+ 1992 0ba2 7B68     		ldr	r3, [r7, #4]
+ 1993 0ba4 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1994 0ba6 3B68     		ldr	r3, [r7]
+ 1995 0ba8 A033     		adds	r3, r3, #160
+ 1996 0baa 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1997 0bac 5340     		eors	r3, r3, r2
+ 1998 0bae DAB2     		uxtb	r2, r3
+ 1999 0bb0 7B68     		ldr	r3, [r7, #4]
+ 2000 0bb2 1A70     		strb	r2, [r3]
+ 207:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[1] ^= expandedKey[161];
+ 2001              		.loc 1 207 0
+ 2002 0bb4 7B68     		ldr	r3, [r7, #4]
+ 2003 0bb6 0133     		adds	r3, r3, #1
+ 2004 0bb8 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2005 0bba 3B68     		ldr	r3, [r7]
+ 2006 0bbc A133     		adds	r3, r3, #161
+ 2007 0bbe 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2008 0bc0 7B68     		ldr	r3, [r7, #4]
+ 2009 0bc2 0133     		adds	r3, r3, #1
+ 2010 0bc4 4A40     		eors	r2, r2, r1
+ 2011 0bc6 D2B2     		uxtb	r2, r2
+ 2012 0bc8 1A70     		strb	r2, [r3]
+ 208:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[2] ^= expandedKey[162];
+ 2013              		.loc 1 208 0
+ 2014 0bca 7B68     		ldr	r3, [r7, #4]
+ 2015 0bcc 0233     		adds	r3, r3, #2
+ 2016 0bce 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2017 0bd0 3B68     		ldr	r3, [r7]
+ 2018 0bd2 A233     		adds	r3, r3, #162
+ 2019 0bd4 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2020 0bd6 7B68     		ldr	r3, [r7, #4]
+ 2021 0bd8 0233     		adds	r3, r3, #2
+ 2022 0bda 4A40     		eors	r2, r2, r1
+ 2023 0bdc D2B2     		uxtb	r2, r2
+ 2024 0bde 1A70     		strb	r2, [r3]
+ 209:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[3] ^= expandedKey[163];
+ 2025              		.loc 1 209 0
+ 2026 0be0 7B68     		ldr	r3, [r7, #4]
+ 2027 0be2 0333     		adds	r3, r3, #3
+ 2028 0be4 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2029 0be6 3B68     		ldr	r3, [r7]
+ 2030 0be8 A333     		adds	r3, r3, #163
+ 2031 0bea 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2032 0bec 7B68     		ldr	r3, [r7, #4]
+ 2033 0bee 0333     		adds	r3, r3, #3
+ 2034 0bf0 4A40     		eors	r2, r2, r1
+ 2035 0bf2 D2B2     		uxtb	r2, r2
+ 2036 0bf4 1A70     		strb	r2, [r3]
+ 210:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[4] ^= expandedKey[164];
+ 2037              		.loc 1 210 0
+ 2038 0bf6 7B68     		ldr	r3, [r7, #4]
+ 2039 0bf8 0433     		adds	r3, r3, #4
+ 2040 0bfa 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2041 0bfc 3B68     		ldr	r3, [r7]
+ 2042 0bfe A433     		adds	r3, r3, #164
+ 2043 0c00 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2044 0c02 7B68     		ldr	r3, [r7, #4]
+ 2045 0c04 0433     		adds	r3, r3, #4
+ 2046 0c06 4A40     		eors	r2, r2, r1
+ 2047 0c08 D2B2     		uxtb	r2, r2
+ 2048 0c0a 1A70     		strb	r2, [r3]
+ 211:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[5] ^= expandedKey[165];
+ 2049              		.loc 1 211 0
+ 2050 0c0c 7B68     		ldr	r3, [r7, #4]
+ 2051 0c0e 0533     		adds	r3, r3, #5
+ 2052 0c10 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2053 0c12 3B68     		ldr	r3, [r7]
+ 2054 0c14 A533     		adds	r3, r3, #165
+ 2055 0c16 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2056 0c18 7B68     		ldr	r3, [r7, #4]
+ 2057 0c1a 0533     		adds	r3, r3, #5
+ 2058 0c1c 4A40     		eors	r2, r2, r1
+ 2059 0c1e D2B2     		uxtb	r2, r2
+ 2060 0c20 1A70     		strb	r2, [r3]
+ 212:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[6] ^= expandedKey[166];
+ 2061              		.loc 1 212 0
+ 2062 0c22 7B68     		ldr	r3, [r7, #4]
+ 2063 0c24 0633     		adds	r3, r3, #6
+ 2064 0c26 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2065 0c28 3B68     		ldr	r3, [r7]
+ 2066 0c2a A633     		adds	r3, r3, #166
+ 2067 0c2c 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2068 0c2e 01E0     		b	.L20
+ 2069              	.L21:
+ 2070              		.align	2
+ 2071              	.L19:
+ 2072 0c30 00000000 		.word	sbox
+ 2073              	.L20:
+ 2074 0c34 7B68     		ldr	r3, [r7, #4]
+ 2075 0c36 0633     		adds	r3, r3, #6
+ 2076 0c38 4A40     		eors	r2, r2, r1
+ 2077 0c3a D2B2     		uxtb	r2, r2
+ 2078 0c3c 1A70     		strb	r2, [r3]
+ 213:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[7] ^= expandedKey[167];
+ 2079              		.loc 1 213 0
+ 2080 0c3e 7B68     		ldr	r3, [r7, #4]
+ 2081 0c40 0733     		adds	r3, r3, #7
+ 2082 0c42 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2083 0c44 3B68     		ldr	r3, [r7]
+ 2084 0c46 A733     		adds	r3, r3, #167
+ 2085 0c48 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2086 0c4a 7B68     		ldr	r3, [r7, #4]
+ 2087 0c4c 0733     		adds	r3, r3, #7
+ 2088 0c4e 4A40     		eors	r2, r2, r1
+ 2089 0c50 D2B2     		uxtb	r2, r2
+ 2090 0c52 1A70     		strb	r2, [r3]
+ 214:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[8] ^= expandedKey[168];
+ 2091              		.loc 1 214 0
+ 2092 0c54 7B68     		ldr	r3, [r7, #4]
+ 2093 0c56 0833     		adds	r3, r3, #8
+ 2094 0c58 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2095 0c5a 3B68     		ldr	r3, [r7]
+ 2096 0c5c A833     		adds	r3, r3, #168
+ 2097 0c5e 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2098 0c60 7B68     		ldr	r3, [r7, #4]
+ 2099 0c62 0833     		adds	r3, r3, #8
+ 2100 0c64 4A40     		eors	r2, r2, r1
+ 2101 0c66 D2B2     		uxtb	r2, r2
+ 2102 0c68 1A70     		strb	r2, [r3]
+ 215:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[9] ^= expandedKey[169];
+ 2103              		.loc 1 215 0
+ 2104 0c6a 7B68     		ldr	r3, [r7, #4]
+ 2105 0c6c 0933     		adds	r3, r3, #9
+ 2106 0c6e 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2107 0c70 3B68     		ldr	r3, [r7]
+ 2108 0c72 A933     		adds	r3, r3, #169
+ 2109 0c74 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2110 0c76 7B68     		ldr	r3, [r7, #4]
+ 2111 0c78 0933     		adds	r3, r3, #9
+ 2112 0c7a 4A40     		eors	r2, r2, r1
+ 2113 0c7c D2B2     		uxtb	r2, r2
+ 2114 0c7e 1A70     		strb	r2, [r3]
+ 216:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[10] ^= expandedKey[170];
+ 2115              		.loc 1 216 0
+ 2116 0c80 7B68     		ldr	r3, [r7, #4]
+ 2117 0c82 0A33     		adds	r3, r3, #10
+ 2118 0c84 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2119 0c86 3B68     		ldr	r3, [r7]
+ 2120 0c88 AA33     		adds	r3, r3, #170
+ 2121 0c8a 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2122 0c8c 7B68     		ldr	r3, [r7, #4]
+ 2123 0c8e 0A33     		adds	r3, r3, #10
+ 2124 0c90 4A40     		eors	r2, r2, r1
+ 2125 0c92 D2B2     		uxtb	r2, r2
+ 2126 0c94 1A70     		strb	r2, [r3]
+ 217:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[11] ^= expandedKey[171];
+ 2127              		.loc 1 217 0
+ 2128 0c96 7B68     		ldr	r3, [r7, #4]
+ 2129 0c98 0B33     		adds	r3, r3, #11
+ 2130 0c9a 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2131 0c9c 3B68     		ldr	r3, [r7]
+ 2132 0c9e AB33     		adds	r3, r3, #171
+ 2133 0ca0 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2134 0ca2 7B68     		ldr	r3, [r7, #4]
+ 2135 0ca4 0B33     		adds	r3, r3, #11
+ 2136 0ca6 4A40     		eors	r2, r2, r1
+ 2137 0ca8 D2B2     		uxtb	r2, r2
+ 2138 0caa 1A70     		strb	r2, [r3]
+ 218:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[12] ^= expandedKey[172];
+ 2139              		.loc 1 218 0
+ 2140 0cac 7B68     		ldr	r3, [r7, #4]
+ 2141 0cae 0C33     		adds	r3, r3, #12
+ 2142 0cb0 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2143 0cb2 3B68     		ldr	r3, [r7]
+ 2144 0cb4 AC33     		adds	r3, r3, #172
+ 2145 0cb6 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2146 0cb8 7B68     		ldr	r3, [r7, #4]
+ 2147 0cba 0C33     		adds	r3, r3, #12
+ 2148 0cbc 4A40     		eors	r2, r2, r1
+ 2149 0cbe D2B2     		uxtb	r2, r2
+ 2150 0cc0 1A70     		strb	r2, [r3]
+ 219:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[13] ^= expandedKey[173];
+ 2151              		.loc 1 219 0
+ 2152 0cc2 7B68     		ldr	r3, [r7, #4]
+ 2153 0cc4 0D33     		adds	r3, r3, #13
+ 2154 0cc6 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2155 0cc8 3B68     		ldr	r3, [r7]
+ 2156 0cca AD33     		adds	r3, r3, #173
+ 2157 0ccc 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2158 0cce 7B68     		ldr	r3, [r7, #4]
+ 2159 0cd0 0D33     		adds	r3, r3, #13
+ 2160 0cd2 4A40     		eors	r2, r2, r1
+ 2161 0cd4 D2B2     		uxtb	r2, r2
+ 2162 0cd6 1A70     		strb	r2, [r3]
+ 220:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[14] ^= expandedKey[174];
+ 2163              		.loc 1 220 0
+ 2164 0cd8 7B68     		ldr	r3, [r7, #4]
+ 2165 0cda 0E33     		adds	r3, r3, #14
+ 2166 0cdc 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2167 0cde 3B68     		ldr	r3, [r7]
+ 2168 0ce0 AE33     		adds	r3, r3, #174
+ 2169 0ce2 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2170 0ce4 7B68     		ldr	r3, [r7, #4]
+ 2171 0ce6 0E33     		adds	r3, r3, #14
+ 2172 0ce8 4A40     		eors	r2, r2, r1
+ 2173 0cea D2B2     		uxtb	r2, r2
+ 2174 0cec 1A70     		strb	r2, [r3]
+ 221:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c ****     state[15] ^= expandedKey[175];
+ 2175              		.loc 1 221 0
+ 2176 0cee 7B68     		ldr	r3, [r7, #4]
+ 2177 0cf0 0F33     		adds	r3, r3, #15
+ 2178 0cf2 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 2179 0cf4 3B68     		ldr	r3, [r7]
+ 2180 0cf6 AF33     		adds	r3, r3, #175
+ 2181 0cf8 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2182 0cfa 7B68     		ldr	r3, [r7, #4]
+ 2183 0cfc 0F33     		adds	r3, r3, #15
+ 2184 0cfe 4A40     		eors	r2, r2, r1
+ 2185 0d00 D2B2     		uxtb	r2, r2
+ 2186 0d02 1A70     		strb	r2, [r3]
+ 222:build\openmote-cc2538_armgcc\bsp\boards\common/openaes.c **** }
+ 2187              		.loc 1 222 0
+ 2188 0d04 00BF     		nop
+ 2189 0d06 1037     		adds	r7, r7, #16
+ 2190              		.cfi_def_cfa_offset 8
+ 2191 0d08 BD46     		mov	sp, r7
+ 2192              		.cfi_def_cfa_register 13
+ 2193              		@ sp needed
+ 2194 0d0a 80BD     		pop	{r7, pc}
+ 2195              		.cfi_endproc
+ 2196              	.LFE3:
+ 2198              	.Letext0:
+ 2199              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2200              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2201              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2202              		.file 5 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2203              		.file 6 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\lib\\gcc\\arm-none-eab
+ 2204              		.file 7 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2205              		.file 8 "bsp\\boards\\openmote-cc2538/board_info.h"
+ 2206              		.file 9 "inc/opendefs.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 openaes.c
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:16     .rodata:00000000 $d
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:19     .rodata:00000000 rreg_uriquery
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:24     .rodata:00000008 infoBoardname
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:29     .rodata:00000010 infouCName
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:34     .rodata:00000018 infoRadioName
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:39     .rodata:00000024 infoStackName
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:45     .rodata:00000030 sbox
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:306    .rodata:00000130 Rcon
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:319    .text:00000000 $t
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:326    .text:00000000 openaes_enc
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:373    .text:0000002c expandKey
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:879    .text:00000376 aes_encr
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:811    .text:0000033c $d
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:816    .text:00000344 $t
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:823    .text:00000344 galois_mul2
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:1273   .text:0000063c $d
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:1275   .text:00000640 $t
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:2072   .text:00000c30 $d
+C:\Users\Lee\AppData\Local\Temp\cclCdaKb.s:2074   .text:00000c34 $t
+                           .group:00000000 wm4.0.93d65e4ff05d5af51629690e5b534e57
+                           .group:00000000 wm4._newlib_version.h.4.875b979a44719054cd750d0952ad3fd6
+                           .group:00000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.cce27fed8484c08a33f522034c30d2b5
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:00000000 wm4.newlib.h.8.f6e543eac3f2f65163ba2ffe3b04987b
+                           .group:00000000 wm4.ieeefp.h.77.220d9cccac42cd58761758bee2df4ce6
+                           .group:00000000 wm4.config.h.220.6cac6a9685cfce5e83c17784171638d9
+                           .group:00000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:00000000 wm4.stddef.h.39.a38874c8f8a57e66301090908ec2a69f
+                           .group:00000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:00000000 wm4._types.h.125.5cf8a495f1f7ef36777ad868a1e32068
+                           .group:00000000 wm4.stddef.h.161.5349cb105733e8777bfb0cf53c4e3f34
+                           .group:00000000 wm4._types.h.184.03611d4f6b5bec9997bcf4279eceba07
+                           .group:00000000 wm4.reent.h.17.90c2574d4acdcfce933db5cb09ff35fe
+                           .group:00000000 wm4.cdefs.h.47.0bcdf94cb40e176393dd1404056825b4
+                           .group:00000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:00000000 wm4.stddef.h.161.19e15733342b50ead2919490b095303e
+                           .group:00000000 wm4.stdbool.h.29.07dce69c3b78884144b7f7bd19483461
+                           .group:00000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:00000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:00000000 wm4.board_info.h.22.34c159473b0affd9f1a6f5aa8cf576c9
+                           .group:00000000 wm4.opendefs.h.23.3a22b672f37c862344b7aef3ebe35451
+
+NO UNDEFINED SYMBOLS

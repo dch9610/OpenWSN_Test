@@ -1,0 +1,1350 @@
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"cojp_cbor.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.rodata
+  16              		.align	2
+  19              	rreg_uriquery:
+  20 0000 683D7563 		.ascii	"h=ucb\000"
+  20      6200
+  21 0006 0000     		.align	2
+  24              	infoBoardname:
+  25 0008 43433235 		.ascii	"CC2538\000"
+  25      333800
+  26 000f 00       		.align	2
+  29              	infouCName:
+  30 0010 43433235 		.ascii	"CC2538\000"
+  30      333800
+  31 0017 00       		.align	2
+  34              	infoRadioName:
+  35 0018 43433235 		.ascii	"CC2538 SoC\000"
+  35      33382053 
+  35      6F4300
+  36 0023 00       		.align	2
+  39              	infoStackName:
+  40 0024 4F70656E 		.ascii	"OpenWSN \000"
+  40      57534E20 
+  40      00
+  41              		.text
+  42              		.align	1
+  43              		.global	cojp_cbor_decode_configuration_object
+  44              		.syntax unified
+  45              		.thumb
+  46              		.thumb_func
+  47              		.fpu softvfp
+  49              	cojp_cbor_decode_configuration_object:
+  50              	.LFB0:
+  51              		.file 1 "build\\openmote-cc2538_armgcc\\openapps\\cjoin\\cojp_cbor.c"
+   1:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** /*e
+   2:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \brief CBOR helper functions implementing decoding and encoding of structures defined in draft-6tis
+   3:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** */
+   4:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** #include "cojp_cbor.h"
+   5:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** #include "cborencoder.h"
+   6:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+   7:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** //=========================== defines =========================================
+   8:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** // number of bytes in 802.15.4 short address
+   9:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** #define ASN_LENGTH              5
+  10:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** //=========================== variables =======================================
+  11:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  12:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** //=========================== prototypes ======================================
+  13:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** owerror_t cojp_cbor_decode_link_layer_keyset(uint8_t *, uint8_t *, cojp_link_layer_keyset_t *);
+  14:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** owerror_t cojp_cbor_decode_link_layer_short_address(uint8_t *, uint8_t *, cojp_link_layer_short_add
+  15:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** owerror_t cojp_cbor_decode_ipv6_address(uint8_t *, uint8_t *, open_addr_t *);
+  16:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  17:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** uint8_t cbor_decode_uint(uint8_t *buf, uint8_t *value);
+  18:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  19:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** //=========================== public ==========================================
+  20:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** /**
+  21:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \brief Parse the CoJP Configuration object.
+  22:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  23:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** The function expects COSE symmetric key as per minimal-security-02 draft
+  24:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** and parses it into COSE_symmetric_key_t structure.
+  25:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  26:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[in] buf Input buffer.
+  27:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] len Processed length.
+  28:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] configuration The cojp_configuration_object_t structure containing parsed parameters.
+  29:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** */
+  30:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** owerror_t cojp_cbor_decode_configuration_object(uint8_t *buf, uint8_t len, cojp_configuration_objec
+  52              		.loc 1 30 0
+  53              		.cfi_startproc
+  54              		@ args = 0, pretend = 0, frame = 32
+  55              		@ frame_needed = 1, uses_anonymous_args = 0
+  56 0000 80B5     		push	{r7, lr}
+  57              		.cfi_def_cfa_offset 8
+  58              		.cfi_offset 7, -8
+  59              		.cfi_offset 14, -4
+  60 0002 88B0     		sub	sp, sp, #32
+  61              		.cfi_def_cfa_offset 40
+  62 0004 00AF     		add	r7, sp, #0
+  63              		.cfi_def_cfa_register 7
+  64 0006 F860     		str	r0, [r7, #12]
+  65 0008 0B46     		mov	r3, r1
+  66 000a 7A60     		str	r2, [r7, #4]
+  67 000c FB72     		strb	r3, [r7, #11]
+  31:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  32:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     cbor_majortype_t major_type;
+  33:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t num_elems;
+  34:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t ret;
+  35:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t i;
+  36:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t *tmp;
+  37:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t error;
+  38:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  39:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     memset(configuration, 0x00, sizeof(cojp_configuration_object_t));
+  68              		.loc 1 39 0
+  69 000e 4422     		movs	r2, #68
+  70 0010 0021     		movs	r1, #0
+  71 0012 7868     		ldr	r0, [r7, #4]
+  72 0014 FFF7FEFF 		bl	memset
+  40:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     ret = 0;
+  73              		.loc 1 40 0
+  74 0018 0023     		movs	r3, #0
+  75 001a 3B75     		strb	r3, [r7, #20]
+  41:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     error = 0;
+  76              		.loc 1 41 0
+  77 001c 0023     		movs	r3, #0
+  78 001e FB75     		strb	r3, [r7, #23]
+  42:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  43:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     tmp = buf;
+  79              		.loc 1 43 0
+  80 0020 FB68     		ldr	r3, [r7, #12]
+  81 0022 BB61     		str	r3, [r7, #24]
+  44:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     major_type = (cbor_majortype_t) *buf >> 5;
+  82              		.loc 1 44 0
+  83 0024 FB68     		ldr	r3, [r7, #12]
+  84 0026 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  85 0028 5B09     		lsrs	r3, r3, #5
+  86 002a BB75     		strb	r3, [r7, #22]
+  45:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     num_elems = *buf & CBOR_ADDINFO_MASK;
+  87              		.loc 1 45 0
+  88 002c FB68     		ldr	r3, [r7, #12]
+  89 002e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  90 0030 03F01F03 		and	r3, r3, #31
+  91 0034 7B75     		strb	r3, [r7, #21]
+  46:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  47:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (major_type != CBOR_MAJORTYPE_MAP) {
+  92              		.loc 1 47 0
+  93 0036 BB7D     		ldrb	r3, [r7, #22]	@ zero_extendqisi2
+  94 0038 052B     		cmp	r3, #5
+  95 003a 01D0     		beq	.L2
+  48:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL;
+  96              		.loc 1 48 0
+  97 003c 0123     		movs	r3, #1
+  98 003e 71E0     		b	.L17
+  99              	.L2:
+  49:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+  50:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  51:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (num_elems > COJP_CONFIGURATION_MAX_NUM_PARAMS) {
+ 100              		.loc 1 51 0
+ 101 0040 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 102 0042 032B     		cmp	r3, #3
+ 103 0044 01D9     		bls	.L4
+  52:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL;  // unsupported configuration object structure
+ 104              		.loc 1 52 0
+ 105 0046 0123     		movs	r3, #1
+ 106 0048 6CE0     		b	.L17
+ 107              	.L4:
+  53:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+  54:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  55:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     tmp++;
+ 108              		.loc 1 55 0
+ 109 004a BB69     		ldr	r3, [r7, #24]
+ 110 004c 0133     		adds	r3, r3, #1
+ 111 004e BB61     		str	r3, [r7, #24]
+  56:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  57:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     for (i = 0; i < num_elems; i++) {
+ 112              		.loc 1 57 0
+ 113 0050 0023     		movs	r3, #0
+ 114 0052 FB77     		strb	r3, [r7, #31]
+ 115 0054 4DE0     		b	.L5
+ 116              	.L14:
+  58:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         switch((cojp_parameters_labels_t) *tmp) {
+ 117              		.loc 1 58 0
+ 118 0056 BB69     		ldr	r3, [r7, #24]
+ 119 0058 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 120 005a 032B     		cmp	r3, #3
+ 121 005c 19D0     		beq	.L7
+ 122 005e 042B     		cmp	r3, #4
+ 123 0060 2CD0     		beq	.L8
+ 124 0062 022B     		cmp	r3, #2
+ 125 0064 3FD1     		bne	.L18
+  59:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             case COJP_PARAMETERS_LABELS_LLKEYSET:
+  60:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 tmp++;
+ 126              		.loc 1 60 0
+ 127 0066 BB69     		ldr	r3, [r7, #24]
+ 128 0068 0133     		adds	r3, r3, #1
+ 129 006a BB61     		str	r3, [r7, #24]
+  61:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 if (cojp_cbor_decode_link_layer_keyset(tmp, &ret, &(configuration->keyset)) == E_FA
+ 130              		.loc 1 61 0
+ 131 006c 7A68     		ldr	r2, [r7, #4]
+ 132 006e 07F11403 		add	r3, r7, #20
+ 133 0072 1946     		mov	r1, r3
+ 134 0074 B869     		ldr	r0, [r7, #24]
+ 135 0076 FFF7FEFF 		bl	cojp_cbor_decode_link_layer_keyset
+ 136 007a 0346     		mov	r3, r0
+ 137 007c 012B     		cmp	r3, #1
+ 138 007e 02D1     		bne	.L10
+  62:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                     error++;
+ 139              		.loc 1 62 0
+ 140 0080 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 141 0082 0133     		adds	r3, r3, #1
+ 142 0084 FB75     		strb	r3, [r7, #23]
+ 143              	.L10:
+  63:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 }
+  64:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 tmp += ret;
+ 144              		.loc 1 64 0
+ 145 0086 3B7D     		ldrb	r3, [r7, #20]	@ zero_extendqisi2
+ 146 0088 1A46     		mov	r2, r3
+ 147 008a BB69     		ldr	r3, [r7, #24]
+ 148 008c 1344     		add	r3, r3, r2
+ 149 008e BB61     		str	r3, [r7, #24]
+  65:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 break;
+ 150              		.loc 1 65 0
+ 151 0090 2CE0     		b	.L11
+ 152              	.L7:
+  66:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             case COJP_PARAMETERS_LABELS_LLSHORTADDRESS:
+  67:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 if (cojp_cbor_decode_link_layer_short_address(tmp, &ret, &(configuration->short_add
+ 153              		.loc 1 67 0
+ 154 0092 7B68     		ldr	r3, [r7, #4]
+ 155 0094 03F12802 		add	r2, r3, #40
+ 156 0098 07F11403 		add	r3, r7, #20
+ 157 009c 1946     		mov	r1, r3
+ 158 009e B869     		ldr	r0, [r7, #24]
+ 159 00a0 FFF7FEFF 		bl	cojp_cbor_decode_link_layer_short_address
+ 160 00a4 0346     		mov	r3, r0
+ 161 00a6 012B     		cmp	r3, #1
+ 162 00a8 02D1     		bne	.L12
+  68:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                     error++;
+ 163              		.loc 1 68 0
+ 164 00aa FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 165 00ac 0133     		adds	r3, r3, #1
+ 166 00ae FB75     		strb	r3, [r7, #23]
+ 167              	.L12:
+  69:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 }
+  70:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 tmp += ret;
+ 168              		.loc 1 70 0
+ 169 00b0 3B7D     		ldrb	r3, [r7, #20]	@ zero_extendqisi2
+ 170 00b2 1A46     		mov	r2, r3
+ 171 00b4 BB69     		ldr	r3, [r7, #24]
+ 172 00b6 1344     		add	r3, r3, r2
+ 173 00b8 BB61     		str	r3, [r7, #24]
+  71:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 break;
+ 174              		.loc 1 71 0
+ 175 00ba 17E0     		b	.L11
+ 176              	.L8:
+  72:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             case COJP_PARAMETERS_LABELS_JRCADDRESS:
+  73:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 if (cojp_cbor_decode_ipv6_address(tmp, &ret, &(configuration->jrc_address)) == E_FA
+ 177              		.loc 1 73 0
+ 178 00bc 7B68     		ldr	r3, [r7, #4]
+ 179 00be 03F13002 		add	r2, r3, #48
+ 180 00c2 07F11403 		add	r3, r7, #20
+ 181 00c6 1946     		mov	r1, r3
+ 182 00c8 B869     		ldr	r0, [r7, #24]
+ 183 00ca FFF7FEFF 		bl	cojp_cbor_decode_ipv6_address
+ 184 00ce 0346     		mov	r3, r0
+ 185 00d0 012B     		cmp	r3, #1
+ 186 00d2 02D1     		bne	.L13
+  74:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                     error++;
+ 187              		.loc 1 74 0
+ 188 00d4 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 189 00d6 0133     		adds	r3, r3, #1
+ 190 00d8 FB75     		strb	r3, [r7, #23]
+ 191              	.L13:
+  75:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 }
+  76:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 tmp += ret;
+ 192              		.loc 1 76 0
+ 193 00da 3B7D     		ldrb	r3, [r7, #20]	@ zero_extendqisi2
+ 194 00dc 1A46     		mov	r2, r3
+ 195 00de BB69     		ldr	r3, [r7, #24]
+ 196 00e0 1344     		add	r3, r3, r2
+ 197 00e2 BB61     		str	r3, [r7, #24]
+  77:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 break;
+ 198              		.loc 1 77 0
+ 199 00e4 02E0     		b	.L11
+ 200              	.L18:
+  78:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             default:
+  79:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 // FIXME skip the unsupported parameter and go to the next one
+  80:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 error++;
+ 201              		.loc 1 80 0
+ 202 00e6 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 203 00e8 0133     		adds	r3, r3, #1
+ 204 00ea FB75     		strb	r3, [r7, #23]
+ 205              	.L11:
+  57:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         switch((cojp_parameters_labels_t) *tmp) {
+ 206              		.loc 1 57 0 discriminator 2
+ 207 00ec FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 208 00ee 0133     		adds	r3, r3, #1
+ 209 00f0 FB77     		strb	r3, [r7, #31]
+ 210              	.L5:
+  57:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         switch((cojp_parameters_labels_t) *tmp) {
+ 211              		.loc 1 57 0 is_stmt 0 discriminator 1
+ 212 00f2 FA7F     		ldrb	r2, [r7, #31]	@ zero_extendqisi2
+ 213 00f4 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 214 00f6 9A42     		cmp	r2, r3
+ 215 00f8 ADD3     		bcc	.L14
+  81:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         }
+  82:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+  83:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  84:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if ( (uint8_t)(tmp - buf) != len) { // final check that everything has been processed
+ 216              		.loc 1 84 0 is_stmt 1
+ 217 00fa BA69     		ldr	r2, [r7, #24]
+ 218 00fc FB68     		ldr	r3, [r7, #12]
+ 219 00fe D31A     		subs	r3, r2, r3
+ 220 0100 DBB2     		uxtb	r3, r3
+ 221 0102 FA7A     		ldrb	r2, [r7, #11]	@ zero_extendqisi2
+ 222 0104 9A42     		cmp	r2, r3
+ 223 0106 02D0     		beq	.L15
+  85:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         error++;
+ 224              		.loc 1 85 0
+ 225 0108 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 226 010a 0133     		adds	r3, r3, #1
+ 227 010c FB75     		strb	r3, [r7, #23]
+ 228              	.L15:
+  86:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+  87:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  88:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (error) {
+ 229              		.loc 1 88 0
+ 230 010e FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 231 0110 002B     		cmp	r3, #0
+ 232 0112 06D0     		beq	.L16
+  89:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         memset(configuration, 0x00, sizeof(cojp_configuration_object_t));
+ 233              		.loc 1 89 0
+ 234 0114 4422     		movs	r2, #68
+ 235 0116 0021     		movs	r1, #0
+ 236 0118 7868     		ldr	r0, [r7, #4]
+ 237 011a FFF7FEFF 		bl	memset
+  90:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL;
+ 238              		.loc 1 90 0
+ 239 011e 0123     		movs	r3, #1
+ 240 0120 00E0     		b	.L17
+ 241              	.L16:
+  91:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+  92:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  93:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     return E_SUCCESS;
+ 242              		.loc 1 93 0
+ 243 0122 0023     		movs	r3, #0
+ 244              	.L17:
+  94:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** }
+ 245              		.loc 1 94 0 discriminator 1
+ 246 0124 1846     		mov	r0, r3
+ 247 0126 2037     		adds	r7, r7, #32
+ 248              		.cfi_def_cfa_offset 8
+ 249 0128 BD46     		mov	sp, r7
+ 250              		.cfi_def_cfa_register 13
+ 251              		@ sp needed
+ 252 012a 80BD     		pop	{r7, pc}
+ 253              		.cfi_endproc
+ 254              	.LFE0:
+ 256              		.align	1
+ 257              		.global	cojp_cbor_encode_join_request_object
+ 258              		.syntax unified
+ 259              		.thumb
+ 260              		.thumb_func
+ 261              		.fpu softvfp
+ 263              	cojp_cbor_encode_join_request_object:
+ 264              	.LFB1:
+  95:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  96:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** /**
+  97:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \brief Encode a Join_Request object.
+  98:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+  99:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** This functions encodes the cojp_join_request_object_t structure into a byte string.
+ 100:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 101:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 102:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] buf The output buffer.
+ 103:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[in] join_request The cojp_join_request_object_t data structure containing the Join_Request p
+ 104:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \return Length of the encoded object..
+ 105:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** */
+ 106:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** uint8_t cojp_cbor_encode_join_request_object(uint8_t *buf, cojp_join_request_object_t *join_request
+ 265              		.loc 1 106 0
+ 266              		.cfi_startproc
+ 267              		@ args = 0, pretend = 0, frame = 16
+ 268              		@ frame_needed = 1, uses_anonymous_args = 0
+ 269 012c 80B5     		push	{r7, lr}
+ 270              		.cfi_def_cfa_offset 8
+ 271              		.cfi_offset 7, -8
+ 272              		.cfi_offset 14, -4
+ 273 012e 84B0     		sub	sp, sp, #16
+ 274              		.cfi_def_cfa_offset 24
+ 275 0130 00AF     		add	r7, sp, #0
+ 276              		.cfi_def_cfa_register 7
+ 277 0132 7860     		str	r0, [r7, #4]
+ 278 0134 3960     		str	r1, [r7]
+ 107:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t len;
+ 108:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t elements;
+ 109:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 110:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     len = 0;
+ 279              		.loc 1 110 0
+ 280 0136 0023     		movs	r3, #0
+ 281 0138 FB73     		strb	r3, [r7, #15]
+ 111:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     elements = 0;
+ 282              		.loc 1 111 0
+ 283 013a 0023     		movs	r3, #0
+ 284 013c BB73     		strb	r3, [r7, #14]
+ 112:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 113:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (join_request->role == COJP_ROLE_VALUE_6N) {
+ 285              		.loc 1 113 0
+ 286 013e 3B68     		ldr	r3, [r7]
+ 287 0140 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 288 0142 002B     		cmp	r3, #0
+ 289 0144 02D1     		bne	.L20
+ 114:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         elements = 1;
+ 290              		.loc 1 114 0
+ 291 0146 0123     		movs	r3, #1
+ 292 0148 BB73     		strb	r3, [r7, #14]
+ 293 014a 01E0     		b	.L21
+ 294              	.L20:
+ 115:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     } else {
+ 116:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         elements = 2;
+ 295              		.loc 1 116 0
+ 296 014c 0223     		movs	r3, #2
+ 297 014e BB73     		strb	r3, [r7, #14]
+ 298              	.L21:
+ 117:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 118:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 119:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     len += cborencoder_put_map(&buf[len], elements);
+ 299              		.loc 1 119 0
+ 300 0150 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 301 0152 7A68     		ldr	r2, [r7, #4]
+ 302 0154 1344     		add	r3, r3, r2
+ 303 0156 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 304 0158 1146     		mov	r1, r2
+ 305 015a 1846     		mov	r0, r3
+ 306 015c FFF7FEFF 		bl	cborencoder_put_map
+ 307 0160 0346     		mov	r3, r0
+ 308 0162 1A46     		mov	r2, r3
+ 309 0164 FB7B     		ldrb	r3, [r7, #15]
+ 310 0166 1344     		add	r3, r3, r2
+ 311 0168 FB73     		strb	r3, [r7, #15]
+ 120:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (elements == 2) {
+ 312              		.loc 1 120 0
+ 313 016a BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 314 016c 022B     		cmp	r3, #2
+ 315 016e 19D1     		bne	.L22
+ 121:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         len += cborencoder_put_unsigned(&buf[len], (uint8_t) COJP_PARAMETERS_LABELS_ROLE);
+ 316              		.loc 1 121 0
+ 317 0170 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 318 0172 7A68     		ldr	r2, [r7, #4]
+ 319 0174 1344     		add	r3, r3, r2
+ 320 0176 0121     		movs	r1, #1
+ 321 0178 1846     		mov	r0, r3
+ 322 017a FFF7FEFF 		bl	cborencoder_put_unsigned
+ 323 017e 0346     		mov	r3, r0
+ 324 0180 1A46     		mov	r2, r3
+ 325 0182 FB7B     		ldrb	r3, [r7, #15]
+ 326 0184 1344     		add	r3, r3, r2
+ 327 0186 FB73     		strb	r3, [r7, #15]
+ 122:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         len += cborencoder_put_unsigned(&buf[len], (uint8_t) join_request->role);
+ 328              		.loc 1 122 0
+ 329 0188 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 330 018a 7A68     		ldr	r2, [r7, #4]
+ 331 018c 1A44     		add	r2, r2, r3
+ 332 018e 3B68     		ldr	r3, [r7]
+ 333 0190 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 334 0192 1946     		mov	r1, r3
+ 335 0194 1046     		mov	r0, r2
+ 336 0196 FFF7FEFF 		bl	cborencoder_put_unsigned
+ 337 019a 0346     		mov	r3, r0
+ 338 019c 1A46     		mov	r2, r3
+ 339 019e FB7B     		ldrb	r3, [r7, #15]
+ 340 01a0 1344     		add	r3, r3, r2
+ 341 01a2 FB73     		strb	r3, [r7, #15]
+ 342              	.L22:
+ 123:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 124:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     len += cborencoder_put_unsigned(&buf[len], (uint8_t) COJP_PARAMETERS_LABELS_NETID);
+ 343              		.loc 1 124 0
+ 344 01a4 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 345 01a6 7A68     		ldr	r2, [r7, #4]
+ 346 01a8 1344     		add	r3, r3, r2
+ 347 01aa 0521     		movs	r1, #5
+ 348 01ac 1846     		mov	r0, r3
+ 349 01ae FFF7FEFF 		bl	cborencoder_put_unsigned
+ 350 01b2 0346     		mov	r3, r0
+ 351 01b4 1A46     		mov	r2, r3
+ 352 01b6 FB7B     		ldrb	r3, [r7, #15]
+ 353 01b8 1344     		add	r3, r3, r2
+ 354 01ba FB73     		strb	r3, [r7, #15]
+ 125:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     len += cborencoder_put_bytes(&buf[len], (join_request->pan_id)->panid, LENGTH_ADDR16b);
+ 355              		.loc 1 125 0
+ 356 01bc FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 357 01be 7A68     		ldr	r2, [r7, #4]
+ 358 01c0 D018     		adds	r0, r2, r3
+ 359 01c2 3B68     		ldr	r3, [r7]
+ 360 01c4 5B68     		ldr	r3, [r3, #4]
+ 361 01c6 0133     		adds	r3, r3, #1
+ 362 01c8 0222     		movs	r2, #2
+ 363 01ca 1946     		mov	r1, r3
+ 364 01cc FFF7FEFF 		bl	cborencoder_put_bytes
+ 365 01d0 0346     		mov	r3, r0
+ 366 01d2 1A46     		mov	r2, r3
+ 367 01d4 FB7B     		ldrb	r3, [r7, #15]
+ 368 01d6 1344     		add	r3, r3, r2
+ 369 01d8 FB73     		strb	r3, [r7, #15]
+ 126:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 127:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     return len;
+ 370              		.loc 1 127 0
+ 371 01da FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 128:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** }
+ 372              		.loc 1 128 0
+ 373 01dc 1846     		mov	r0, r3
+ 374 01de 1037     		adds	r7, r7, #16
+ 375              		.cfi_def_cfa_offset 8
+ 376 01e0 BD46     		mov	sp, r7
+ 377              		.cfi_def_cfa_register 13
+ 378              		@ sp needed
+ 379 01e2 80BD     		pop	{r7, pc}
+ 380              		.cfi_endproc
+ 381              	.LFE1:
+ 383              		.align	1
+ 384              		.global	cojp_cbor_decode_link_layer_keyset
+ 385              		.syntax unified
+ 386              		.thumb
+ 387              		.thumb_func
+ 388              		.fpu softvfp
+ 390              	cojp_cbor_decode_link_layer_keyset:
+ 391              	.LFB2:
+ 129:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 130:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** //=========================== private =========================================
+ 131:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 132:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** /**
+ 133:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \brief Decode a Link-Layer Keyset object.
+ 134:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 135:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** The function expects Link-Layer Keyset object as defined in draft-ietf-6tisch-minimal-security-06
+ 136:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** and parses it into a cojp_link_layer_keyset_t structure.
+ 137:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 138:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[in] buf Input buffer.
+ 139:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] len Processed length.
+ 140:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] keyset The cojp_link_layer_keyset_t structure containing the parsed keys.
+ 141:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \return E_SUCCESS if all elements are successfully processed, E_FAIL in all other cases.
+ 142:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** */
+ 143:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** owerror_t cojp_cbor_decode_link_layer_keyset(uint8_t *buf, uint8_t* len, cojp_link_layer_keyset_t *
+ 392              		.loc 1 143 0
+ 393              		.cfi_startproc
+ 394              		@ args = 0, pretend = 0, frame = 40
+ 395              		@ frame_needed = 1, uses_anonymous_args = 0
+ 396 01e4 80B5     		push	{r7, lr}
+ 397              		.cfi_def_cfa_offset 8
+ 398              		.cfi_offset 7, -8
+ 399              		.cfi_offset 14, -4
+ 400 01e6 8AB0     		sub	sp, sp, #40
+ 401              		.cfi_def_cfa_offset 48
+ 402 01e8 00AF     		add	r7, sp, #0
+ 403              		.cfi_def_cfa_register 7
+ 404 01ea F860     		str	r0, [r7, #12]
+ 405 01ec B960     		str	r1, [r7, #8]
+ 406 01ee 7A60     		str	r2, [r7, #4]
+ 144:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 145:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     cbor_majortype_t major_type;
+ 146:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t add_info;
+ 147:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t i;
+ 148:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t l;
+ 149:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t *tmp;
+ 150:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t tmp_key_usage; // 8-bit variant of key usage
+ 151:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t ret;
+ 152:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     cojp_link_layer_key_t *current_key;
+ 153:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t current_key_index;
+ 154:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 155:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     current_key_index = 0;
+ 407              		.loc 1 155 0
+ 408 01f0 0023     		movs	r3, #0
+ 409 01f2 FB77     		strb	r3, [r7, #31]
+ 156:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     i = 0;
+ 410              		.loc 1 156 0
+ 411 01f4 0023     		movs	r3, #0
+ 412 01f6 87F82630 		strb	r3, [r7, #38]
+ 157:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     ret = 0;
+ 413              		.loc 1 157 0
+ 414 01fa 0023     		movs	r3, #0
+ 415 01fc BB77     		strb	r3, [r7, #30]
+ 158:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 159:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     tmp = buf;
+ 416              		.loc 1 159 0
+ 417 01fe FB68     		ldr	r3, [r7, #12]
+ 418 0200 3B62     		str	r3, [r7, #32]
+ 160:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     major_type = (cbor_majortype_t) *buf >> 5;
+ 419              		.loc 1 160 0
+ 420 0202 FB68     		ldr	r3, [r7, #12]
+ 421 0204 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 422 0206 5B09     		lsrs	r3, r3, #5
+ 423 0208 87F82730 		strb	r3, [r7, #39]
+ 161:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     add_info = *buf & CBOR_ADDINFO_MASK;
+ 424              		.loc 1 161 0
+ 425 020c FB68     		ldr	r3, [r7, #12]
+ 426 020e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 427 0210 03F01F03 		and	r3, r3, #31
+ 428 0214 7B77     		strb	r3, [r7, #29]
+ 162:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 163:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     // assert
+ 164:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (major_type != CBOR_MAJORTYPE_ARRAY) {
+ 429              		.loc 1 164 0
+ 430 0216 97F82730 		ldrb	r3, [r7, #39]	@ zero_extendqisi2
+ 431 021a 042B     		cmp	r3, #4
+ 432 021c 01D0     		beq	.L25
+ 165:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL;
+ 433              		.loc 1 165 0
+ 434 021e 0123     		movs	r3, #1
+ 435 0220 97E0     		b	.L37
+ 436              	.L25:
+ 166:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 167:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 168:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     // sanity check
+ 169:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (add_info < COJP_KEY_MIN_NUM_ELEMS) {   // additional info of an array is the number of elem
+ 437              		.loc 1 169 0
+ 438 0222 7B7F     		ldrb	r3, [r7, #29]	@ zero_extendqisi2
+ 439 0224 012B     		cmp	r3, #1
+ 440 0226 01D8     		bhi	.L27
+ 170:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL;
+ 441              		.loc 1 170 0
+ 442 0228 0123     		movs	r3, #1
+ 443 022a 92E0     		b	.L37
+ 444              	.L27:
+ 171:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 172:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 173:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     tmp++;
+ 445              		.loc 1 173 0
+ 446 022c 3B6A     		ldr	r3, [r7, #32]
+ 447 022e 0133     		adds	r3, r3, #1
+ 448 0230 3B62     		str	r3, [r7, #32]
+ 174:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 175:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     while(i < add_info) { // while there are elements left in the array
+ 449              		.loc 1 175 0
+ 450 0232 7EE0     		b	.L28
+ 451              	.L36:
+ 176:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 177:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         if (current_key_index >= KEYSET_MAX_NUM_KEYS) {
+ 452              		.loc 1 177 0
+ 453 0234 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 454 0236 012B     		cmp	r3, #1
+ 455 0238 01D9     		bls	.L29
+ 178:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             return E_FAIL; // more keys than we can handle
+ 456              		.loc 1 178 0
+ 457 023a 0123     		movs	r3, #1
+ 458 023c 89E0     		b	.L37
+ 459              	.L29:
+ 179:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         }
+ 180:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 181:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         major_type = (cbor_majortype_t) *tmp >> 5;
+ 460              		.loc 1 181 0
+ 461 023e 3B6A     		ldr	r3, [r7, #32]
+ 462 0240 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 463 0242 5B09     		lsrs	r3, r3, #5
+ 464 0244 87F82730 		strb	r3, [r7, #39]
+ 182:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 183:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         if (major_type == CBOR_MAJORTYPE_UINT) {
+ 465              		.loc 1 183 0
+ 466 0248 97F82730 		ldrb	r3, [r7, #39]	@ zero_extendqisi2
+ 467 024c 002B     		cmp	r3, #0
+ 468 024e 6BD1     		bne	.L30
+ 184:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 185:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             current_key = (cojp_link_layer_key_t *) &(keyset->key[current_key_index]);
+ 469              		.loc 1 185 0
+ 470 0250 FA7F     		ldrb	r2, [r7, #31]	@ zero_extendqisi2
+ 471 0252 1346     		mov	r3, r2
+ 472 0254 DB00     		lsls	r3, r3, #3
+ 473 0256 1344     		add	r3, r3, r2
+ 474 0258 5B00     		lsls	r3, r3, #1
+ 475 025a 7A68     		ldr	r2, [r7, #4]
+ 476 025c 1344     		add	r3, r3, r2
+ 477 025e 0133     		adds	r3, r3, #1
+ 478 0260 BB61     		str	r3, [r7, #24]
+ 186:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 187:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             ret = cbor_decode_uint(tmp, &current_key->key_index);
+ 479              		.loc 1 187 0
+ 480 0262 BB69     		ldr	r3, [r7, #24]
+ 481 0264 1946     		mov	r1, r3
+ 482 0266 386A     		ldr	r0, [r7, #32]
+ 483 0268 FFF7FEFF 		bl	cbor_decode_uint
+ 484 026c 0346     		mov	r3, r0
+ 485 026e BB77     		strb	r3, [r7, #30]
+ 188:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             tmp += ret;
+ 486              		.loc 1 188 0
+ 487 0270 BB7F     		ldrb	r3, [r7, #30]	@ zero_extendqisi2
+ 488 0272 3A6A     		ldr	r2, [r7, #32]
+ 489 0274 1344     		add	r3, r3, r2
+ 490 0276 3B62     		str	r3, [r7, #32]
+ 189:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             i++; // moving on to the next element
+ 491              		.loc 1 189 0
+ 492 0278 97F82630 		ldrb	r3, [r7, #38]	@ zero_extendqisi2
+ 493 027c 0133     		adds	r3, r3, #1
+ 494 027e 87F82630 		strb	r3, [r7, #38]
+ 190:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 191:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             major_type = (cbor_majortype_t) *tmp >> 5;
+ 495              		.loc 1 191 0
+ 496 0282 3B6A     		ldr	r3, [r7, #32]
+ 497 0284 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 498 0286 5B09     		lsrs	r3, r3, #5
+ 499 0288 87F82730 		strb	r3, [r7, #39]
+ 192:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             l = *tmp & CBOR_ADDINFO_MASK;
+ 500              		.loc 1 192 0
+ 501 028c 3B6A     		ldr	r3, [r7, #32]
+ 502 028e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 503 0290 03F01F03 		and	r3, r3, #31
+ 504 0294 87F82530 		strb	r3, [r7, #37]
+ 193:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 194:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             if (major_type == CBOR_MAJORTYPE_UINT) { // optional key usage as a uint is present
+ 505              		.loc 1 194 0
+ 506 0298 97F82730 		ldrb	r3, [r7, #39]	@ zero_extendqisi2
+ 507 029c 002B     		cmp	r3, #0
+ 508 029e 1FD1     		bne	.L31
+ 195:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 ret = cbor_decode_uint(tmp, &tmp_key_usage);
+ 509              		.loc 1 195 0
+ 510 02a0 07F11703 		add	r3, r7, #23
+ 511 02a4 1946     		mov	r1, r3
+ 512 02a6 386A     		ldr	r0, [r7, #32]
+ 513 02a8 FFF7FEFF 		bl	cbor_decode_uint
+ 514 02ac 0346     		mov	r3, r0
+ 515 02ae BB77     		strb	r3, [r7, #30]
+ 196:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 current_key->key_usage = (cojp_key_usage_values_t) tmp_key_usage;
+ 516              		.loc 1 196 0
+ 517 02b0 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 518 02b2 BB69     		ldr	r3, [r7, #24]
+ 519 02b4 5A70     		strb	r2, [r3, #1]
+ 197:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 tmp += ret;
+ 520              		.loc 1 197 0
+ 521 02b6 BB7F     		ldrb	r3, [r7, #30]	@ zero_extendqisi2
+ 522 02b8 3A6A     		ldr	r2, [r7, #32]
+ 523 02ba 1344     		add	r3, r3, r2
+ 524 02bc 3B62     		str	r3, [r7, #32]
+ 198:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 i++;
+ 525              		.loc 1 198 0
+ 526 02be 97F82630 		ldrb	r3, [r7, #38]	@ zero_extendqisi2
+ 527 02c2 0133     		adds	r3, r3, #1
+ 528 02c4 87F82630 		strb	r3, [r7, #38]
+ 199:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 200:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 major_type = (cbor_majortype_t) *tmp >> 5;
+ 529              		.loc 1 200 0
+ 530 02c8 3B6A     		ldr	r3, [r7, #32]
+ 531 02ca 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 532 02cc 5B09     		lsrs	r3, r3, #5
+ 533 02ce 87F82730 		strb	r3, [r7, #39]
+ 201:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 l = *tmp & CBOR_ADDINFO_MASK;
+ 534              		.loc 1 201 0
+ 535 02d2 3B6A     		ldr	r3, [r7, #32]
+ 536 02d4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 537 02d6 03F01F03 		and	r3, r3, #31
+ 538 02da 87F82530 		strb	r3, [r7, #37]
+ 539 02de 02E0     		b	.L32
+ 540              	.L31:
+ 202:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             } else { // key usage is not present, implies the default value
+ 203:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 current_key->key_usage = COJP_KEY_USAGE_6TiSCH_K1K2_ENC_MIC32;
+ 541              		.loc 1 203 0
+ 542 02e0 BB69     		ldr	r3, [r7, #24]
+ 543 02e2 0022     		movs	r2, #0
+ 544 02e4 5A70     		strb	r2, [r3, #1]
+ 545              	.L32:
+ 204:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             }
+ 205:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 206:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             if (major_type == CBOR_MAJORTYPE_BSTR) { // mandatory key_value parameter as a bstr
+ 546              		.loc 1 206 0
+ 547 02e6 97F82730 		ldrb	r3, [r7, #39]	@ zero_extendqisi2
+ 548 02ea 022B     		cmp	r3, #2
+ 549 02ec 1AD1     		bne	.L33
+ 207:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                  if (l != AES128_KEY_LENGTH) {
+ 550              		.loc 1 207 0
+ 551 02ee 97F82530 		ldrb	r3, [r7, #37]	@ zero_extendqisi2
+ 552 02f2 102B     		cmp	r3, #16
+ 553 02f4 01D0     		beq	.L34
+ 208:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                      return E_FAIL; // unsupported
+ 554              		.loc 1 208 0
+ 555 02f6 0123     		movs	r3, #1
+ 556 02f8 2BE0     		b	.L37
+ 557              	.L34:
+ 209:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                  }
+ 210:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                  tmp++;
+ 558              		.loc 1 210 0
+ 559 02fa 3B6A     		ldr	r3, [r7, #32]
+ 560 02fc 0133     		adds	r3, r3, #1
+ 561 02fe 3B62     		str	r3, [r7, #32]
+ 211:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                  memcpy(current_key->key_value, tmp, AES128_KEY_LENGTH);
+ 562              		.loc 1 211 0
+ 563 0300 BB69     		ldr	r3, [r7, #24]
+ 564 0302 0233     		adds	r3, r3, #2
+ 565 0304 1022     		movs	r2, #16
+ 566 0306 396A     		ldr	r1, [r7, #32]
+ 567 0308 1846     		mov	r0, r3
+ 568 030a FFF7FEFF 		bl	memcpy
+ 212:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                  tmp += l;
+ 569              		.loc 1 212 0
+ 570 030e 97F82530 		ldrb	r3, [r7, #37]	@ zero_extendqisi2
+ 571 0312 3A6A     		ldr	r2, [r7, #32]
+ 572 0314 1344     		add	r3, r3, r2
+ 573 0316 3B62     		str	r3, [r7, #32]
+ 213:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                  i++; // moving on to the next element, if any
+ 574              		.loc 1 213 0
+ 575 0318 97F82630 		ldrb	r3, [r7, #38]	@ zero_extendqisi2
+ 576 031c 0133     		adds	r3, r3, #1
+ 577 031e 87F82630 		strb	r3, [r7, #38]
+ 578 0322 03E0     		b	.L38
+ 579              	.L33:
+ 214:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             } else { // last element in the group is not a bstr -> error
+ 215:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****                 return E_FAIL;
+ 580              		.loc 1 215 0
+ 581 0324 0123     		movs	r3, #1
+ 582 0326 14E0     		b	.L37
+ 583              	.L30:
+ 216:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             }
+ 217:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         } else { // first element in the group is not a uint -> error
+ 218:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****             return E_FAIL;
+ 584              		.loc 1 218 0
+ 585 0328 0123     		movs	r3, #1
+ 586 032a 12E0     		b	.L37
+ 587              	.L38:
+ 219:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         }
+ 220:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 221:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         current_key_index++;
+ 588              		.loc 1 221 0
+ 589 032c FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 590 032e 0133     		adds	r3, r3, #1
+ 591 0330 FB77     		strb	r3, [r7, #31]
+ 592              	.L28:
+ 175:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 593              		.loc 1 175 0
+ 594 0332 97F82620 		ldrb	r2, [r7, #38]	@ zero_extendqisi2
+ 595 0336 7B7F     		ldrb	r3, [r7, #29]	@ zero_extendqisi2
+ 596 0338 9A42     		cmp	r2, r3
+ 597 033a FFF47BAF 		bcc	.L36
+ 222:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 223:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 224:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     keyset->num_keys = current_key_index;
+ 598              		.loc 1 224 0
+ 599 033e 7B68     		ldr	r3, [r7, #4]
+ 600 0340 FA7F     		ldrb	r2, [r7, #31]
+ 601 0342 1A70     		strb	r2, [r3]
+ 225:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     *len = (uint8_t) (tmp - buf);
+ 602              		.loc 1 225 0
+ 603 0344 3A6A     		ldr	r2, [r7, #32]
+ 604 0346 FB68     		ldr	r3, [r7, #12]
+ 605 0348 D31A     		subs	r3, r2, r3
+ 606 034a DAB2     		uxtb	r2, r3
+ 607 034c BB68     		ldr	r3, [r7, #8]
+ 608 034e 1A70     		strb	r2, [r3]
+ 226:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     return E_SUCCESS;
+ 609              		.loc 1 226 0
+ 610 0350 0023     		movs	r3, #0
+ 611              	.L37:
+ 227:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** }
+ 612              		.loc 1 227 0 discriminator 1
+ 613 0352 1846     		mov	r0, r3
+ 614 0354 2837     		adds	r7, r7, #40
+ 615              		.cfi_def_cfa_offset 8
+ 616 0356 BD46     		mov	sp, r7
+ 617              		.cfi_def_cfa_register 13
+ 618              		@ sp needed
+ 619 0358 80BD     		pop	{r7, pc}
+ 620              		.cfi_endproc
+ 621              	.LFE2:
+ 623              		.align	1
+ 624              		.global	cojp_cbor_decode_link_layer_short_address
+ 625              		.syntax unified
+ 626              		.thumb
+ 627              		.thumb_func
+ 628              		.fpu softvfp
+ 630              	cojp_cbor_decode_link_layer_short_address:
+ 631              	.LFB3:
+ 228:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 229:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** /**
+ 230:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \brief Parse the received short address.
+ 231:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 232:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** The function expects short_address as per minimal-security-02 draft
+ 233:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** and parses it into short_address_t structure.
+ 234:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 235:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] address The short_address_t structure containing parsed short_address and lease time.
+ 236:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[in] buf Input buffer.
+ 237:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] len Processed length.
+ 238:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] short_address The cojp_link_layer_short_address_t structure containing the parsed short
+ 239:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \return E_SUCCESS in case of success, E_FAIL otherwise.
+ 240:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** */
+ 241:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** owerror_t cojp_cbor_decode_link_layer_short_address(uint8_t *buf, uint8_t *len, cojp_link_layer_sho
+ 632              		.loc 1 241 0
+ 633              		.cfi_startproc
+ 634              		@ args = 0, pretend = 0, frame = 24
+ 635              		@ frame_needed = 1, uses_anonymous_args = 0
+ 636              		@ link register save eliminated.
+ 637 035a 80B4     		push	{r7}
+ 638              		.cfi_def_cfa_offset 4
+ 639              		.cfi_offset 7, -4
+ 640 035c 87B0     		sub	sp, sp, #28
+ 641              		.cfi_def_cfa_offset 32
+ 642 035e 00AF     		add	r7, sp, #0
+ 643              		.cfi_def_cfa_register 7
+ 644 0360 F860     		str	r0, [r7, #12]
+ 645 0362 B960     		str	r1, [r7, #8]
+ 646 0364 7A60     		str	r2, [r7, #4]
+ 242:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 243:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     cbor_majortype_t major_type;
+ 244:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t additional_info;
+ 245:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t *tmp;
+ 246:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t l;
+ 247:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 248:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     tmp = buf;
+ 647              		.loc 1 248 0
+ 648 0366 FB68     		ldr	r3, [r7, #12]
+ 649 0368 7B61     		str	r3, [r7, #20]
+ 249:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     major_type = (cbor_majortype_t) *buf >> 5;
+ 650              		.loc 1 249 0
+ 651 036a FB68     		ldr	r3, [r7, #12]
+ 652 036c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 653 036e 5B09     		lsrs	r3, r3, #5
+ 654 0370 FB74     		strb	r3, [r7, #19]
+ 250:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     additional_info = *buf & CBOR_ADDINFO_MASK;
+ 655              		.loc 1 250 0
+ 656 0372 FB68     		ldr	r3, [r7, #12]
+ 657 0374 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 658 0376 03F01F03 		and	r3, r3, #31
+ 659 037a BB74     		strb	r3, [r7, #18]
+ 251:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 252:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (major_type != CBOR_MAJORTYPE_ARRAY) {
+ 660              		.loc 1 252 0
+ 661 037c FB7C     		ldrb	r3, [r7, #19]	@ zero_extendqisi2
+ 662 037e 042B     		cmp	r3, #4
+ 663 0380 01D0     		beq	.L40
+ 253:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL;
+ 664              		.loc 1 253 0
+ 665 0382 0123     		movs	r3, #1
+ 666 0384 30E0     		b	.L41
+ 667              	.L40:
+ 254:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 255:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 256:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (additional_info > 2 || additional_info == 0) {
+ 668              		.loc 1 256 0
+ 669 0386 BB7C     		ldrb	r3, [r7, #18]	@ zero_extendqisi2
+ 670 0388 022B     		cmp	r3, #2
+ 671 038a 02D8     		bhi	.L42
+ 672              		.loc 1 256 0 is_stmt 0 discriminator 1
+ 673 038c BB7C     		ldrb	r3, [r7, #18]	@ zero_extendqisi2
+ 674 038e 002B     		cmp	r3, #0
+ 675 0390 01D1     		bne	.L43
+ 676              	.L42:
+ 257:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL;  // unsupported Link-Layer Short Address object
+ 677              		.loc 1 257 0 is_stmt 1
+ 678 0392 0123     		movs	r3, #1
+ 679 0394 28E0     		b	.L41
+ 680              	.L43:
+ 258:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 259:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 260:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     tmp++;
+ 681              		.loc 1 260 0
+ 682 0396 7B69     		ldr	r3, [r7, #20]
+ 683 0398 0133     		adds	r3, r3, #1
+ 684 039a 7B61     		str	r3, [r7, #20]
+ 261:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     major_type = (cbor_majortype_t) *buf >> 5;
+ 685              		.loc 1 261 0
+ 686 039c FB68     		ldr	r3, [r7, #12]
+ 687 039e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 688 03a0 5B09     		lsrs	r3, r3, #5
+ 689 03a2 FB74     		strb	r3, [r7, #19]
+ 262:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     l = *tmp & CBOR_ADDINFO_MASK;
+ 690              		.loc 1 262 0
+ 691 03a4 7B69     		ldr	r3, [r7, #20]
+ 692 03a6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 693 03a8 03F01F03 		and	r3, r3, #31
+ 694 03ac 7B74     		strb	r3, [r7, #17]
+ 263:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 264:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (major_type != CBOR_MAJORTYPE_BSTR) { // first element is not a bst -> error
+ 695              		.loc 1 264 0
+ 696 03ae FB7C     		ldrb	r3, [r7, #19]	@ zero_extendqisi2
+ 697 03b0 022B     		cmp	r3, #2
+ 698 03b2 01D0     		beq	.L44
+ 265:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL;
+ 699              		.loc 1 265 0
+ 700 03b4 0123     		movs	r3, #1
+ 701 03b6 17E0     		b	.L41
+ 702              	.L44:
+ 266:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 267:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 268:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (l != IEEE802154_SHORT_ADDRESS_LENGTH) { // length of the bstr is not what IEEE802.15.4 expe
+ 703              		.loc 1 268 0
+ 704 03b8 7B7C     		ldrb	r3, [r7, #17]	@ zero_extendqisi2
+ 705 03ba 022B     		cmp	r3, #2
+ 706 03bc 01D0     		beq	.L45
+ 269:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL;
+ 707              		.loc 1 269 0
+ 708 03be 0123     		movs	r3, #1
+ 709 03c0 12E0     		b	.L41
+ 710              	.L45:
+ 270:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 271:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 272:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     tmp++;
+ 711              		.loc 1 272 0
+ 712 03c2 7B69     		ldr	r3, [r7, #20]
+ 713 03c4 0133     		adds	r3, r3, #1
+ 714 03c6 7B61     		str	r3, [r7, #20]
+ 273:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     memcpy(short_address->address, tmp, IEEE802154_SHORT_ADDRESS_LENGTH);
+ 715              		.loc 1 273 0
+ 716 03c8 7B68     		ldr	r3, [r7, #4]
+ 717 03ca 7A69     		ldr	r2, [r7, #20]
+ 718 03cc 1288     		ldrh	r2, [r2]	@ unaligned
+ 719 03ce 92B2     		uxth	r2, r2
+ 720 03d0 1A80     		strh	r2, [r3]	@ unaligned
+ 274:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 275:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     tmp += l;
+ 721              		.loc 1 275 0
+ 722 03d2 7B7C     		ldrb	r3, [r7, #17]	@ zero_extendqisi2
+ 723 03d4 7A69     		ldr	r2, [r7, #20]
+ 724 03d6 1344     		add	r3, r3, r2
+ 725 03d8 7B61     		str	r3, [r7, #20]
+ 276:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 277:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (additional_info == 2) { // lease time present
+ 278:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         // TODO lease_time parsing unsupported for now, do nothing
+ 279:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 280:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 281:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     *len = (uint8_t) (tmp - buf);
+ 726              		.loc 1 281 0
+ 727 03da 7A69     		ldr	r2, [r7, #20]
+ 728 03dc FB68     		ldr	r3, [r7, #12]
+ 729 03de D31A     		subs	r3, r2, r3
+ 730 03e0 DAB2     		uxtb	r2, r3
+ 731 03e2 BB68     		ldr	r3, [r7, #8]
+ 732 03e4 1A70     		strb	r2, [r3]
+ 282:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     return E_SUCCESS;
+ 733              		.loc 1 282 0
+ 734 03e6 0023     		movs	r3, #0
+ 735              	.L41:
+ 283:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** }
+ 736              		.loc 1 283 0
+ 737 03e8 1846     		mov	r0, r3
+ 738 03ea 1C37     		adds	r7, r7, #28
+ 739              		.cfi_def_cfa_offset 4
+ 740 03ec BD46     		mov	sp, r7
+ 741              		.cfi_def_cfa_register 13
+ 742              		@ sp needed
+ 743 03ee 80BC     		pop	{r7}
+ 744              		.cfi_restore 7
+ 745              		.cfi_def_cfa_offset 0
+ 746 03f0 7047     		bx	lr
+ 747              		.cfi_endproc
+ 748              	.LFE3:
+ 750              		.align	1
+ 751              		.global	cojp_cbor_decode_ipv6_address
+ 752              		.syntax unified
+ 753              		.thumb
+ 754              		.thumb_func
+ 755              		.fpu softvfp
+ 757              	cojp_cbor_decode_ipv6_address:
+ 758              	.LFB4:
+ 284:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 285:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** /**
+ 286:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \brief Decodes a CBOR bstr to an IPv6 address.
+ 287:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 288:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** This functions attempts to decode a byte string buf into an IPv6 address, as an open_addr_t structu
+ 289:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 290:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[in] buf The input buffer.
+ 291:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] len The processed length.
+ 292:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] ipv6_address The open_addr_t structure containing the parsed IPv6 address.
+ 293:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \return E_SUCCESS in case of success, E_FAIL otherwise.
+ 294:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** */
+ 295:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** owerror_t cojp_cbor_decode_ipv6_address(uint8_t *buf, uint8_t *len, open_addr_t *ipv6_address) {
+ 759              		.loc 1 295 0
+ 760              		.cfi_startproc
+ 761              		@ args = 0, pretend = 0, frame = 24
+ 762              		@ frame_needed = 1, uses_anonymous_args = 0
+ 763 03f2 80B5     		push	{r7, lr}
+ 764              		.cfi_def_cfa_offset 8
+ 765              		.cfi_offset 7, -8
+ 766              		.cfi_offset 14, -4
+ 767 03f4 86B0     		sub	sp, sp, #24
+ 768              		.cfi_def_cfa_offset 32
+ 769 03f6 00AF     		add	r7, sp, #0
+ 770              		.cfi_def_cfa_register 7
+ 771 03f8 F860     		str	r0, [r7, #12]
+ 772 03fa B960     		str	r1, [r7, #8]
+ 773 03fc 7A60     		str	r2, [r7, #4]
+ 296:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t major_type;
+ 297:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t add_info;
+ 298:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t *tmp;
+ 299:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 300:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     major_type = (cbor_majortype_t) *buf >> 5;
+ 774              		.loc 1 300 0
+ 775 03fe FB68     		ldr	r3, [r7, #12]
+ 776 0400 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 777 0402 5B09     		lsrs	r3, r3, #5
+ 778 0404 FB75     		strb	r3, [r7, #23]
+ 301:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     add_info = *buf & CBOR_ADDINFO_MASK;
+ 779              		.loc 1 301 0
+ 780 0406 FB68     		ldr	r3, [r7, #12]
+ 781 0408 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 782 040a 03F01F03 		and	r3, r3, #31
+ 783 040e BB75     		strb	r3, [r7, #22]
+ 302:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     tmp = buf;
+ 784              		.loc 1 302 0
+ 785 0410 FB68     		ldr	r3, [r7, #12]
+ 786 0412 3B61     		str	r3, [r7, #16]
+ 303:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 304:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (major_type != CBOR_MAJORTYPE_BSTR) { // Does not decode into a bstr -> error
+ 787              		.loc 1 304 0
+ 788 0414 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 789 0416 022B     		cmp	r3, #2
+ 790 0418 01D0     		beq	.L47
+ 305:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL;
+ 791              		.loc 1 305 0
+ 792 041a 0123     		movs	r3, #1
+ 793 041c 18E0     		b	.L48
+ 794              	.L47:
+ 306:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 307:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 308:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (add_info != LENGTH_ADDR128b) {
+ 795              		.loc 1 308 0
+ 796 041e BB7D     		ldrb	r3, [r7, #22]	@ zero_extendqisi2
+ 797 0420 102B     		cmp	r3, #16
+ 798 0422 01D0     		beq	.L49
+ 309:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return E_FAIL; // length of the bstr is different than the length of an IPv6 address (16) -
+ 799              		.loc 1 309 0
+ 800 0424 0123     		movs	r3, #1
+ 801 0426 13E0     		b	.L48
+ 802              	.L49:
+ 310:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 311:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 312:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     tmp++;
+ 803              		.loc 1 312 0
+ 804 0428 3B69     		ldr	r3, [r7, #16]
+ 805 042a 0133     		adds	r3, r3, #1
+ 806 042c 3B61     		str	r3, [r7, #16]
+ 313:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 314:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     ipv6_address->type = ADDR_128B;
+ 807              		.loc 1 314 0
+ 808 042e 7B68     		ldr	r3, [r7, #4]
+ 809 0430 0322     		movs	r2, #3
+ 810 0432 1A70     		strb	r2, [r3]
+ 315:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     memcpy(ipv6_address->addr_128b, tmp, LENGTH_ADDR128b);
+ 811              		.loc 1 315 0
+ 812 0434 7B68     		ldr	r3, [r7, #4]
+ 813 0436 0133     		adds	r3, r3, #1
+ 814 0438 1022     		movs	r2, #16
+ 815 043a 3969     		ldr	r1, [r7, #16]
+ 816 043c 1846     		mov	r0, r3
+ 817 043e FFF7FEFF 		bl	memcpy
+ 316:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 317:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     *len = (uint8_t) (tmp - buf);;
+ 818              		.loc 1 317 0
+ 819 0442 3A69     		ldr	r2, [r7, #16]
+ 820 0444 FB68     		ldr	r3, [r7, #12]
+ 821 0446 D31A     		subs	r3, r2, r3
+ 822 0448 DAB2     		uxtb	r2, r3
+ 823 044a BB68     		ldr	r3, [r7, #8]
+ 824 044c 1A70     		strb	r2, [r3]
+ 318:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     return E_SUCCESS;
+ 825              		.loc 1 318 0
+ 826 044e 0023     		movs	r3, #0
+ 827              	.L48:
+ 319:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** }
+ 828              		.loc 1 319 0
+ 829 0450 1846     		mov	r0, r3
+ 830 0452 1837     		adds	r7, r7, #24
+ 831              		.cfi_def_cfa_offset 8
+ 832 0454 BD46     		mov	sp, r7
+ 833              		.cfi_def_cfa_register 13
+ 834              		@ sp needed
+ 835 0456 80BD     		pop	{r7, pc}
+ 836              		.cfi_endproc
+ 837              	.LFE4:
+ 839              		.align	1
+ 840              		.global	cbor_decode_uint
+ 841              		.syntax unified
+ 842              		.thumb
+ 843              		.thumb_func
+ 844              		.fpu softvfp
+ 846              	cbor_decode_uint:
+ 847              	.LFB5:
+ 320:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 321:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** /**
+ 322:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \brief Decode a CBOR unsigned integer. Only supports 8-bit values.
+ 323:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 324:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** This functions attempts to decode a byte string buf into a CBOR unsigned integer.
+ 325:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 326:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 327:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[in] buf The input buffer.
+ 328:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \param[out] value The 8-bit decoded value.
+ 329:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** \return Length of the decoded unsigned integer, 0 if error.
+ 330:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** */
+ 331:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** uint8_t cbor_decode_uint(uint8_t *buf, uint8_t *value) {
+ 848              		.loc 1 331 0
+ 849              		.cfi_startproc
+ 850              		@ args = 0, pretend = 0, frame = 16
+ 851              		@ frame_needed = 1, uses_anonymous_args = 0
+ 852              		@ link register save eliminated.
+ 853 0458 80B4     		push	{r7}
+ 854              		.cfi_def_cfa_offset 4
+ 855              		.cfi_offset 7, -4
+ 856 045a 85B0     		sub	sp, sp, #20
+ 857              		.cfi_def_cfa_offset 24
+ 858 045c 00AF     		add	r7, sp, #0
+ 859              		.cfi_def_cfa_register 7
+ 860 045e 7860     		str	r0, [r7, #4]
+ 861 0460 3960     		str	r1, [r7]
+ 332:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t major_type;
+ 333:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     uint8_t add_info;
+ 334:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 335:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     major_type = (cbor_majortype_t) *buf >> 5;
+ 862              		.loc 1 335 0
+ 863 0462 7B68     		ldr	r3, [r7, #4]
+ 864 0464 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 865 0466 5B09     		lsrs	r3, r3, #5
+ 866 0468 FB73     		strb	r3, [r7, #15]
+ 336:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     add_info = *buf & CBOR_ADDINFO_MASK;
+ 867              		.loc 1 336 0
+ 868 046a 7B68     		ldr	r3, [r7, #4]
+ 869 046c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 870 046e 03F01F03 		and	r3, r3, #31
+ 871 0472 BB73     		strb	r3, [r7, #14]
+ 337:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 338:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     // assert
+ 339:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (major_type != CBOR_MAJORTYPE_UINT) {
+ 872              		.loc 1 339 0
+ 873 0474 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 874 0476 002B     		cmp	r3, #0
+ 875 0478 01D0     		beq	.L51
+ 340:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return 0;
+ 876              		.loc 1 340 0
+ 877 047a 0023     		movs	r3, #0
+ 878 047c 20E0     		b	.L52
+ 879              	.L51:
+ 341:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 342:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 343:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     if (add_info < 23) {
+ 880              		.loc 1 343 0
+ 881 047e BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 882 0480 162B     		cmp	r3, #22
+ 883 0482 04D8     		bhi	.L53
+ 344:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         *value = add_info;
+ 884              		.loc 1 344 0
+ 885 0484 3B68     		ldr	r3, [r7]
+ 886 0486 BA7B     		ldrb	r2, [r7, #14]
+ 887 0488 1A70     		strb	r2, [r3]
+ 345:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return 0 + 1;
+ 888              		.loc 1 345 0
+ 889 048a 0123     		movs	r3, #1
+ 890 048c 18E0     		b	.L52
+ 891              	.L53:
+ 346:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     } else if (add_info == 24) { // uint8_t follows
+ 892              		.loc 1 346 0
+ 893 048e BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 894 0490 182B     		cmp	r3, #24
+ 895 0492 05D1     		bne	.L54
+ 347:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         *value = buf[1];
+ 896              		.loc 1 347 0
+ 897 0494 7B68     		ldr	r3, [r7, #4]
+ 898 0496 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 899 0498 3B68     		ldr	r3, [r7]
+ 900 049a 1A70     		strb	r2, [r3]
+ 348:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return 1 + 1;
+ 901              		.loc 1 348 0
+ 902 049c 0223     		movs	r3, #2
+ 903 049e 0FE0     		b	.L52
+ 904              	.L54:
+ 349:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     } else if (add_info == 25) { // uint16_t follows
+ 905              		.loc 1 349 0
+ 906 04a0 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 907 04a2 192B     		cmp	r3, #25
+ 908 04a4 01D1     		bne	.L55
+ 350:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return 1 + 2;
+ 909              		.loc 1 350 0
+ 910 04a6 0323     		movs	r3, #3
+ 911 04a8 0AE0     		b	.L52
+ 912              	.L55:
+ 351:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     } else if (add_info == 26) { // uint32_t follows
+ 913              		.loc 1 351 0
+ 914 04aa BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 915 04ac 1A2B     		cmp	r3, #26
+ 916 04ae 01D1     		bne	.L56
+ 352:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return 1 + 4;
+ 917              		.loc 1 352 0
+ 918 04b0 0523     		movs	r3, #5
+ 919 04b2 05E0     		b	.L52
+ 920              	.L56:
+ 353:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     } else if (add_info == 27) { // uint64_t follows
+ 921              		.loc 1 353 0
+ 922 04b4 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 923 04b6 1B2B     		cmp	r3, #27
+ 924 04b8 01D1     		bne	.L57
+ 354:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****         return 1 + 8;
+ 925              		.loc 1 354 0
+ 926 04ba 0923     		movs	r3, #9
+ 927 04bc 00E0     		b	.L52
+ 928              	.L57:
+ 355:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     }
+ 356:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** 
+ 357:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c ****     return 0;
+ 929              		.loc 1 357 0
+ 930 04be 0023     		movs	r3, #0
+ 931              	.L52:
+ 358:build\openmote-cc2538_armgcc\openapps\cjoin/cojp_cbor.c **** }
+ 932              		.loc 1 358 0
+ 933 04c0 1846     		mov	r0, r3
+ 934 04c2 1437     		adds	r7, r7, #20
+ 935              		.cfi_def_cfa_offset 4
+ 936 04c4 BD46     		mov	sp, r7
+ 937              		.cfi_def_cfa_register 13
+ 938              		@ sp needed
+ 939 04c6 80BC     		pop	{r7}
+ 940              		.cfi_restore 7
+ 941              		.cfi_def_cfa_offset 0
+ 942 04c8 7047     		bx	lr
+ 943              		.cfi_endproc
+ 944              	.LFE5:
+ 946              	.Letext0:
+ 947              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 948              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 949              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 950              		.file 5 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 951              		.file 6 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\lib\\gcc\\arm-none-eab
+ 952              		.file 7 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 953              		.file 8 "bsp\\boards\\openmote-cc2538/board_info.h"
+ 954              		.file 9 "inc/opendefs.h"
+ 955              		.file 10 "build\\openmote-cc2538_armgcc\\openapps\\cjoin\\cojp_cbor.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 cojp_cbor.c
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:16     .rodata:00000000 $d
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:19     .rodata:00000000 rreg_uriquery
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:24     .rodata:00000008 infoBoardname
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:29     .rodata:00000010 infouCName
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:34     .rodata:00000018 infoRadioName
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:39     .rodata:00000024 infoStackName
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:42     .text:00000000 $t
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:49     .text:00000000 cojp_cbor_decode_configuration_object
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:390    .text:000001e4 cojp_cbor_decode_link_layer_keyset
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:630    .text:0000035a cojp_cbor_decode_link_layer_short_address
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:757    .text:000003f2 cojp_cbor_decode_ipv6_address
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:263    .text:0000012c cojp_cbor_encode_join_request_object
+C:\Users\Lee\AppData\Local\Temp\cc8tSytd.s:846    .text:00000458 cbor_decode_uint
+                           .group:00000000 wm4.0.93d65e4ff05d5af51629690e5b534e57
+                           .group:00000000 wm4._newlib_version.h.4.875b979a44719054cd750d0952ad3fd6
+                           .group:00000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.cce27fed8484c08a33f522034c30d2b5
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:00000000 wm4.newlib.h.8.f6e543eac3f2f65163ba2ffe3b04987b
+                           .group:00000000 wm4.ieeefp.h.77.220d9cccac42cd58761758bee2df4ce6
+                           .group:00000000 wm4.config.h.220.6cac6a9685cfce5e83c17784171638d9
+                           .group:00000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:00000000 wm4.stddef.h.39.a38874c8f8a57e66301090908ec2a69f
+                           .group:00000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:00000000 wm4._types.h.125.5cf8a495f1f7ef36777ad868a1e32068
+                           .group:00000000 wm4.stddef.h.161.5349cb105733e8777bfb0cf53c4e3f34
+                           .group:00000000 wm4._types.h.184.03611d4f6b5bec9997bcf4279eceba07
+                           .group:00000000 wm4.reent.h.17.90c2574d4acdcfce933db5cb09ff35fe
+                           .group:00000000 wm4.cdefs.h.47.0bcdf94cb40e176393dd1404056825b4
+                           .group:00000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:00000000 wm4.stddef.h.161.19e15733342b50ead2919490b095303e
+                           .group:00000000 wm4.stdbool.h.29.07dce69c3b78884144b7f7bd19483461
+                           .group:00000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:00000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:00000000 wm4.board_info.h.22.34c159473b0affd9f1a6f5aa8cf576c9
+                           .group:00000000 wm4.opendefs.h.23.3a22b672f37c862344b7aef3ebe35451
+                           .group:00000000 wm4.cojp_cbor.h.14.03c0adc60d89b5ae20c845729e5f09e4
+
+UNDEFINED SYMBOLS
+memset
+cborencoder_put_map
+cborencoder_put_unsigned
+cborencoder_put_bytes
+memcpy

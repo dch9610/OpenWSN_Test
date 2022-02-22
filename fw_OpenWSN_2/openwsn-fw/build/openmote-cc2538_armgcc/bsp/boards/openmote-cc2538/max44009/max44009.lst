@@ -1,0 +1,597 @@
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"max44009.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.rodata
+  16              		.align	2
+  17              	.LC0:
+  18 0000 01       		.byte	1
+  19 0001 02       		.byte	2
+  20 0002 05       		.byte	5
+  21 0003 06       		.byte	6
+  22 0004 07       		.byte	7
+  23 0005 000000   		.align	2
+  24              	.LC1:
+  25 0008 00       		.byte	0
+  26 0009 43       		.byte	67
+  27 000a FF       		.byte	-1
+  28 000b 00       		.byte	0
+  29 000c FF       		.byte	-1
+  30              		.text
+  31              		.align	1
+  32              		.global	max44009_init
+  33              		.syntax unified
+  34              		.thumb
+  35              		.thumb_func
+  36              		.fpu softvfp
+  38              	max44009_init:
+  39              	.LFB0:
+  40              		.file 1 "build\\openmote-cc2538_armgcc\\bsp\\boards\\openmote-cc2538\\max44009\\max44009.c"
+   1:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** /**
+   2:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****  * \file
+   3:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****  *         Device drivers for MAX44009 light sensor in OpenMote-CC2538.
+   4:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****  * \author
+   5:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****  *         Pere Tuset, OpenMote <peretuset@openmote.com>
+   6:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****  */
+   7:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+   8:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #include "i2c.h"
+   9:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #include "max44009.h"
+  10:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  11:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** //=========================== define ==========================================
+  12:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  13:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** /* ADDRESS AND NOT_FOUND VALUE */
+  14:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_ADDRESS                    ( 0x4A )
+  15:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_NOT_FOUND                  ( 0x00 )
+  16:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  17:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** /* REGISTER ADDRESSES */
+  18:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_INT_STATUS_ADDR            ( 0x00 )    // R
+  19:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_INT_ENABLE_ADDR            ( 0x01 )    // R/W
+  20:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_ADDR                ( 0x02 )    // R/W
+  21:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_LUX_HIGH_ADDR              ( 0x03 )    // R
+  22:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_LUX_LOW_ADDR               ( 0x04 )    // R
+  23:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_THR_HIGH_ADDR              ( 0x05 )    // R/W
+  24:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_THR_LOW_ADDR               ( 0x06 )    // R/W
+  25:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_THR_TIMER_ADDR             ( 0x07 )    // R/W
+  26:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  27:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** /* INTERRUPT VALUES */
+  28:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_INT_STATUS_OFF             ( 0x00 )
+  29:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_INT_STATUS_ON              ( 0x01 )
+  30:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_INT_DISABLED               ( 0x00 )
+  31:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_INT_ENABLED                ( 0x01 )
+  32:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  33:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** /* CONFIGURATION VALUES */
+  34:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_DEFAULT             ( 0 << 7 )
+  35:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_CONTINUOUS          ( 1 << 7 )
+  36:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_AUTO                ( 0 << 6 )
+  37:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_MANUAL              ( 1 << 6 )
+  38:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_CDR_NORMAL          ( 0 << 3 )
+  39:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_CDR_DIVIDED         ( 1 << 3 )
+  40:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_INTEGRATION_800ms   ( 0 << 0 )
+  41:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_INTEGRATION_400ms   ( 1 << 0 )
+  42:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_INTEGRATION_200ms   ( 2 << 0 )
+  43:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_INTEGRATION_100ms   ( 3 << 0 )
+  44:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_INTEGRATION_50ms    ( 4 << 0 )
+  45:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_INTEGRATION_25ms    ( 5 << 0 )
+  46:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_INTEGRATION_12ms    ( 6 << 0 )
+  47:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_CONFIG_INTEGRATION_6ms     ( 7 << 0 )
+  48:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  49:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** /* DEFAULT CONFIGURATION */
+  50:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_DEFAULT_CONFIGURATION      ( MAX44009_CONFIG_DEFAULT | \
+  51:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                               MAX44009_CONFIG_AUTO | \
+  52:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                               MAX44009_CONFIG_CDR_NORMAL | \
+  53:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                               MAX44009_CONFIG_INTEGRATION_100ms )
+  54:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  55:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** /* USER CONFIGURATION */
+  56:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** #define MAX44009_USER_CONFIGURATION         ( MAX44009_CONFIG_DEFAULT | \
+  57:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                               MAX44009_CONFIG_MANUAL | \
+  58:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                               MAX44009_CONFIG_CDR_NORMAL | \
+  59:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                               MAX44009_CONFIG_INTEGRATION_100ms )
+  60:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  61:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** //=========================== variables =======================================
+  62:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  63:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  64:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** //=========================== prototypes ======================================
+  65:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  66:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  67:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** //=========================== public ==========================================
+  68:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  69:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** void max44009_init(void) {
+  41              		.loc 1 69 0
+  42              		.cfi_startproc
+  43              		@ args = 0, pretend = 0, frame = 24
+  44              		@ frame_needed = 1, uses_anonymous_args = 0
+  45 0000 80B5     		push	{r7, lr}
+  46              		.cfi_def_cfa_offset 8
+  47              		.cfi_offset 7, -8
+  48              		.cfi_offset 14, -4
+  49 0002 86B0     		sub	sp, sp, #24
+  50              		.cfi_def_cfa_offset 32
+  51 0004 00AF     		add	r7, sp, #0
+  52              		.cfi_def_cfa_register 7
+  70:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t max44009_address[5] = {MAX44009_INT_ENABLE_ADDR, MAX44009_CONFIG_ADDR, \
+  53              		.loc 1 70 0
+  54 0006 184A     		ldr	r2, .L4
+  55 0008 07F11003 		add	r3, r7, #16
+  56 000c 92E80300 		ldm	r2, {r0, r1}
+  57 0010 1860     		str	r0, [r3]
+  58 0012 0433     		adds	r3, r3, #4
+  59 0014 1970     		strb	r1, [r3]
+  71:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                    MAX44009_THR_HIGH_ADDR, MAX44009_THR_LOW_ADDR, \
+  72:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                    MAX44009_THR_TIMER_ADDR};
+  73:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t max44009_value[5]   = {MAX44009_INT_DISABLED, MAX44009_USER_CONFIGURATION, \
+  60              		.loc 1 73 0
+  61 0016 154A     		ldr	r2, .L4+4
+  62 0018 07F10803 		add	r3, r7, #8
+  63 001c 92E80300 		ldm	r2, {r0, r1}
+  64 0020 1860     		str	r0, [r3]
+  65 0022 0433     		adds	r3, r3, #4
+  66 0024 1970     		strb	r1, [r3]
+  74:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                    0xFF, 0x00, 0xFF};
+  75:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t max44009_data[2];
+  76:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t i;
+  77:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  78:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     for (i = 0; i < sizeof(max44009_address); i++) {
+  67              		.loc 1 78 0
+  68 0026 0023     		movs	r3, #0
+  69 0028 FB75     		strb	r3, [r7, #23]
+  70 002a 16E0     		b	.L2
+  71              	.L3:
+  79:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****         max44009_data[0] = max44009_address[i];
+  72              		.loc 1 79 0 discriminator 3
+  73 002c FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+  74 002e 07F11802 		add	r2, r7, #24
+  75 0032 1344     		add	r3, r3, r2
+  76 0034 13F8083C 		ldrb	r3, [r3, #-8]	@ zero_extendqisi2
+  77 0038 3B71     		strb	r3, [r7, #4]
+  80:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****         max44009_data[1] = max44009_value[i];
+  78              		.loc 1 80 0 discriminator 3
+  79 003a FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+  80 003c 07F11802 		add	r2, r7, #24
+  81 0040 1344     		add	r3, r3, r2
+  82 0042 13F8103C 		ldrb	r3, [r3, #-16]	@ zero_extendqisi2
+  83 0046 7B71     		strb	r3, [r7, #5]
+  81:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****         i2c_write_bytes(MAX44009_ADDRESS, max44009_data, sizeof(max44009_data));
+  84              		.loc 1 81 0 discriminator 3
+  85 0048 3B1D     		adds	r3, r7, #4
+  86 004a 0222     		movs	r2, #2
+  87 004c 1946     		mov	r1, r3
+  88 004e 4A20     		movs	r0, #74
+  89 0050 FFF7FEFF 		bl	i2c_write_bytes
+  78:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****         max44009_data[0] = max44009_address[i];
+  90              		.loc 1 78 0 discriminator 3
+  91 0054 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+  92 0056 0133     		adds	r3, r3, #1
+  93 0058 FB75     		strb	r3, [r7, #23]
+  94              	.L2:
+  78:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****         max44009_data[0] = max44009_address[i];
+  95              		.loc 1 78 0 is_stmt 0 discriminator 1
+  96 005a FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+  97 005c 042B     		cmp	r3, #4
+  98 005e E5D9     		bls	.L3
+  82:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     }
+  83:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** }
+  99              		.loc 1 83 0 is_stmt 1
+ 100 0060 00BF     		nop
+ 101 0062 1837     		adds	r7, r7, #24
+ 102              		.cfi_def_cfa_offset 8
+ 103 0064 BD46     		mov	sp, r7
+ 104              		.cfi_def_cfa_register 13
+ 105              		@ sp needed
+ 106 0066 80BD     		pop	{r7, pc}
+ 107              	.L5:
+ 108              		.align	2
+ 109              	.L4:
+ 110 0068 00000000 		.word	.LC0
+ 111 006c 08000000 		.word	.LC1
+ 112              		.cfi_endproc
+ 113              	.LFE0:
+ 115              		.section	.rodata
+ 116 000d 000000   		.align	2
+ 117              	.LC2:
+ 118 0010 00       		.byte	0
+ 119 0011 03       		.byte	3
+ 120 0012 FF       		.byte	-1
+ 121 0013 00       		.byte	0
+ 122 0014 FF       		.byte	-1
+ 123              		.text
+ 124              		.align	1
+ 125              		.global	max44009_reset
+ 126              		.syntax unified
+ 127              		.thumb
+ 128              		.thumb_func
+ 129              		.fpu softvfp
+ 131              	max44009_reset:
+ 132              	.LFB1:
+  84:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+  85:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** void max44009_reset(void) {
+ 133              		.loc 1 85 0
+ 134              		.cfi_startproc
+ 135              		@ args = 0, pretend = 0, frame = 24
+ 136              		@ frame_needed = 1, uses_anonymous_args = 0
+ 137 0070 80B5     		push	{r7, lr}
+ 138              		.cfi_def_cfa_offset 8
+ 139              		.cfi_offset 7, -8
+ 140              		.cfi_offset 14, -4
+ 141 0072 86B0     		sub	sp, sp, #24
+ 142              		.cfi_def_cfa_offset 32
+ 143 0074 00AF     		add	r7, sp, #0
+ 144              		.cfi_def_cfa_register 7
+  86:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t max44009_address[5] = {MAX44009_INT_ENABLE_ADDR, MAX44009_CONFIG_ADDR, \
+ 145              		.loc 1 86 0
+ 146 0076 184A     		ldr	r2, .L9
+ 147 0078 07F11003 		add	r3, r7, #16
+ 148 007c 92E80300 		ldm	r2, {r0, r1}
+ 149 0080 1860     		str	r0, [r3]
+ 150 0082 0433     		adds	r3, r3, #4
+ 151 0084 1970     		strb	r1, [r3]
+  87:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                    MAX44009_THR_HIGH_ADDR, MAX44009_THR_LOW_ADDR, \
+  88:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                    MAX44009_THR_TIMER_ADDR};
+  89:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t max44009_value[5]   = {MAX44009_INT_DISABLED, MAX44009_DEFAULT_CONFIGURATION, \
+ 152              		.loc 1 89 0
+ 153 0086 154A     		ldr	r2, .L9+4
+ 154 0088 07F10803 		add	r3, r7, #8
+ 155 008c 92E80300 		ldm	r2, {r0, r1}
+ 156 0090 1860     		str	r0, [r3]
+ 157 0092 0433     		adds	r3, r3, #4
+ 158 0094 1970     		strb	r1, [r3]
+  90:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****                                    0xFF, 0x00, 0xFF};
+  91:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t max44009_data[2];
+  92:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t i;
+  93:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     
+  94:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     for (i = 0; i < sizeof(max44009_address); i++) {
+ 159              		.loc 1 94 0
+ 160 0096 0023     		movs	r3, #0
+ 161 0098 FB75     		strb	r3, [r7, #23]
+ 162 009a 16E0     		b	.L7
+ 163              	.L8:
+  95:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****         max44009_data[0] = max44009_address[i];
+ 164              		.loc 1 95 0 discriminator 3
+ 165 009c FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 166 009e 07F11802 		add	r2, r7, #24
+ 167 00a2 1344     		add	r3, r3, r2
+ 168 00a4 13F8083C 		ldrb	r3, [r3, #-8]	@ zero_extendqisi2
+ 169 00a8 3B71     		strb	r3, [r7, #4]
+  96:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****         max44009_data[1] = max44009_value[i];
+ 170              		.loc 1 96 0 discriminator 3
+ 171 00aa FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 172 00ac 07F11802 		add	r2, r7, #24
+ 173 00b0 1344     		add	r3, r3, r2
+ 174 00b2 13F8103C 		ldrb	r3, [r3, #-16]	@ zero_extendqisi2
+ 175 00b6 7B71     		strb	r3, [r7, #5]
+  97:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****         i2c_write_bytes(MAX44009_ADDRESS, max44009_data, sizeof(max44009_data));
+ 176              		.loc 1 97 0 discriminator 3
+ 177 00b8 3B1D     		adds	r3, r7, #4
+ 178 00ba 0222     		movs	r2, #2
+ 179 00bc 1946     		mov	r1, r3
+ 180 00be 4A20     		movs	r0, #74
+ 181 00c0 FFF7FEFF 		bl	i2c_write_bytes
+  94:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****         max44009_data[0] = max44009_address[i];
+ 182              		.loc 1 94 0 discriminator 3
+ 183 00c4 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 184 00c6 0133     		adds	r3, r3, #1
+ 185 00c8 FB75     		strb	r3, [r7, #23]
+ 186              	.L7:
+  94:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****         max44009_data[0] = max44009_address[i];
+ 187              		.loc 1 94 0 is_stmt 0 discriminator 1
+ 188 00ca FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 189 00cc 042B     		cmp	r3, #4
+ 190 00ce E5D9     		bls	.L8
+  98:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     }
+  99:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** }
+ 191              		.loc 1 99 0 is_stmt 1
+ 192 00d0 00BF     		nop
+ 193 00d2 1837     		adds	r7, r7, #24
+ 194              		.cfi_def_cfa_offset 8
+ 195 00d4 BD46     		mov	sp, r7
+ 196              		.cfi_def_cfa_register 13
+ 197              		@ sp needed
+ 198 00d6 80BD     		pop	{r7, pc}
+ 199              	.L10:
+ 200              		.align	2
+ 201              	.L9:
+ 202 00d8 00000000 		.word	.LC0
+ 203 00dc 10000000 		.word	.LC2
+ 204              		.cfi_endproc
+ 205              	.LFE1:
+ 207              		.align	1
+ 208              		.global	max44009_is_present
+ 209              		.syntax unified
+ 210              		.thumb
+ 211              		.thumb_func
+ 212              		.fpu softvfp
+ 214              	max44009_is_present:
+ 215              	.LFB2:
+ 100:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+ 101:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** uint8_t max44009_is_present(void) {
+ 216              		.loc 1 101 0
+ 217              		.cfi_startproc
+ 218              		@ args = 0, pretend = 0, frame = 8
+ 219              		@ frame_needed = 1, uses_anonymous_args = 0
+ 220 00e0 80B5     		push	{r7, lr}
+ 221              		.cfi_def_cfa_offset 8
+ 222              		.cfi_offset 7, -8
+ 223              		.cfi_offset 14, -4
+ 224 00e2 82B0     		sub	sp, sp, #8
+ 225              		.cfi_def_cfa_offset 16
+ 226 00e4 00AF     		add	r7, sp, #0
+ 227              		.cfi_def_cfa_register 7
+ 102:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t is_present;
+ 103:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+ 104:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     i2c_write_byte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR);
+ 228              		.loc 1 104 0
+ 229 00e6 0221     		movs	r1, #2
+ 230 00e8 4A20     		movs	r0, #74
+ 231 00ea FFF7FEFF 		bl	i2c_write_byte
+ 105:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     i2c_read_byte(MAX44009_ADDRESS, &is_present);
+ 232              		.loc 1 105 0
+ 233 00ee FB1D     		adds	r3, r7, #7
+ 234 00f0 1946     		mov	r1, r3
+ 235 00f2 4A20     		movs	r0, #74
+ 236 00f4 FFF7FEFF 		bl	i2c_read_byte
+ 106:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+ 107:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     return (is_present == MAX44009_DEFAULT_CONFIGURATION ||
+ 237              		.loc 1 107 0
+ 238 00f8 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 239 00fa 032B     		cmp	r3, #3
+ 240 00fc 02D0     		beq	.L12
+ 108:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****             is_present == MAX44009_USER_CONFIGURATION);
+ 241              		.loc 1 108 0 discriminator 2
+ 242 00fe FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 107:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****             is_present == MAX44009_USER_CONFIGURATION);
+ 243              		.loc 1 107 0 discriminator 2
+ 244 0100 432B     		cmp	r3, #67
+ 245 0102 01D1     		bne	.L13
+ 246              	.L12:
+ 107:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****             is_present == MAX44009_USER_CONFIGURATION);
+ 247              		.loc 1 107 0 is_stmt 0 discriminator 3
+ 248 0104 0123     		movs	r3, #1
+ 249 0106 00E0     		b	.L14
+ 250              	.L13:
+ 107:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****             is_present == MAX44009_USER_CONFIGURATION);
+ 251              		.loc 1 107 0 discriminator 4
+ 252 0108 0023     		movs	r3, #0
+ 253              	.L14:
+ 107:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****             is_present == MAX44009_USER_CONFIGURATION);
+ 254              		.loc 1 107 0 discriminator 6
+ 255 010a DBB2     		uxtb	r3, r3
+ 109:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** }
+ 256              		.loc 1 109 0 is_stmt 1 discriminator 6
+ 257 010c 1846     		mov	r0, r3
+ 258 010e 0837     		adds	r7, r7, #8
+ 259              		.cfi_def_cfa_offset 8
+ 260 0110 BD46     		mov	sp, r7
+ 261              		.cfi_def_cfa_register 13
+ 262              		@ sp needed
+ 263 0112 80BD     		pop	{r7, pc}
+ 264              		.cfi_endproc
+ 265              	.LFE2:
+ 267              		.align	1
+ 268              		.global	max44009_read_light
+ 269              		.syntax unified
+ 270              		.thumb
+ 271              		.thumb_func
+ 272              		.fpu softvfp
+ 274              	max44009_read_light:
+ 275              	.LFB3:
+ 110:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+ 111:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** uint16_t max44009_read_light(void) {
+ 276              		.loc 1 111 0
+ 277              		.cfi_startproc
+ 278              		@ args = 0, pretend = 0, frame = 8
+ 279              		@ frame_needed = 1, uses_anonymous_args = 0
+ 280 0114 80B5     		push	{r7, lr}
+ 281              		.cfi_def_cfa_offset 8
+ 282              		.cfi_offset 7, -8
+ 283              		.cfi_offset 14, -4
+ 284 0116 82B0     		sub	sp, sp, #8
+ 285              		.cfi_def_cfa_offset 16
+ 286 0118 00AF     		add	r7, sp, #0
+ 287              		.cfi_def_cfa_register 7
+ 112:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t exponent, mantissa;
+ 113:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t max44009_data[2];
+ 114:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint16_t result;
+ 115:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+ 116:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     i2c_write_byte(MAX44009_ADDRESS, MAX44009_LUX_HIGH_ADDR);
+ 288              		.loc 1 116 0
+ 289 011a 0321     		movs	r1, #3
+ 290 011c 4A20     		movs	r0, #74
+ 291 011e FFF7FEFF 		bl	i2c_write_byte
+ 117:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     i2c_read_byte(MAX44009_ADDRESS, &max44009_data[0]);
+ 292              		.loc 1 117 0
+ 293 0122 3B46     		mov	r3, r7
+ 294 0124 1946     		mov	r1, r3
+ 295 0126 4A20     		movs	r0, #74
+ 296 0128 FFF7FEFF 		bl	i2c_read_byte
+ 118:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     i2c_write_byte(MAX44009_ADDRESS, MAX44009_LUX_LOW_ADDR);
+ 297              		.loc 1 118 0
+ 298 012c 0421     		movs	r1, #4
+ 299 012e 4A20     		movs	r0, #74
+ 300 0130 FFF7FEFF 		bl	i2c_write_byte
+ 119:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     i2c_read_byte(MAX44009_ADDRESS, &max44009_data[1]);
+ 301              		.loc 1 119 0
+ 302 0134 3B46     		mov	r3, r7
+ 303 0136 0133     		adds	r3, r3, #1
+ 304 0138 1946     		mov	r1, r3
+ 305 013a 4A20     		movs	r0, #74
+ 306 013c FFF7FEFF 		bl	i2c_read_byte
+ 120:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+ 121:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     exponent = (( max44009_data[0] >> 4 )  & 0x0F);
+ 307              		.loc 1 121 0
+ 308 0140 3B78     		ldrb	r3, [r7]	@ zero_extendqisi2
+ 309 0142 1B09     		lsrs	r3, r3, #4
+ 310 0144 FB71     		strb	r3, [r7, #7]
+ 122:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     mantissa = (( max44009_data[0] & 0x0F ) << 4) | ((max44009_data[1] & 0x0F));
+ 311              		.loc 1 122 0
+ 312 0146 3B78     		ldrb	r3, [r7]	@ zero_extendqisi2
+ 313 0148 1B01     		lsls	r3, r3, #4
+ 314 014a 5AB2     		sxtb	r2, r3
+ 315 014c 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 316 014e 5BB2     		sxtb	r3, r3
+ 317 0150 03F00F03 		and	r3, r3, #15
+ 318 0154 5BB2     		sxtb	r3, r3
+ 319 0156 1343     		orrs	r3, r3, r2
+ 320 0158 5BB2     		sxtb	r3, r3
+ 321 015a BB71     		strb	r3, [r7, #6]
+ 123:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+ 124:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     result = ( (uint16_t) exponent << 8 ) | ( (uint16_t) mantissa << 0);
+ 322              		.loc 1 124 0
+ 323 015c FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 324 015e 1B02     		lsls	r3, r3, #8
+ 325 0160 1AB2     		sxth	r2, r3
+ 326 0162 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 327 0164 1BB2     		sxth	r3, r3
+ 328 0166 1343     		orrs	r3, r3, r2
+ 329 0168 1BB2     		sxth	r3, r3
+ 330 016a BB80     		strh	r3, [r7, #4]	@ movhi
+ 125:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     
+ 126:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     return result;
+ 331              		.loc 1 126 0
+ 332 016c BB88     		ldrh	r3, [r7, #4]
+ 127:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** }
+ 333              		.loc 1 127 0
+ 334 016e 1846     		mov	r0, r3
+ 335 0170 0837     		adds	r7, r7, #8
+ 336              		.cfi_def_cfa_offset 8
+ 337 0172 BD46     		mov	sp, r7
+ 338              		.cfi_def_cfa_register 13
+ 339              		@ sp needed
+ 340 0174 80BD     		pop	{r7, pc}
+ 341              		.cfi_endproc
+ 342              	.LFE3:
+ 344              		.global	__aeabi_i2f
+ 345              		.global	__aeabi_fmul
+ 346              		.align	1
+ 347              		.global	max44009_convert_light
+ 348              		.syntax unified
+ 349              		.thumb
+ 350              		.thumb_func
+ 351              		.fpu softvfp
+ 353              	max44009_convert_light:
+ 354              	.LFB4:
+ 128:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+ 129:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** float max44009_convert_light(uint16_t lux) {
+ 355              		.loc 1 129 0
+ 356              		.cfi_startproc
+ 357              		@ args = 0, pretend = 0, frame = 16
+ 358              		@ frame_needed = 1, uses_anonymous_args = 0
+ 359 0176 80B5     		push	{r7, lr}
+ 360              		.cfi_def_cfa_offset 8
+ 361              		.cfi_offset 7, -8
+ 362              		.cfi_offset 14, -4
+ 363 0178 84B0     		sub	sp, sp, #16
+ 364              		.cfi_def_cfa_offset 24
+ 365 017a 00AF     		add	r7, sp, #0
+ 366              		.cfi_def_cfa_register 7
+ 367 017c 0346     		mov	r3, r0
+ 368 017e FB80     		strh	r3, [r7, #6]	@ movhi
+ 130:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     uint8_t exponent, mantissa;
+ 131:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     float result = 0.045;
+ 369              		.loc 1 131 0
+ 370 0180 134B     		ldr	r3, .L22
+ 371 0182 FB60     		str	r3, [r7, #12]	@ float
+ 132:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+ 133:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     exponent = (lux >> 8) & 0xFF;    
+ 372              		.loc 1 133 0
+ 373 0184 FB88     		ldrh	r3, [r7, #6]
+ 374 0186 1B0A     		lsrs	r3, r3, #8
+ 375 0188 9BB2     		uxth	r3, r3
+ 376 018a FB72     		strb	r3, [r7, #11]
+ 134:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     exponent = (exponent == 0x0F ? exponent & 0x0E : exponent);
+ 377              		.loc 1 134 0
+ 378 018c FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 379 018e 0F2B     		cmp	r3, #15
+ 380 0190 04D1     		bne	.L19
+ 381              		.loc 1 134 0 is_stmt 0 discriminator 1
+ 382 0192 FB7A     		ldrb	r3, [r7, #11]
+ 383 0194 03F00E03 		and	r3, r3, #14
+ 384 0198 DBB2     		uxtb	r3, r3
+ 385 019a 00E0     		b	.L20
+ 386              	.L19:
+ 387              		.loc 1 134 0 discriminator 2
+ 388 019c FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 389              	.L20:
+ 390              		.loc 1 134 0 discriminator 4
+ 391 019e FB72     		strb	r3, [r7, #11]
+ 135:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** 
+ 136:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     mantissa = (lux >> 0) & 0xFF;
+ 392              		.loc 1 136 0 is_stmt 1 discriminator 4
+ 393 01a0 FB88     		ldrh	r3, [r7, #6]	@ movhi
+ 394 01a2 BB72     		strb	r3, [r7, #10]
+ 137:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     
+ 138:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     result *= 2^exponent * mantissa;
+ 395              		.loc 1 138 0 discriminator 4
+ 396 01a4 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 397 01a6 BA7A     		ldrb	r2, [r7, #10]	@ zero_extendqisi2
+ 398 01a8 02FB03F3 		mul	r3, r2, r3
+ 399 01ac 83F00203 		eor	r3, r3, #2
+ 400 01b0 1846     		mov	r0, r3
+ 401 01b2 FFF7FEFF 		bl	__aeabi_i2f
+ 402              	.LVL0:
+ 403 01b6 0346     		mov	r3, r0
+ 404 01b8 1946     		mov	r1, r3
+ 405 01ba F868     		ldr	r0, [r7, #12]	@ float
+ 406 01bc FFF7FEFF 		bl	__aeabi_fmul
+ 407              	.LVL1:
+ 408 01c0 0346     		mov	r3, r0
+ 409 01c2 FB60     		str	r3, [r7, #12]	@ float
+ 139:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     
+ 140:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c ****     return result;
+ 410              		.loc 1 140 0 discriminator 4
+ 411 01c4 FB68     		ldr	r3, [r7, #12]	@ float
+ 141:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\max44009/max44009.c **** }
+ 412              		.loc 1 141 0 discriminator 4
+ 413 01c6 1846     		mov	r0, r3
+ 414 01c8 1037     		adds	r7, r7, #16
+ 415              		.cfi_def_cfa_offset 8
+ 416 01ca BD46     		mov	sp, r7
+ 417              		.cfi_def_cfa_register 13
+ 418              		@ sp needed
+ 419 01cc 80BD     		pop	{r7, pc}
+ 420              	.L23:
+ 421 01ce 00BF     		.align	2
+ 422              	.L22:
+ 423 01d0 EC51383D 		.word	1027101164
+ 424              		.cfi_endproc
+ 425              	.LFE4:
+ 427              	.Letext0:
+ 428              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 429              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+DEFINED SYMBOLS
+                            *ABS*:00000000 max44009.c
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:16     .rodata:00000000 $d
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:31     .text:00000000 $t
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:38     .text:00000000 max44009_init
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:110    .text:00000068 $d
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:124    .text:00000070 $t
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:131    .text:00000070 max44009_reset
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:202    .text:000000d8 $d
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:207    .text:000000e0 $t
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:214    .text:000000e0 max44009_is_present
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:274    .text:00000114 max44009_read_light
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:353    .text:00000176 max44009_convert_light
+C:\Users\Lee\AppData\Local\Temp\ccuW37hT.s:423    .text:000001d0 $d
+                           .group:00000000 wm4.0.93d65e4ff05d5af51629690e5b534e57
+                           .group:00000000 wm4._newlib_version.h.4.875b979a44719054cd750d0952ad3fd6
+                           .group:00000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.cce27fed8484c08a33f522034c30d2b5
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.i2c.h.15.8e849f5fcf39557ec3e120a857902900
+
+UNDEFINED SYMBOLS
+i2c_write_bytes
+i2c_write_byte
+i2c_read_byte
+__aeabi_i2f
+__aeabi_fmul

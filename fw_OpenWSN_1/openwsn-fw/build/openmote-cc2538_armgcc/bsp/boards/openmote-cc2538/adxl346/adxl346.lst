@@ -1,0 +1,607 @@
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"adxl346.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.align	1
+  16              		.global	adxl346_init
+  17              		.syntax unified
+  18              		.thumb
+  19              		.thumb_func
+  20              		.fpu softvfp
+  22              	adxl346_init:
+  23              	.LFB0:
+  24              		.file 1 "build\\openmote-cc2538_armgcc\\bsp\\boards\\openmote-cc2538\\adxl346\\adxl346.c"
+   1:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** /**
+   2:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****  * \file
+   3:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****  *         Device drivers for ADXL346 acceleration sensor in OpenMote-CC2538.
+   4:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****  * \author
+   5:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****  *         Pere Tuset, OpenMote <peretuset@openmote.com>
+   6:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****  */
+   7:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+   8:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #include "i2c.h"
+   9:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #include "adxl346.h"
+  10:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+  11:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** //=========================== define ==========================================
+  12:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+  13:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** /* ADDRESS AND IDENTIFIER */
+  14:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ADDRESS                     ( 0x53 )
+  15:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DEVID_VALUE                 ( 0xE6 )
+  16:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+  17:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** /* REGISTER ADDRESSES */
+  18:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DEVID_ADDR                  ( 0x00 )
+  19:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_THRES_TAP_ADDR              ( 0x1D )
+  20:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_OFSX_ADDR                   ( 0x1E )
+  21:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_OFSY_ADDR                   ( 0x1F )
+  22:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_OFSZ_ADDR                   ( 0x20 )
+  23:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DUR_ADDR                    ( 0x21 )
+  24:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_LATENT_ADDR                 ( 0x22 )
+  25:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_WINDOW_ADDR                 ( 0x23 )
+  26:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_THRESH_ACT_ADDR             ( 0x24 )
+  27:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_THRESH_INACT_ADDR           ( 0x25 )
+  28:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_TIME_INACT_ADDR             ( 0x26 )
+  29:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_INACT_CTL_ADDR          ( 0x27 )
+  30:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_THRESH_FF_ADDR              ( 0x28 )
+  31:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_TIME_FF_ADDR                ( 0x29 )
+  32:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_TAP_AXES_ADDR               ( 0x2A )
+  33:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_TAP_STATUS_ADDR         ( 0x2B )
+  34:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_BW_RATE_ADDR                ( 0x2C )
+  35:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_POWER_CTL_ADDR              ( 0x2D )
+  36:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_ENABLE_ADDR             ( 0x2E )
+  37:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_MAP_ADDR                ( 0x2F )
+  38:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_SOURCE_ADDR             ( 0x30 )
+  39:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_ADDR            ( 0x31 )
+  40:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATAX0_ADDR                 ( 0x32 )
+  41:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATAX1_ADDR                 ( 0x33 )
+  42:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATAY0_ADDR                 ( 0x34 )
+  43:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATAY1_ADDR                 ( 0x35 )
+  44:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATAZ0_ADDR                 ( 0x36 )
+  45:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATAZ1_ADDR                 ( 0x37 )
+  46:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_FIFO_CTL_ADDR               ( 0x38 )
+  47:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_FIFO_STATUS_ADDR            ( 0x39 )
+  48:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_TAP_SIGN_ADDR               ( 0x3A )
+  49:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ORIENT_CONF_ADDR            ( 0x3B )
+  50:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ORIENT_ADDR                 ( 0x3C )
+  51:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+  52:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** /* INT_ENABLE/INT_MAP/INT_SOURCE */
+  53:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_ENABLE_DATA_READY      ( 1 << 7 )
+  54:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_ENABLE_SINGLE_TAP      ( 1 << 6 )
+  55:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_ENABLE_DOUBLE_TAP      ( 1 << 5 )
+  56:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_ENABLE_ACTIVITY        ( 1 << 4 )
+  57:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_ENABLE_INACTIVITY      ( 1 << 3 )
+  58:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_ENABLE_FREE_FALL       ( 1 << 2 )
+  59:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_ENABLE_WATERMARK       ( 1 << 1 )
+  60:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_INT_ENABLE_OVERRUN         ( 1 << 0 )
+  61:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+  62:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** /* ACT_INACT_CONTROL */
+  63:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_INACT_CTL_ACT_ACDC     ( 1 << 7 )
+  64:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_INACT_CTL_ACT_X_EN     ( 1 << 6 )
+  65:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_INACT_CTL_ACT_Y_EN     ( 1 << 5 )
+  66:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_INACT_CTL_ACT_Z_EN     ( 1 << 4 )
+  67:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_INACT_CTL_INACT_ACDC   ( 1 << 3 )
+  68:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_INACT_CTL_INACT_X_EN   ( 1 << 2 )
+  69:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_INACT_CTL_INACT_Y_EN   ( 1 << 1 )
+  70:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_INACT_CTL_INACT_Z_EN   ( 1 << 0 )
+  71:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+  72:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** /* TAP_AXES */
+  73:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_TAP_AXES_SUPPRESS           ( 1 << 3 )
+  74:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_TAP_AXES_TAP_X_EN           ( 1 << 2 )
+  75:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_TAP_AXES_TAP_Y_EN           ( 1 << 1 )
+  76:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_TAP_AXES_TAP_Z_EN           ( 1 << 0 )
+  77:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+  78:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** /* ACT_TAP_STATUS */
+  79:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_TAP_STATUS_ACT_X_SRC    ( 1 << 6 )
+  80:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_TAP_STATUS_ACT_Y_SRC    ( 1 << 5 )
+  81:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_TAP_STATUS_ACT_Z_SRC    ( 1 << 4 )
+  82:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_TAP_STATUS_ASLEEP       ( 1 << 3 )
+  83:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_TAP_STATUS_TAP_X_SRC    ( 1 << 2 )
+  84:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_TAP_STATUS_TAP_Y_SRC    ( 1 << 1 )
+  85:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_ACT_TAP_STATUS_TAP_Z_SRC    ( 1 << 0 )
+  86:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+  87:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** /* BW_RATE */
+  88:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_BW_RATE_POWER               ( 1 << 4 )
+  89:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_BW_RATE_RATE(x)             ( (x) & 0x0F)
+  90:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+  91:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** /* POWER CONTROL */
+  92:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_POWER_CTL_LINK              ( 1 << 5 )
+  93:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_POWER_CTL_AUTO_SLEEP        ( 1 << 4 )
+  94:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_POWER_CTL_MEASURE           ( 1 << 3 )
+  95:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_POWER_CTL_SLEEP             ( 1 << 2 )
+  96:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_POWER_CTL_WAKEUP(x)         ( (x) & 0x03 )
+  97:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+  98:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** /* DATA_FORMAT */
+  99:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_SELF_TEST       ( 1 << 7 )
+ 100:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_SPI             ( 1 << 6 )
+ 101:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_INT_INVERT      ( 1 << 5 )
+ 102:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_FULL_RES        ( 1 << 3 )
+ 103:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_JUSTIFY         ( 1 << 2 )
+ 104:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_RANGE(x)        ( (x) & 0x03 )
+ 105:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_RANGE_PM_2g     ( 0 )
+ 106:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_RANGE_PM_4g     ( 1 )
+ 107:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_RANGE_PM_8g     ( 2 )
+ 108:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** #define ADXL346_DATA_FORMAT_RANGE_PM_16g    ( 3 )
+ 109:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 110:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** //=========================== variables =======================================
+ 111:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 112:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 113:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** //=========================== prototypes ======================================
+ 114:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 115:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 116:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** //=========================== public ==========================================
+ 117:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 118:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** void adxl346_init(void) {
+  25              		.loc 1 118 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 8
+  28              		@ frame_needed = 1, uses_anonymous_args = 0
+  29 0000 80B5     		push	{r7, lr}
+  30              		.cfi_def_cfa_offset 8
+  31              		.cfi_offset 7, -8
+  32              		.cfi_offset 14, -4
+  33 0002 82B0     		sub	sp, sp, #8
+  34              		.cfi_def_cfa_offset 16
+  35 0004 00AF     		add	r7, sp, #0
+  36              		.cfi_def_cfa_register 7
+ 119:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     uint8_t config[2];
+ 120:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 121:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     config[0] = ADXL346_BW_RATE_ADDR;
+  37              		.loc 1 121 0
+  38 0006 2C23     		movs	r3, #44
+  39 0008 3B71     		strb	r3, [r7, #4]
+ 122:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     config[1] = (ADXL346_BW_RATE_RATE(11));
+  40              		.loc 1 122 0
+  41 000a 0B23     		movs	r3, #11
+  42 000c 7B71     		strb	r3, [r7, #5]
+ 123:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_write_bytes(ADXL346_ADDRESS, config, sizeof(config));
+  43              		.loc 1 123 0
+  44 000e 3B1D     		adds	r3, r7, #4
+  45 0010 0222     		movs	r2, #2
+  46 0012 1946     		mov	r1, r3
+  47 0014 5320     		movs	r0, #83
+  48 0016 FFF7FEFF 		bl	i2c_write_bytes
+ 124:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 125:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     config[0] = ADXL346_DATA_FORMAT_ADDR;
+  49              		.loc 1 125 0
+  50 001a 3123     		movs	r3, #49
+  51 001c 3B71     		strb	r3, [r7, #4]
+ 126:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     config[1] = (ADXL346_DATA_FORMAT_FULL_RES |
+  52              		.loc 1 126 0
+  53 001e 0B23     		movs	r3, #11
+  54 0020 7B71     		strb	r3, [r7, #5]
+ 127:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****                  ADXL346_DATA_FORMAT_RANGE_PM_16g);
+ 128:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_write_bytes(ADXL346_ADDRESS, config, sizeof(config));
+  55              		.loc 1 128 0
+  56 0022 3B1D     		adds	r3, r7, #4
+  57 0024 0222     		movs	r2, #2
+  58 0026 1946     		mov	r1, r3
+  59 0028 5320     		movs	r0, #83
+  60 002a FFF7FEFF 		bl	i2c_write_bytes
+ 129:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 130:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     config[0] = ADXL346_POWER_CTL_ADDR;
+  61              		.loc 1 130 0
+  62 002e 2D23     		movs	r3, #45
+  63 0030 3B71     		strb	r3, [r7, #4]
+ 131:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     config[1] = ADXL346_POWER_CTL_MEASURE;
+  64              		.loc 1 131 0
+  65 0032 0823     		movs	r3, #8
+  66 0034 7B71     		strb	r3, [r7, #5]
+ 132:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_write_bytes(ADXL346_ADDRESS, config, sizeof(config));
+  67              		.loc 1 132 0
+  68 0036 3B1D     		adds	r3, r7, #4
+  69 0038 0222     		movs	r2, #2
+  70 003a 1946     		mov	r1, r3
+  71 003c 5320     		movs	r0, #83
+  72 003e FFF7FEFF 		bl	i2c_write_bytes
+ 133:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** }
+  73              		.loc 1 133 0
+  74 0042 00BF     		nop
+  75 0044 0837     		adds	r7, r7, #8
+  76              		.cfi_def_cfa_offset 8
+  77 0046 BD46     		mov	sp, r7
+  78              		.cfi_def_cfa_register 13
+  79              		@ sp needed
+  80 0048 80BD     		pop	{r7, pc}
+  81              		.cfi_endproc
+  82              	.LFE0:
+  84              		.align	1
+  85              		.global	adxl346_reset
+  86              		.syntax unified
+  87              		.thumb
+  88              		.thumb_func
+  89              		.fpu softvfp
+  91              	adxl346_reset:
+  92              	.LFB1:
+ 134:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 135:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** void adxl346_reset(void) {
+  93              		.loc 1 135 0
+  94              		.cfi_startproc
+  95              		@ args = 0, pretend = 0, frame = 0
+  96              		@ frame_needed = 1, uses_anonymous_args = 0
+  97              		@ link register save eliminated.
+  98 004a 80B4     		push	{r7}
+  99              		.cfi_def_cfa_offset 4
+ 100              		.cfi_offset 7, -4
+ 101 004c 00AF     		add	r7, sp, #0
+ 102              		.cfi_def_cfa_register 7
+ 136:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** }
+ 103              		.loc 1 136 0
+ 104 004e 00BF     		nop
+ 105 0050 BD46     		mov	sp, r7
+ 106              		.cfi_def_cfa_register 13
+ 107              		@ sp needed
+ 108 0052 80BC     		pop	{r7}
+ 109              		.cfi_restore 7
+ 110              		.cfi_def_cfa_offset 0
+ 111 0054 7047     		bx	lr
+ 112              		.cfi_endproc
+ 113              	.LFE1:
+ 115              		.align	1
+ 116              		.global	adxl346_is_present
+ 117              		.syntax unified
+ 118              		.thumb
+ 119              		.thumb_func
+ 120              		.fpu softvfp
+ 122              	adxl346_is_present:
+ 123              	.LFB2:
+ 137:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 138:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** uint8_t adxl346_is_present(void) {
+ 124              		.loc 1 138 0
+ 125              		.cfi_startproc
+ 126              		@ args = 0, pretend = 0, frame = 8
+ 127              		@ frame_needed = 1, uses_anonymous_args = 0
+ 128 0056 80B5     		push	{r7, lr}
+ 129              		.cfi_def_cfa_offset 8
+ 130              		.cfi_offset 7, -8
+ 131              		.cfi_offset 14, -4
+ 132 0058 82B0     		sub	sp, sp, #8
+ 133              		.cfi_def_cfa_offset 16
+ 134 005a 00AF     		add	r7, sp, #0
+ 135              		.cfi_def_cfa_register 7
+ 139:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     uint8_t is_present;
+ 140:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 141:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_write_byte(ADXL346_ADDRESS, ADXL346_DEVID_ADDR);
+ 136              		.loc 1 141 0
+ 137 005c 0021     		movs	r1, #0
+ 138 005e 5320     		movs	r0, #83
+ 139 0060 FFF7FEFF 		bl	i2c_write_byte
+ 142:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_read_byte(ADXL346_ADDRESS, &is_present);
+ 140              		.loc 1 142 0
+ 141 0064 FB1D     		adds	r3, r7, #7
+ 142 0066 1946     		mov	r1, r3
+ 143 0068 5320     		movs	r0, #83
+ 144 006a FFF7FEFF 		bl	i2c_read_byte
+ 143:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 144:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     return (is_present == ADXL346_DEVID_VALUE);
+ 145              		.loc 1 144 0
+ 146 006e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 147 0070 E62B     		cmp	r3, #230
+ 148 0072 0CBF     		ite	eq
+ 149 0074 0123     		moveq	r3, #1
+ 150 0076 0023     		movne	r3, #0
+ 151 0078 DBB2     		uxtb	r3, r3
+ 145:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** }
+ 152              		.loc 1 145 0
+ 153 007a 1846     		mov	r0, r3
+ 154 007c 0837     		adds	r7, r7, #8
+ 155              		.cfi_def_cfa_offset 8
+ 156 007e BD46     		mov	sp, r7
+ 157              		.cfi_def_cfa_register 13
+ 158              		@ sp needed
+ 159 0080 80BD     		pop	{r7, pc}
+ 160              		.cfi_endproc
+ 161              	.LFE2:
+ 163              		.align	1
+ 164              		.global	adxl346_read_x
+ 165              		.syntax unified
+ 166              		.thumb
+ 167              		.thumb_func
+ 168              		.fpu softvfp
+ 170              	adxl346_read_x:
+ 171              	.LFB3:
+ 146:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 147:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** int16_t adxl346_read_x(void) {
+ 172              		.loc 1 147 0
+ 173              		.cfi_startproc
+ 174              		@ args = 0, pretend = 0, frame = 8
+ 175              		@ frame_needed = 1, uses_anonymous_args = 0
+ 176 0082 80B5     		push	{r7, lr}
+ 177              		.cfi_def_cfa_offset 8
+ 178              		.cfi_offset 7, -8
+ 179              		.cfi_offset 14, -4
+ 180 0084 82B0     		sub	sp, sp, #8
+ 181              		.cfi_def_cfa_offset 16
+ 182 0086 00AF     		add	r7, sp, #0
+ 183              		.cfi_def_cfa_register 7
+ 148:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     uint8_t acceleration[2];
+ 149:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     int16_t x;
+ 150:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 151:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_write_byte(ADXL346_ADDRESS, ADXL346_DATAX0_ADDR);
+ 184              		.loc 1 151 0
+ 185 0088 3221     		movs	r1, #50
+ 186 008a 5320     		movs	r0, #83
+ 187 008c FFF7FEFF 		bl	i2c_write_byte
+ 152:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_read_byte(ADXL346_ADDRESS, &acceleration[0]);
+ 188              		.loc 1 152 0
+ 189 0090 3B1D     		adds	r3, r7, #4
+ 190 0092 1946     		mov	r1, r3
+ 191 0094 5320     		movs	r0, #83
+ 192 0096 FFF7FEFF 		bl	i2c_read_byte
+ 153:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_write_byte(ADXL346_ADDRESS, ADXL346_DATAX1_ADDR);
+ 193              		.loc 1 153 0
+ 194 009a 3321     		movs	r1, #51
+ 195 009c 5320     		movs	r0, #83
+ 196 009e FFF7FEFF 		bl	i2c_write_byte
+ 154:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_read_byte(ADXL346_ADDRESS, &acceleration[1]);
+ 197              		.loc 1 154 0
+ 198 00a2 3B1D     		adds	r3, r7, #4
+ 199 00a4 0133     		adds	r3, r3, #1
+ 200 00a6 1946     		mov	r1, r3
+ 201 00a8 5320     		movs	r0, #83
+ 202 00aa FFF7FEFF 		bl	i2c_read_byte
+ 155:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 156:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     x = (acceleration[1] << 8) | acceleration[0];
+ 203              		.loc 1 156 0
+ 204 00ae 7B79     		ldrb	r3, [r7, #5]	@ zero_extendqisi2
+ 205 00b0 1B02     		lsls	r3, r3, #8
+ 206 00b2 1AB2     		sxth	r2, r3
+ 207 00b4 3B79     		ldrb	r3, [r7, #4]	@ zero_extendqisi2
+ 208 00b6 1BB2     		sxth	r3, r3
+ 209 00b8 1343     		orrs	r3, r3, r2
+ 210 00ba FB80     		strh	r3, [r7, #6]	@ movhi
+ 157:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 158:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     return x;
+ 211              		.loc 1 158 0
+ 212 00bc B7F90630 		ldrsh	r3, [r7, #6]
+ 159:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** }
+ 213              		.loc 1 159 0
+ 214 00c0 1846     		mov	r0, r3
+ 215 00c2 0837     		adds	r7, r7, #8
+ 216              		.cfi_def_cfa_offset 8
+ 217 00c4 BD46     		mov	sp, r7
+ 218              		.cfi_def_cfa_register 13
+ 219              		@ sp needed
+ 220 00c6 80BD     		pop	{r7, pc}
+ 221              		.cfi_endproc
+ 222              	.LFE3:
+ 224              		.align	1
+ 225              		.global	adxl346_read_y
+ 226              		.syntax unified
+ 227              		.thumb
+ 228              		.thumb_func
+ 229              		.fpu softvfp
+ 231              	adxl346_read_y:
+ 232              	.LFB4:
+ 160:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 161:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** int16_t adxl346_read_y(void) {
+ 233              		.loc 1 161 0
+ 234              		.cfi_startproc
+ 235              		@ args = 0, pretend = 0, frame = 8
+ 236              		@ frame_needed = 1, uses_anonymous_args = 0
+ 237 00c8 80B5     		push	{r7, lr}
+ 238              		.cfi_def_cfa_offset 8
+ 239              		.cfi_offset 7, -8
+ 240              		.cfi_offset 14, -4
+ 241 00ca 82B0     		sub	sp, sp, #8
+ 242              		.cfi_def_cfa_offset 16
+ 243 00cc 00AF     		add	r7, sp, #0
+ 244              		.cfi_def_cfa_register 7
+ 162:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     uint8_t acceleration[2];
+ 163:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     int16_t y;
+ 164:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     
+ 165:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_write_byte(ADXL346_ADDRESS, ADXL346_DATAY0_ADDR);
+ 245              		.loc 1 165 0
+ 246 00ce 3421     		movs	r1, #52
+ 247 00d0 5320     		movs	r0, #83
+ 248 00d2 FFF7FEFF 		bl	i2c_write_byte
+ 166:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_read_byte(ADXL346_ADDRESS, &acceleration[0]);
+ 249              		.loc 1 166 0
+ 250 00d6 3B1D     		adds	r3, r7, #4
+ 251 00d8 1946     		mov	r1, r3
+ 252 00da 5320     		movs	r0, #83
+ 253 00dc FFF7FEFF 		bl	i2c_read_byte
+ 167:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_write_byte(ADXL346_ADDRESS, ADXL346_DATAY1_ADDR);
+ 254              		.loc 1 167 0
+ 255 00e0 3521     		movs	r1, #53
+ 256 00e2 5320     		movs	r0, #83
+ 257 00e4 FFF7FEFF 		bl	i2c_write_byte
+ 168:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_read_byte(ADXL346_ADDRESS, &acceleration[1]);
+ 258              		.loc 1 168 0
+ 259 00e8 3B1D     		adds	r3, r7, #4
+ 260 00ea 0133     		adds	r3, r3, #1
+ 261 00ec 1946     		mov	r1, r3
+ 262 00ee 5320     		movs	r0, #83
+ 263 00f0 FFF7FEFF 		bl	i2c_read_byte
+ 169:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 170:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     y = (acceleration[1] << 8) | acceleration[0];
+ 264              		.loc 1 170 0
+ 265 00f4 7B79     		ldrb	r3, [r7, #5]	@ zero_extendqisi2
+ 266 00f6 1B02     		lsls	r3, r3, #8
+ 267 00f8 1AB2     		sxth	r2, r3
+ 268 00fa 3B79     		ldrb	r3, [r7, #4]	@ zero_extendqisi2
+ 269 00fc 1BB2     		sxth	r3, r3
+ 270 00fe 1343     		orrs	r3, r3, r2
+ 271 0100 FB80     		strh	r3, [r7, #6]	@ movhi
+ 171:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     
+ 172:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     return y;
+ 272              		.loc 1 172 0
+ 273 0102 B7F90630 		ldrsh	r3, [r7, #6]
+ 173:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** }
+ 274              		.loc 1 173 0
+ 275 0106 1846     		mov	r0, r3
+ 276 0108 0837     		adds	r7, r7, #8
+ 277              		.cfi_def_cfa_offset 8
+ 278 010a BD46     		mov	sp, r7
+ 279              		.cfi_def_cfa_register 13
+ 280              		@ sp needed
+ 281 010c 80BD     		pop	{r7, pc}
+ 282              		.cfi_endproc
+ 283              	.LFE4:
+ 285              		.align	1
+ 286              		.global	adxl346_read_z
+ 287              		.syntax unified
+ 288              		.thumb
+ 289              		.thumb_func
+ 290              		.fpu softvfp
+ 292              	adxl346_read_z:
+ 293              	.LFB5:
+ 174:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 175:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** int16_t adxl346_read_z(void) {
+ 294              		.loc 1 175 0
+ 295              		.cfi_startproc
+ 296              		@ args = 0, pretend = 0, frame = 8
+ 297              		@ frame_needed = 1, uses_anonymous_args = 0
+ 298 010e 80B5     		push	{r7, lr}
+ 299              		.cfi_def_cfa_offset 8
+ 300              		.cfi_offset 7, -8
+ 301              		.cfi_offset 14, -4
+ 302 0110 82B0     		sub	sp, sp, #8
+ 303              		.cfi_def_cfa_offset 16
+ 304 0112 00AF     		add	r7, sp, #0
+ 305              		.cfi_def_cfa_register 7
+ 176:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     uint8_t acceleration[2];
+ 177:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     int16_t z;
+ 178:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     
+ 179:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_write_byte(ADXL346_ADDRESS, ADXL346_DATAZ0_ADDR);
+ 306              		.loc 1 179 0
+ 307 0114 3621     		movs	r1, #54
+ 308 0116 5320     		movs	r0, #83
+ 309 0118 FFF7FEFF 		bl	i2c_write_byte
+ 180:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_read_byte(ADXL346_ADDRESS, &acceleration[0]);
+ 310              		.loc 1 180 0
+ 311 011c 3B1D     		adds	r3, r7, #4
+ 312 011e 1946     		mov	r1, r3
+ 313 0120 5320     		movs	r0, #83
+ 314 0122 FFF7FEFF 		bl	i2c_read_byte
+ 181:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_write_byte(ADXL346_ADDRESS, ADXL346_DATAZ1_ADDR);
+ 315              		.loc 1 181 0
+ 316 0126 3721     		movs	r1, #55
+ 317 0128 5320     		movs	r0, #83
+ 318 012a FFF7FEFF 		bl	i2c_write_byte
+ 182:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     i2c_read_byte(ADXL346_ADDRESS, &acceleration[1]);
+ 319              		.loc 1 182 0
+ 320 012e 3B1D     		adds	r3, r7, #4
+ 321 0130 0133     		adds	r3, r3, #1
+ 322 0132 1946     		mov	r1, r3
+ 323 0134 5320     		movs	r0, #83
+ 324 0136 FFF7FEFF 		bl	i2c_read_byte
+ 183:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 184:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     z = (acceleration[1] << 8) | acceleration[0];
+ 325              		.loc 1 184 0
+ 326 013a 7B79     		ldrb	r3, [r7, #5]	@ zero_extendqisi2
+ 327 013c 1B02     		lsls	r3, r3, #8
+ 328 013e 1AB2     		sxth	r2, r3
+ 329 0140 3B79     		ldrb	r3, [r7, #4]	@ zero_extendqisi2
+ 330 0142 1BB2     		sxth	r3, r3
+ 331 0144 1343     		orrs	r3, r3, r2
+ 332 0146 FB80     		strh	r3, [r7, #6]	@ movhi
+ 185:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     
+ 186:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     return z;
+ 333              		.loc 1 186 0
+ 334 0148 B7F90630 		ldrsh	r3, [r7, #6]
+ 187:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** }
+ 335              		.loc 1 187 0
+ 336 014c 1846     		mov	r0, r3
+ 337 014e 0837     		adds	r7, r7, #8
+ 338              		.cfi_def_cfa_offset 8
+ 339 0150 BD46     		mov	sp, r7
+ 340              		.cfi_def_cfa_register 13
+ 341              		@ sp needed
+ 342 0152 80BD     		pop	{r7, pc}
+ 343              		.cfi_endproc
+ 344              	.LFE5:
+ 346              		.global	__aeabi_i2f
+ 347              		.global	__aeabi_fmul
+ 348              		.align	1
+ 349              		.global	adxl346_convert_acceleration
+ 350              		.syntax unified
+ 351              		.thumb
+ 352              		.thumb_func
+ 353              		.fpu softvfp
+ 355              	adxl346_convert_acceleration:
+ 356              	.LFB6:
+ 188:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** 
+ 189:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** float adxl346_convert_acceleration(int16_t acceleration) {
+ 357              		.loc 1 189 0
+ 358              		.cfi_startproc
+ 359              		@ args = 0, pretend = 0, frame = 16
+ 360              		@ frame_needed = 1, uses_anonymous_args = 0
+ 361 0154 80B5     		push	{r7, lr}
+ 362              		.cfi_def_cfa_offset 8
+ 363              		.cfi_offset 7, -8
+ 364              		.cfi_offset 14, -4
+ 365 0156 84B0     		sub	sp, sp, #16
+ 366              		.cfi_def_cfa_offset 24
+ 367 0158 00AF     		add	r7, sp, #0
+ 368              		.cfi_def_cfa_register 7
+ 369 015a 0346     		mov	r3, r0
+ 370 015c FB80     		strh	r3, [r7, #6]	@ movhi
+ 190:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     float result = 4.0;
+ 371              		.loc 1 190 0
+ 372 015e 4FF08143 		mov	r3, #1082130432
+ 373 0162 FB60     		str	r3, [r7, #12]	@ float
+ 191:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     result *= (acceleration & 0x9FFF);
+ 374              		.loc 1 191 0
+ 375 0164 B7F90620 		ldrsh	r2, [r7, #6]
+ 376 0168 49F6FF73 		movw	r3, #40959
+ 377 016c 1340     		ands	r3, r3, r2
+ 378 016e 1846     		mov	r0, r3
+ 379 0170 FFF7FEFF 		bl	__aeabi_i2f
+ 380              	.LVL0:
+ 381 0174 0346     		mov	r3, r0
+ 382 0176 1946     		mov	r1, r3
+ 383 0178 F868     		ldr	r0, [r7, #12]	@ float
+ 384 017a FFF7FEFF 		bl	__aeabi_fmul
+ 385              	.LVL1:
+ 386 017e 0346     		mov	r3, r0
+ 387 0180 FB60     		str	r3, [r7, #12]	@ float
+ 192:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c ****     return result;
+ 388              		.loc 1 192 0
+ 389 0182 FB68     		ldr	r3, [r7, #12]	@ float
+ 193:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538\adxl346/adxl346.c **** }
+ 390              		.loc 1 193 0
+ 391 0184 1846     		mov	r0, r3
+ 392 0186 1037     		adds	r7, r7, #16
+ 393              		.cfi_def_cfa_offset 8
+ 394 0188 BD46     		mov	sp, r7
+ 395              		.cfi_def_cfa_register 13
+ 396              		@ sp needed
+ 397 018a 80BD     		pop	{r7, pc}
+ 398              		.cfi_endproc
+ 399              	.LFE6:
+ 401              	.Letext0:
+ 402              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 403              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+DEFINED SYMBOLS
+                            *ABS*:00000000 adxl346.c
+C:\Users\Lee\AppData\Local\Temp\ccwHMByN.s:15     .text:00000000 $t
+C:\Users\Lee\AppData\Local\Temp\ccwHMByN.s:22     .text:00000000 adxl346_init
+C:\Users\Lee\AppData\Local\Temp\ccwHMByN.s:91     .text:0000004a adxl346_reset
+C:\Users\Lee\AppData\Local\Temp\ccwHMByN.s:122    .text:00000056 adxl346_is_present
+C:\Users\Lee\AppData\Local\Temp\ccwHMByN.s:170    .text:00000082 adxl346_read_x
+C:\Users\Lee\AppData\Local\Temp\ccwHMByN.s:231    .text:000000c8 adxl346_read_y
+C:\Users\Lee\AppData\Local\Temp\ccwHMByN.s:292    .text:0000010e adxl346_read_z
+C:\Users\Lee\AppData\Local\Temp\ccwHMByN.s:355    .text:00000154 adxl346_convert_acceleration
+                           .group:00000000 wm4.0.93d65e4ff05d5af51629690e5b534e57
+                           .group:00000000 wm4._newlib_version.h.4.875b979a44719054cd750d0952ad3fd6
+                           .group:00000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.cce27fed8484c08a33f522034c30d2b5
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.i2c.h.15.8e849f5fcf39557ec3e120a857902900
+
+UNDEFINED SYMBOLS
+i2c_write_bytes
+i2c_write_byte
+i2c_read_byte
+__aeabi_i2f
+__aeabi_fmul

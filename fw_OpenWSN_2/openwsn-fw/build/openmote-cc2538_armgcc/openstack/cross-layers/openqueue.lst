@@ -1,0 +1,3014 @@
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"openqueue.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.rodata
+  16              		.align	2
+  19              	rreg_uriquery:
+  20 0000 683D7563 		.ascii	"h=ucb\000"
+  20      6200
+  21 0006 0000     		.align	2
+  24              	infoBoardname:
+  25 0008 43433235 		.ascii	"CC2538\000"
+  25      333800
+  26 000f 00       		.align	2
+  29              	infouCName:
+  30 0010 43433235 		.ascii	"CC2538\000"
+  30      333800
+  31 0017 00       		.align	2
+  34              	infoRadioName:
+  35 0018 43433235 		.ascii	"CC2538 SoC\000"
+  35      33382053 
+  35      6F4300
+  36 0023 00       		.align	2
+  39              	infoStackName:
+  40 0024 4F70656E 		.ascii	"OpenWSN \000"
+  40      57534E20 
+  40      00
+  41 002d 000000   		.align	2
+  44              	chTemplate_default:
+  45 0030 05       		.byte	5
+  46 0031 06       		.byte	6
+  47 0032 0C       		.byte	12
+  48 0033 07       		.byte	7
+  49 0034 0F       		.byte	15
+  50 0035 04       		.byte	4
+  51 0036 0E       		.byte	14
+  52 0037 0B       		.byte	11
+  53 0038 08       		.byte	8
+  54 0039 00       		.byte	0
+  55 003a 01       		.byte	1
+  56 003b 02       		.byte	2
+  57 003c 0D       		.byte	13
+  58 003d 03       		.byte	3
+  59 003e 09       		.byte	9
+  60 003f 0A       		.byte	10
+  61              		.align	2
+  64              	ebIEsBytestream:
+  65 0040 1A       		.byte	26
+  66 0041 88       		.byte	-120
+  67 0042 06       		.byte	6
+  68 0043 1A       		.byte	26
+  69 0044 00       		.byte	0
+  70 0045 00       		.byte	0
+  71 0046 00       		.byte	0
+  72 0047 00       		.byte	0
+  73 0048 00       		.byte	0
+  74 0049 00       		.byte	0
+  75 004a 01       		.byte	1
+  76 004b 1C       		.byte	28
+  77 004c 00       		.byte	0
+  78 004d 01       		.byte	1
+  79 004e C8       		.byte	-56
+  80 004f 00       		.byte	0
+  81 0050 0A       		.byte	10
+  82 0051 1B       		.byte	27
+  83 0052 01       		.byte	1
+  84 0053 00       		.byte	0
+  85 0054 0D       		.byte	13
+  86 0055 00       		.byte	0
+  87 0056 01       		.byte	1
+  88 0057 00       		.byte	0
+  89 0058 00       		.byte	0
+  90 0059 00       		.byte	0
+  91 005a 00       		.byte	0
+  92 005b 0F       		.byte	15
+  93              		.comm	openqueue_vars,3320,4
+  94              		.text
+  95              		.align	1
+  96              		.global	openqueue_init
+  97              		.syntax unified
+  98              		.thumb
+  99              		.thumb_func
+ 100              		.fpu softvfp
+ 102              	openqueue_init:
+ 103              	.LFB3:
+ 104              		.file 1 "build\\openmote-cc2538_armgcc\\openstack\\cross-layers\\openqueue.c"
+   1:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** #include "opendefs.h"
+   2:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** #include "openqueue.h"
+   3:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** #include "openserial.h"
+   4:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** #include "packetfunctions.h"
+   5:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** #include "IEEE802154E.h"
+   6:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** #include "IEEE802154_security.h"
+   7:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** #include "sixtop.h"
+   8:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** // telosb need debugpins to indicate ISR activity
+   9:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** #include "debugpins.h"
+  10:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  11:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** //=========================== defination =====================================
+  12:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  13:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** #define HIGH_PRIORITY_QUEUE_ENTRY 5
+  14:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  15:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** //=========================== variables =======================================
+  16:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  17:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** openqueue_vars_t openqueue_vars;
+  18:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  19:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** //=========================== prototypes ======================================
+  20:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** void openqueue_reset_entry(OpenQueueEntry_t* entry);
+  21:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  22:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** //=========================== public ==========================================
+  23:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  24:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** //======= admin
+  25:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  26:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** /**
+  27:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \brief Initialize this module.
+  28:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** */
+  29:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** void openqueue_init(void) {
+ 105              		.loc 1 29 0
+ 106              		.cfi_startproc
+ 107              		@ args = 0, pretend = 0, frame = 8
+ 108              		@ frame_needed = 1, uses_anonymous_args = 0
+ 109 0000 80B5     		push	{r7, lr}
+ 110              		.cfi_def_cfa_offset 8
+ 111              		.cfi_offset 7, -8
+ 112              		.cfi_offset 14, -4
+ 113 0002 82B0     		sub	sp, sp, #8
+ 114              		.cfi_def_cfa_offset 16
+ 115 0004 00AF     		add	r7, sp, #0
+ 116              		.cfi_def_cfa_register 7
+  30:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    uint8_t i;
+  31:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    for (i=0;i<QUEUELENGTH;i++){
+ 117              		.loc 1 31 0
+ 118 0006 0023     		movs	r3, #0
+ 119 0008 FB71     		strb	r3, [r7, #7]
+ 120 000a 0CE0     		b	.L2
+ 121              	.L3:
+  32:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       openqueue_reset_entry(&(openqueue_vars.queue[i]));
+ 122              		.loc 1 32 0 discriminator 3
+ 123 000c FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 124 000e 4FF4A672 		mov	r2, #332
+ 125 0012 02FB03F3 		mul	r3, r2, r3
+ 126 0016 074A     		ldr	r2, .L4
+ 127 0018 1344     		add	r3, r3, r2
+ 128 001a 1846     		mov	r0, r3
+ 129 001c FFF7FEFF 		bl	openqueue_reset_entry
+  31:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       openqueue_reset_entry(&(openqueue_vars.queue[i]));
+ 130              		.loc 1 31 0 discriminator 3
+ 131 0020 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 132 0022 0133     		adds	r3, r3, #1
+ 133 0024 FB71     		strb	r3, [r7, #7]
+ 134              	.L2:
+  31:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       openqueue_reset_entry(&(openqueue_vars.queue[i]));
+ 135              		.loc 1 31 0 is_stmt 0 discriminator 1
+ 136 0026 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 137 0028 092B     		cmp	r3, #9
+ 138 002a EFD9     		bls	.L3
+  33:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    }
+  34:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 139              		.loc 1 34 0 is_stmt 1
+ 140 002c 00BF     		nop
+ 141 002e 0837     		adds	r7, r7, #8
+ 142              		.cfi_def_cfa_offset 8
+ 143 0030 BD46     		mov	sp, r7
+ 144              		.cfi_def_cfa_register 13
+ 145              		@ sp needed
+ 146 0032 80BD     		pop	{r7, pc}
+ 147              	.L5:
+ 148              		.align	2
+ 149              	.L4:
+ 150 0034 00000000 		.word	openqueue_vars
+ 151              		.cfi_endproc
+ 152              	.LFE3:
+ 154              		.align	1
+ 155              		.global	debugPrint_queue
+ 156              		.syntax unified
+ 157              		.thumb
+ 158              		.thumb_func
+ 159              		.fpu softvfp
+ 161              	debugPrint_queue:
+ 162              	.LFB4:
+  35:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  36:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** /**
+  37:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \brief Trigger this module to print status information, over serial.
+  38:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  39:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** debugPrint_* functions are used by the openserial module to continuously print
+  40:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** status information about several modules in the OpenWSN stack.
+  41:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  42:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \returns TRUE if this function printed something, FALSE otherwise.
+  43:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** */
+  44:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** bool debugPrint_queue(void) {
+ 163              		.loc 1 44 0
+ 164              		.cfi_startproc
+ 165              		@ args = 0, pretend = 0, frame = 24
+ 166              		@ frame_needed = 1, uses_anonymous_args = 0
+ 167 0038 80B5     		push	{r7, lr}
+ 168              		.cfi_def_cfa_offset 8
+ 169              		.cfi_offset 7, -8
+ 170              		.cfi_offset 14, -4
+ 171 003a 86B0     		sub	sp, sp, #24
+ 172              		.cfi_def_cfa_offset 32
+ 173 003c 00AF     		add	r7, sp, #0
+ 174              		.cfi_def_cfa_register 7
+  45:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    debugOpenQueueEntry_t output[QUEUELENGTH];
+  46:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    uint8_t i;
+  47:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    for (i=0;i<QUEUELENGTH;i++) {
+ 175              		.loc 1 47 0
+ 176 003e 0023     		movs	r3, #0
+ 177 0040 FB75     		strb	r3, [r7, #23]
+ 178 0042 21E0     		b	.L7
+ 179              	.L8:
+  48:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       output[i].creator = openqueue_vars.queue[i].creator;
+ 180              		.loc 1 48 0 discriminator 3
+ 181 0044 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 182 0046 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 183 0048 1649     		ldr	r1, .L10
+ 184 004a 4FF4A670 		mov	r0, #332
+ 185 004e 00FB02F2 		mul	r2, r0, r2
+ 186 0052 0A44     		add	r2, r2, r1
+ 187 0054 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 188 0056 5B00     		lsls	r3, r3, #1
+ 189 0058 07F11801 		add	r1, r7, #24
+ 190 005c 0B44     		add	r3, r3, r1
+ 191 005e 03F8182C 		strb	r2, [r3, #-24]
+  49:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       output[i].owner   = openqueue_vars.queue[i].owner;
+ 192              		.loc 1 49 0 discriminator 3
+ 193 0062 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 194 0064 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 195 0066 0F49     		ldr	r1, .L10
+ 196 0068 4FF4A670 		mov	r0, #332
+ 197 006c 00FB02F2 		mul	r2, r0, r2
+ 198 0070 0A44     		add	r2, r2, r1
+ 199 0072 0132     		adds	r2, r2, #1
+ 200 0074 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 201 0076 5B00     		lsls	r3, r3, #1
+ 202 0078 07F11801 		add	r1, r7, #24
+ 203 007c 0B44     		add	r3, r3, r1
+ 204 007e 03F8172C 		strb	r2, [r3, #-23]
+  47:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       output[i].creator = openqueue_vars.queue[i].creator;
+ 205              		.loc 1 47 0 discriminator 3
+ 206 0082 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 207 0084 0133     		adds	r3, r3, #1
+ 208 0086 FB75     		strb	r3, [r7, #23]
+ 209              	.L7:
+  47:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       output[i].creator = openqueue_vars.queue[i].creator;
+ 210              		.loc 1 47 0 is_stmt 0 discriminator 1
+ 211 0088 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 212 008a 092B     		cmp	r3, #9
+ 213 008c DAD9     		bls	.L8
+  50:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    }
+  51:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    openserial_printStatus(STATUS_QUEUE,(uint8_t*)&output,QUEUELENGTH*sizeof(debugOpenQueueEntry_t))
+ 214              		.loc 1 51 0 is_stmt 1
+ 215 008e 3B46     		mov	r3, r7
+ 216 0090 1422     		movs	r2, #20
+ 217 0092 1946     		mov	r1, r3
+ 218 0094 0820     		movs	r0, #8
+ 219 0096 FFF7FEFF 		bl	openserial_printStatus
+  52:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    return TRUE;
+ 220              		.loc 1 52 0
+ 221 009a 0123     		movs	r3, #1
+  53:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 222              		.loc 1 53 0
+ 223 009c 1846     		mov	r0, r3
+ 224 009e 1837     		adds	r7, r7, #24
+ 225              		.cfi_def_cfa_offset 8
+ 226 00a0 BD46     		mov	sp, r7
+ 227              		.cfi_def_cfa_register 13
+ 228              		@ sp needed
+ 229 00a2 80BD     		pop	{r7, pc}
+ 230              	.L11:
+ 231              		.align	2
+ 232              	.L10:
+ 233 00a4 00000000 		.word	openqueue_vars
+ 234              		.cfi_endproc
+ 235              	.LFE4:
+ 237              		.align	1
+ 238              		.global	openqueue_getFreePacketBuffer
+ 239              		.syntax unified
+ 240              		.thumb
+ 241              		.thumb_func
+ 242              		.fpu softvfp
+ 244              	openqueue_getFreePacketBuffer:
+ 245              	.LFB5:
+  54:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  55:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** //======= called by any component
+  56:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  57:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** /**
+  58:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \brief Request a new (free) packet buffer.
+  59:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  60:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** Component throughout the protocol stack can call this function is they want to
+  61:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** get a new packet buffer to start creating a new packet.
+  62:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  63:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \note Once a packet has been allocated, it is up to the creator of the packet
+  64:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       to free it using the openqueue_freePacketBuffer() function.
+  65:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  66:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \returns A pointer to the queue entry when it could be allocated, or NULL when
+  67:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          it could not be allocated (buffer full or not synchronized).
+  68:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** */
+  69:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** OpenQueueEntry_t* openqueue_getFreePacketBuffer(uint8_t creator) {
+ 246              		.loc 1 69 0
+ 247              		.cfi_startproc
+ 248              		@ args = 0, pretend = 0, frame = 16
+ 249              		@ frame_needed = 1, uses_anonymous_args = 0
+ 250 00a8 80B5     		push	{r7, lr}
+ 251              		.cfi_def_cfa_offset 8
+ 252              		.cfi_offset 7, -8
+ 253              		.cfi_offset 14, -4
+ 254 00aa 84B0     		sub	sp, sp, #16
+ 255              		.cfi_def_cfa_offset 24
+ 256 00ac 00AF     		add	r7, sp, #0
+ 257              		.cfi_def_cfa_register 7
+ 258 00ae 0346     		mov	r3, r0
+ 259 00b0 FB71     		strb	r3, [r7, #7]
+  70:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    uint8_t i;
+  71:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    INTERRUPT_DECLARATION();
+  72:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    DISABLE_INTERRUPTS();
+ 260              		.loc 1 72 0
+ 261 00b2 FFF7FEFF 		bl	IntMasterDisable
+  73:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  74:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    // refuse to allocate if we're not in sync
+  75:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    if (ieee154e_isSynch()==FALSE && creator > COMPONENT_IEEE802154E){
+ 262              		.loc 1 75 0
+ 263 00b6 FFF7FEFF 		bl	ieee154e_isSynch
+ 264 00ba 0346     		mov	r3, r0
+ 265 00bc 83F00103 		eor	r3, r3, #1
+ 266 00c0 DBB2     		uxtb	r3, r3
+ 267 00c2 002B     		cmp	r3, #0
+ 268 00c4 06D0     		beq	.L13
+ 269              		.loc 1 75 0 is_stmt 0 discriminator 1
+ 270 00c6 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 271 00c8 092B     		cmp	r3, #9
+ 272 00ca 03D9     		bls	.L13
+  76:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****      ENABLE_INTERRUPTS();
+ 273              		.loc 1 76 0 is_stmt 1
+ 274 00cc FFF7FEFF 		bl	IntMasterEnable
+  77:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****      return NULL;
+ 275              		.loc 1 77 0
+ 276 00d0 0023     		movs	r3, #0
+ 277 00d2 42E0     		b	.L14
+ 278              	.L13:
+  78:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    }
+  79:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  80:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    // if you get here, I will try to allocate a buffer for you
+  81:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  82:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    // if there is no space left for high priority queue, don't reserve
+  83:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    if (openqueue_isHighPriorityEntryEnough()==FALSE && creator>COMPONENT_SIXTOP_RES){
+ 279              		.loc 1 83 0
+ 280 00d4 FFF7FEFF 		bl	openqueue_isHighPriorityEntryEnough
+ 281 00d8 0346     		mov	r3, r0
+ 282 00da 83F00103 		eor	r3, r3, #1
+ 283 00de DBB2     		uxtb	r3, r3
+ 284 00e0 002B     		cmp	r3, #0
+ 285 00e2 06D0     		beq	.L15
+ 286              		.loc 1 83 0 is_stmt 0 discriminator 1
+ 287 00e4 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 288 00e6 0F2B     		cmp	r3, #15
+ 289 00e8 03D9     		bls	.L15
+  84:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       ENABLE_INTERRUPTS();
+ 290              		.loc 1 84 0 is_stmt 1
+ 291 00ea FFF7FEFF 		bl	IntMasterEnable
+  85:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       return NULL;
+ 292              		.loc 1 85 0
+ 293 00ee 0023     		movs	r3, #0
+ 294 00f0 33E0     		b	.L14
+ 295              	.L15:
+  86:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    }
+  87:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+  88:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    // walk through queue and find free entry
+  89:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    for (i=0;i<QUEUELENGTH;i++) {
+ 296              		.loc 1 89 0
+ 297 00f2 0023     		movs	r3, #0
+ 298 00f4 FB73     		strb	r3, [r7, #15]
+ 299 00f6 2AE0     		b	.L16
+ 300              	.L18:
+  90:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_NULL) {
+ 301              		.loc 1 90 0
+ 302 00f8 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 303 00fa 1A4A     		ldr	r2, .L19
+ 304 00fc 4FF4A671 		mov	r1, #332
+ 305 0100 01FB03F3 		mul	r3, r1, r3
+ 306 0104 1344     		add	r3, r3, r2
+ 307 0106 0133     		adds	r3, r3, #1
+ 308 0108 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 309 010a 002B     		cmp	r3, #0
+ 310 010c 1CD1     		bne	.L17
+  91:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          openqueue_vars.queue[i].creator=creator;
+ 311              		.loc 1 91 0
+ 312 010e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 313 0110 144A     		ldr	r2, .L19
+ 314 0112 4FF4A671 		mov	r1, #332
+ 315 0116 01FB03F3 		mul	r3, r1, r3
+ 316 011a 1344     		add	r3, r3, r2
+ 317 011c FA79     		ldrb	r2, [r7, #7]
+ 318 011e 1A70     		strb	r2, [r3]
+  92:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          openqueue_vars.queue[i].owner=COMPONENT_OPENQUEUE;
+ 319              		.loc 1 92 0
+ 320 0120 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 321 0122 104A     		ldr	r2, .L19
+ 322 0124 4FF4A671 		mov	r1, #332
+ 323 0128 01FB03F3 		mul	r3, r1, r3
+ 324 012c 1344     		add	r3, r3, r2
+ 325 012e 0133     		adds	r3, r3, #1
+ 326 0130 0322     		movs	r2, #3
+ 327 0132 1A70     		strb	r2, [r3]
+  93:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          ENABLE_INTERRUPTS();
+ 328              		.loc 1 93 0
+ 329 0134 FFF7FEFF 		bl	IntMasterEnable
+  94:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          return &openqueue_vars.queue[i];
+ 330              		.loc 1 94 0
+ 331 0138 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 332 013a 4FF4A672 		mov	r2, #332
+ 333 013e 02FB03F3 		mul	r3, r2, r3
+ 334 0142 084A     		ldr	r2, .L19
+ 335 0144 1344     		add	r3, r3, r2
+ 336 0146 08E0     		b	.L14
+ 337              	.L17:
+  89:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_NULL) {
+ 338              		.loc 1 89 0 discriminator 2
+ 339 0148 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 340 014a 0133     		adds	r3, r3, #1
+ 341 014c FB73     		strb	r3, [r7, #15]
+ 342              	.L16:
+  89:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_NULL) {
+ 343              		.loc 1 89 0 is_stmt 0 discriminator 1
+ 344 014e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 345 0150 092B     		cmp	r3, #9
+ 346 0152 D1D9     		bls	.L18
+  95:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       }
+  96:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    }
+  97:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    ENABLE_INTERRUPTS();
+ 347              		.loc 1 97 0 is_stmt 1
+ 348 0154 FFF7FEFF 		bl	IntMasterEnable
+  98:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    return NULL;
+ 349              		.loc 1 98 0
+ 350 0158 0023     		movs	r3, #0
+ 351              	.L14:
+  99:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 352              		.loc 1 99 0
+ 353 015a 1846     		mov	r0, r3
+ 354 015c 1037     		adds	r7, r7, #16
+ 355              		.cfi_def_cfa_offset 8
+ 356 015e BD46     		mov	sp, r7
+ 357              		.cfi_def_cfa_register 13
+ 358              		@ sp needed
+ 359 0160 80BD     		pop	{r7, pc}
+ 360              	.L20:
+ 361 0162 00BF     		.align	2
+ 362              	.L19:
+ 363 0164 00000000 		.word	openqueue_vars
+ 364              		.cfi_endproc
+ 365              	.LFE5:
+ 367              		.align	1
+ 368              		.global	openqueue_freePacketBuffer
+ 369              		.syntax unified
+ 370              		.thumb
+ 371              		.thumb_func
+ 372              		.fpu softvfp
+ 374              	openqueue_freePacketBuffer:
+ 375              	.LFB6:
+ 100:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 101:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 102:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** /**
+ 103:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \brief Free a previously-allocated packet buffer.
+ 104:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 105:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \param pkt A pointer to the previsouly-allocated packet buffer.
+ 106:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 107:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \returns E_SUCCESS when the freeing was succeful.
+ 108:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \returns E_FAIL when the module could not find the specified packet buffer.
+ 109:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** */
+ 110:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** owerror_t openqueue_freePacketBuffer(OpenQueueEntry_t* pkt) {
+ 376              		.loc 1 110 0
+ 377              		.cfi_startproc
+ 378              		@ args = 0, pretend = 0, frame = 16
+ 379              		@ frame_needed = 1, uses_anonymous_args = 0
+ 380 0168 80B5     		push	{r7, lr}
+ 381              		.cfi_def_cfa_offset 8
+ 382              		.cfi_offset 7, -8
+ 383              		.cfi_offset 14, -4
+ 384 016a 84B0     		sub	sp, sp, #16
+ 385              		.cfi_def_cfa_offset 24
+ 386 016c 00AF     		add	r7, sp, #0
+ 387              		.cfi_def_cfa_register 7
+ 388 016e 7860     		str	r0, [r7, #4]
+ 111:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    uint8_t i;
+ 112:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    INTERRUPT_DECLARATION();
+ 113:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    DISABLE_INTERRUPTS();
+ 389              		.loc 1 113 0
+ 390 0170 FFF7FEFF 		bl	IntMasterDisable
+ 114:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    for (i=0;i<QUEUELENGTH;i++) {
+ 391              		.loc 1 114 0
+ 392 0174 0023     		movs	r3, #0
+ 393 0176 FB73     		strb	r3, [r7, #15]
+ 394 0178 2BE0     		b	.L22
+ 395              	.L26:
+ 115:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (&openqueue_vars.queue[i]==pkt) {
+ 396              		.loc 1 115 0
+ 397 017a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 398 017c 4FF4A672 		mov	r2, #332
+ 399 0180 02FB03F3 		mul	r3, r2, r3
+ 400 0184 1B4A     		ldr	r2, .L27
+ 401 0186 1344     		add	r3, r3, r2
+ 402 0188 7A68     		ldr	r2, [r7, #4]
+ 403 018a 9A42     		cmp	r2, r3
+ 404 018c 1ED1     		bne	.L23
+ 116:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          if (openqueue_vars.queue[i].owner==COMPONENT_NULL) {
+ 405              		.loc 1 116 0
+ 406 018e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 407 0190 184A     		ldr	r2, .L27
+ 408 0192 4FF4A671 		mov	r1, #332
+ 409 0196 01FB03F3 		mul	r3, r1, r3
+ 410 019a 1344     		add	r3, r3, r2
+ 411 019c 0133     		adds	r3, r3, #1
+ 412 019e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 413 01a0 002B     		cmp	r3, #0
+ 414 01a2 05D1     		bne	.L24
+ 117:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             // log the error
+ 118:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openserial_printCritical(COMPONENT_OPENQUEUE,ERR_FREEING_UNUSED,
+ 415              		.loc 1 118 0
+ 416 01a4 0023     		movs	r3, #0
+ 417 01a6 0022     		movs	r2, #0
+ 418 01a8 2E21     		movs	r1, #46
+ 419 01aa 0320     		movs	r0, #3
+ 420 01ac FFF7FEFF 		bl	openserial_printCritical
+ 421              	.L24:
+ 119:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                                   (errorparameter_t)0,
+ 120:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                                   (errorparameter_t)0);
+ 121:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          }
+ 122:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          openqueue_reset_entry(&(openqueue_vars.queue[i]));
+ 422              		.loc 1 122 0
+ 423 01b0 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 424 01b2 4FF4A672 		mov	r2, #332
+ 425 01b6 02FB03F3 		mul	r3, r2, r3
+ 426 01ba 0E4A     		ldr	r2, .L27
+ 427 01bc 1344     		add	r3, r3, r2
+ 428 01be 1846     		mov	r0, r3
+ 429 01c0 FFF7FEFF 		bl	openqueue_reset_entry
+ 123:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          ENABLE_INTERRUPTS();
+ 430              		.loc 1 123 0
+ 431 01c4 FFF7FEFF 		bl	IntMasterEnable
+ 124:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          return E_SUCCESS;
+ 432              		.loc 1 124 0
+ 433 01c8 0023     		movs	r3, #0
+ 434 01ca 0EE0     		b	.L25
+ 435              	.L23:
+ 114:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (&openqueue_vars.queue[i]==pkt) {
+ 436              		.loc 1 114 0 discriminator 2
+ 437 01cc FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 438 01ce 0133     		adds	r3, r3, #1
+ 439 01d0 FB73     		strb	r3, [r7, #15]
+ 440              	.L22:
+ 114:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (&openqueue_vars.queue[i]==pkt) {
+ 441              		.loc 1 114 0 is_stmt 0 discriminator 1
+ 442 01d2 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 443 01d4 092B     		cmp	r3, #9
+ 444 01d6 D0D9     		bls	.L26
+ 125:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       }
+ 126:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    }
+ 127:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    // log the error
+ 128:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    openserial_printCritical(COMPONENT_OPENQUEUE,ERR_FREEING_ERROR,
+ 445              		.loc 1 128 0 is_stmt 1
+ 446 01d8 0023     		movs	r3, #0
+ 447 01da 0022     		movs	r2, #0
+ 448 01dc 2F21     		movs	r1, #47
+ 449 01de 0320     		movs	r0, #3
+ 450 01e0 FFF7FEFF 		bl	openserial_printCritical
+ 129:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                          (errorparameter_t)0,
+ 130:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                          (errorparameter_t)0);
+ 131:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    ENABLE_INTERRUPTS();
+ 451              		.loc 1 131 0
+ 452 01e4 FFF7FEFF 		bl	IntMasterEnable
+ 132:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    return E_FAIL;
+ 453              		.loc 1 132 0
+ 454 01e8 0123     		movs	r3, #1
+ 455              	.L25:
+ 133:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 456              		.loc 1 133 0
+ 457 01ea 1846     		mov	r0, r3
+ 458 01ec 1037     		adds	r7, r7, #16
+ 459              		.cfi_def_cfa_offset 8
+ 460 01ee BD46     		mov	sp, r7
+ 461              		.cfi_def_cfa_register 13
+ 462              		@ sp needed
+ 463 01f0 80BD     		pop	{r7, pc}
+ 464              	.L28:
+ 465 01f2 00BF     		.align	2
+ 466              	.L27:
+ 467 01f4 00000000 		.word	openqueue_vars
+ 468              		.cfi_endproc
+ 469              	.LFE6:
+ 471              		.align	1
+ 472              		.global	openqueue_removeAllCreatedBy
+ 473              		.syntax unified
+ 474              		.thumb
+ 475              		.thumb_func
+ 476              		.fpu softvfp
+ 478              	openqueue_removeAllCreatedBy:
+ 479              	.LFB7:
+ 134:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 135:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** /**
+ 136:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \brief Free all the packet buffers created by a specific module.
+ 137:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 138:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \param creator The identifier of the component, taken in COMPONENT_*.
+ 139:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** */
+ 140:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** void openqueue_removeAllCreatedBy(uint8_t creator) {
+ 480              		.loc 1 140 0
+ 481              		.cfi_startproc
+ 482              		@ args = 0, pretend = 0, frame = 16
+ 483              		@ frame_needed = 1, uses_anonymous_args = 0
+ 484 01f8 80B5     		push	{r7, lr}
+ 485              		.cfi_def_cfa_offset 8
+ 486              		.cfi_offset 7, -8
+ 487              		.cfi_offset 14, -4
+ 488 01fa 84B0     		sub	sp, sp, #16
+ 489              		.cfi_def_cfa_offset 24
+ 490 01fc 00AF     		add	r7, sp, #0
+ 491              		.cfi_def_cfa_register 7
+ 492 01fe 0346     		mov	r3, r0
+ 493 0200 FB71     		strb	r3, [r7, #7]
+ 141:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 142:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 143:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 494              		.loc 1 143 0
+ 495 0202 FFF7FEFF 		bl	IntMasterDisable
+ 144:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++){
+ 496              		.loc 1 144 0
+ 497 0206 0023     		movs	r3, #0
+ 498 0208 FB73     		strb	r3, [r7, #15]
+ 499 020a 22E0     		b	.L30
+ 500              	.L32:
+ 145:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 146:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator == creator &&
+ 501              		.loc 1 146 0
+ 502 020c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 503 020e 154A     		ldr	r2, .L33
+ 504 0210 4FF4A671 		mov	r1, #332
+ 505 0214 01FB03F3 		mul	r3, r1, r3
+ 506 0218 1344     		add	r3, r3, r2
+ 507 021a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 145:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 508              		.loc 1 145 0
+ 509 021c FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 510 021e 9A42     		cmp	r2, r3
+ 511 0220 14D1     		bne	.L31
+ 147:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].owner   != COMPONENT_IEEE802154E
+ 512              		.loc 1 147 0
+ 513 0222 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 514 0224 0F4A     		ldr	r2, .L33
+ 515 0226 4FF4A671 		mov	r1, #332
+ 516 022a 01FB03F3 		mul	r3, r1, r3
+ 517 022e 1344     		add	r3, r3, r2
+ 518 0230 0133     		adds	r3, r3, #1
+ 519 0232 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 146:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].owner   != COMPONENT_IEEE802154E
+ 520              		.loc 1 146 0
+ 521 0234 092B     		cmp	r3, #9
+ 522 0236 09D0     		beq	.L31
+ 148:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         ) {
+ 149:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_reset_entry(&(openqueue_vars.queue[i]));
+ 523              		.loc 1 149 0
+ 524 0238 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 525 023a 4FF4A672 		mov	r2, #332
+ 526 023e 02FB03F3 		mul	r3, r2, r3
+ 527 0242 084A     		ldr	r2, .L33
+ 528 0244 1344     		add	r3, r3, r2
+ 529 0246 1846     		mov	r0, r3
+ 530 0248 FFF7FEFF 		bl	openqueue_reset_entry
+ 531              	.L31:
+ 144:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 532              		.loc 1 144 0 discriminator 2
+ 533 024c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 534 024e 0133     		adds	r3, r3, #1
+ 535 0250 FB73     		strb	r3, [r7, #15]
+ 536              	.L30:
+ 144:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 537              		.loc 1 144 0 is_stmt 0 discriminator 1
+ 538 0252 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 539 0254 092B     		cmp	r3, #9
+ 540 0256 D9D9     		bls	.L32
+ 150:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         }
+ 151:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 152:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     ENABLE_INTERRUPTS();
+ 541              		.loc 1 152 0 is_stmt 1
+ 542 0258 FFF7FEFF 		bl	IntMasterEnable
+ 153:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 543              		.loc 1 153 0
+ 544 025c 00BF     		nop
+ 545 025e 1037     		adds	r7, r7, #16
+ 546              		.cfi_def_cfa_offset 8
+ 547 0260 BD46     		mov	sp, r7
+ 548              		.cfi_def_cfa_register 13
+ 549              		@ sp needed
+ 550 0262 80BD     		pop	{r7, pc}
+ 551              	.L34:
+ 552              		.align	2
+ 553              	.L33:
+ 554 0264 00000000 		.word	openqueue_vars
+ 555              		.cfi_endproc
+ 556              	.LFE7:
+ 558              		.align	1
+ 559              		.global	openqueue_sixtopGetSentPacket
+ 560              		.syntax unified
+ 561              		.thumb
+ 562              		.thumb_func
+ 563              		.fpu softvfp
+ 565              	openqueue_sixtopGetSentPacket:
+ 566              	.LFB8:
+ 154:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 155:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** //======= called by RES
+ 156:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 157:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** OpenQueueEntry_t* openqueue_sixtopGetSentPacket(void) {
+ 567              		.loc 1 157 0
+ 568              		.cfi_startproc
+ 569              		@ args = 0, pretend = 0, frame = 8
+ 570              		@ frame_needed = 1, uses_anonymous_args = 0
+ 571 0268 80B5     		push	{r7, lr}
+ 572              		.cfi_def_cfa_offset 8
+ 573              		.cfi_offset 7, -8
+ 574              		.cfi_offset 14, -4
+ 575 026a 82B0     		sub	sp, sp, #8
+ 576              		.cfi_def_cfa_offset 16
+ 577 026c 00AF     		add	r7, sp, #0
+ 578              		.cfi_def_cfa_register 7
+ 158:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    uint8_t i;
+ 159:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    INTERRUPT_DECLARATION();
+ 160:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    DISABLE_INTERRUPTS();
+ 579              		.loc 1 160 0
+ 580 026e FFF7FEFF 		bl	IntMasterDisable
+ 161:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    for (i=0;i<QUEUELENGTH;i++) {
+ 581              		.loc 1 161 0
+ 582 0272 0023     		movs	r3, #0
+ 583 0274 FB71     		strb	r3, [r7, #7]
+ 584 0276 21E0     		b	.L36
+ 585              	.L39:
+ 162:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_IEEE802154E_TO_SIXTOP &&
+ 586              		.loc 1 162 0
+ 587 0278 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 588 027a 154A     		ldr	r2, .L40
+ 589 027c 4FF4A671 		mov	r1, #332
+ 590 0280 01FB03F3 		mul	r3, r1, r3
+ 591 0284 1344     		add	r3, r3, r2
+ 592 0286 0133     		adds	r3, r3, #1
+ 593 0288 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 594 028a 0B2B     		cmp	r3, #11
+ 595 028c 13D1     		bne	.L37
+ 163:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****           openqueue_vars.queue[i].creator!=COMPONENT_IEEE802154E) {
+ 596              		.loc 1 163 0 discriminator 1
+ 597 028e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 598 0290 0F4A     		ldr	r2, .L40
+ 599 0292 4FF4A671 		mov	r1, #332
+ 600 0296 01FB03F3 		mul	r3, r1, r3
+ 601 029a 1344     		add	r3, r3, r2
+ 602 029c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 162:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_IEEE802154E_TO_SIXTOP &&
+ 603              		.loc 1 162 0 discriminator 1
+ 604 029e 092B     		cmp	r3, #9
+ 605 02a0 09D0     		beq	.L37
+ 164:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          ENABLE_INTERRUPTS();
+ 606              		.loc 1 164 0
+ 607 02a2 FFF7FEFF 		bl	IntMasterEnable
+ 165:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          return &openqueue_vars.queue[i];
+ 608              		.loc 1 165 0
+ 609 02a6 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 610 02a8 4FF4A672 		mov	r2, #332
+ 611 02ac 02FB03F3 		mul	r3, r2, r3
+ 612 02b0 074A     		ldr	r2, .L40
+ 613 02b2 1344     		add	r3, r3, r2
+ 614 02b4 08E0     		b	.L38
+ 615              	.L37:
+ 161:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_IEEE802154E_TO_SIXTOP &&
+ 616              		.loc 1 161 0 discriminator 2
+ 617 02b6 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 618 02b8 0133     		adds	r3, r3, #1
+ 619 02ba FB71     		strb	r3, [r7, #7]
+ 620              	.L36:
+ 161:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_IEEE802154E_TO_SIXTOP &&
+ 621              		.loc 1 161 0 is_stmt 0 discriminator 1
+ 622 02bc FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 623 02be 092B     		cmp	r3, #9
+ 624 02c0 DAD9     		bls	.L39
+ 166:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       }
+ 167:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    }
+ 168:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    ENABLE_INTERRUPTS();
+ 625              		.loc 1 168 0 is_stmt 1
+ 626 02c2 FFF7FEFF 		bl	IntMasterEnable
+ 169:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    return NULL;
+ 627              		.loc 1 169 0
+ 628 02c6 0023     		movs	r3, #0
+ 629              	.L38:
+ 170:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 630              		.loc 1 170 0
+ 631 02c8 1846     		mov	r0, r3
+ 632 02ca 0837     		adds	r7, r7, #8
+ 633              		.cfi_def_cfa_offset 8
+ 634 02cc BD46     		mov	sp, r7
+ 635              		.cfi_def_cfa_register 13
+ 636              		@ sp needed
+ 637 02ce 80BD     		pop	{r7, pc}
+ 638              	.L41:
+ 639              		.align	2
+ 640              	.L40:
+ 641 02d0 00000000 		.word	openqueue_vars
+ 642              		.cfi_endproc
+ 643              	.LFE8:
+ 645              		.align	1
+ 646              		.global	openqueue_sixtopGetReceivedPacket
+ 647              		.syntax unified
+ 648              		.thumb
+ 649              		.thumb_func
+ 650              		.fpu softvfp
+ 652              	openqueue_sixtopGetReceivedPacket:
+ 653              	.LFB9:
+ 171:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 172:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** OpenQueueEntry_t* openqueue_sixtopGetReceivedPacket(void) {
+ 654              		.loc 1 172 0
+ 655              		.cfi_startproc
+ 656              		@ args = 0, pretend = 0, frame = 8
+ 657              		@ frame_needed = 1, uses_anonymous_args = 0
+ 658 02d4 80B5     		push	{r7, lr}
+ 659              		.cfi_def_cfa_offset 8
+ 660              		.cfi_offset 7, -8
+ 661              		.cfi_offset 14, -4
+ 662 02d6 82B0     		sub	sp, sp, #8
+ 663              		.cfi_def_cfa_offset 16
+ 664 02d8 00AF     		add	r7, sp, #0
+ 665              		.cfi_def_cfa_register 7
+ 173:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    uint8_t i;
+ 174:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    INTERRUPT_DECLARATION();
+ 175:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    DISABLE_INTERRUPTS();
+ 666              		.loc 1 175 0
+ 667 02da FFF7FEFF 		bl	IntMasterDisable
+ 176:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    for (i=0;i<QUEUELENGTH;i++) {
+ 668              		.loc 1 176 0
+ 669 02de 0023     		movs	r3, #0
+ 670 02e0 FB71     		strb	r3, [r7, #7]
+ 671 02e2 21E0     		b	.L43
+ 672              	.L46:
+ 177:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_IEEE802154E_TO_SIXTOP &&
+ 673              		.loc 1 177 0
+ 674 02e4 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 675 02e6 154A     		ldr	r2, .L47
+ 676 02e8 4FF4A671 		mov	r1, #332
+ 677 02ec 01FB03F3 		mul	r3, r1, r3
+ 678 02f0 1344     		add	r3, r3, r2
+ 679 02f2 0133     		adds	r3, r3, #1
+ 680 02f4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 681 02f6 0B2B     		cmp	r3, #11
+ 682 02f8 13D1     		bne	.L44
+ 178:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****           openqueue_vars.queue[i].creator==COMPONENT_IEEE802154E) {
+ 683              		.loc 1 178 0 discriminator 1
+ 684 02fa FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 685 02fc 0F4A     		ldr	r2, .L47
+ 686 02fe 4FF4A671 		mov	r1, #332
+ 687 0302 01FB03F3 		mul	r3, r1, r3
+ 688 0306 1344     		add	r3, r3, r2
+ 689 0308 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 177:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_IEEE802154E_TO_SIXTOP &&
+ 690              		.loc 1 177 0 discriminator 1
+ 691 030a 092B     		cmp	r3, #9
+ 692 030c 09D1     		bne	.L44
+ 179:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          ENABLE_INTERRUPTS();
+ 693              		.loc 1 179 0
+ 694 030e FFF7FEFF 		bl	IntMasterEnable
+ 180:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          return &openqueue_vars.queue[i];
+ 695              		.loc 1 180 0
+ 696 0312 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 697 0314 4FF4A672 		mov	r2, #332
+ 698 0318 02FB03F3 		mul	r3, r2, r3
+ 699 031c 074A     		ldr	r2, .L47
+ 700 031e 1344     		add	r3, r3, r2
+ 701 0320 08E0     		b	.L45
+ 702              	.L44:
+ 176:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_IEEE802154E_TO_SIXTOP &&
+ 703              		.loc 1 176 0 discriminator 2
+ 704 0322 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 705 0324 0133     		adds	r3, r3, #1
+ 706 0326 FB71     		strb	r3, [r7, #7]
+ 707              	.L43:
+ 176:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_IEEE802154E_TO_SIXTOP &&
+ 708              		.loc 1 176 0 is_stmt 0 discriminator 1
+ 709 0328 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 710 032a 092B     		cmp	r3, #9
+ 711 032c DAD9     		bls	.L46
+ 181:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       }
+ 182:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    }
+ 183:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    ENABLE_INTERRUPTS();
+ 712              		.loc 1 183 0 is_stmt 1
+ 713 032e FFF7FEFF 		bl	IntMasterEnable
+ 184:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    return NULL;
+ 714              		.loc 1 184 0
+ 715 0332 0023     		movs	r3, #0
+ 716              	.L45:
+ 185:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 717              		.loc 1 185 0
+ 718 0334 1846     		mov	r0, r3
+ 719 0336 0837     		adds	r7, r7, #8
+ 720              		.cfi_def_cfa_offset 8
+ 721 0338 BD46     		mov	sp, r7
+ 722              		.cfi_def_cfa_register 13
+ 723              		@ sp needed
+ 724 033a 80BD     		pop	{r7, pc}
+ 725              	.L48:
+ 726              		.align	2
+ 727              	.L47:
+ 728 033c 00000000 		.word	openqueue_vars
+ 729              		.cfi_endproc
+ 730              	.LFE9:
+ 732              		.align	1
+ 733              		.global	openqueue_getNum6PReq
+ 734              		.syntax unified
+ 735              		.thumb
+ 736              		.thumb_func
+ 737              		.fpu softvfp
+ 739              	openqueue_getNum6PReq:
+ 740              	.LFB10:
+ 186:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 187:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** uint8_t openqueue_getNum6PReq(open_addr_t* neighbor){
+ 741              		.loc 1 187 0
+ 742              		.cfi_startproc
+ 743              		@ args = 0, pretend = 0, frame = 16
+ 744              		@ frame_needed = 1, uses_anonymous_args = 0
+ 745 0340 80B5     		push	{r7, lr}
+ 746              		.cfi_def_cfa_offset 8
+ 747              		.cfi_offset 7, -8
+ 748              		.cfi_offset 14, -4
+ 749 0342 84B0     		sub	sp, sp, #16
+ 750              		.cfi_def_cfa_offset 24
+ 751 0344 00AF     		add	r7, sp, #0
+ 752              		.cfi_def_cfa_register 7
+ 753 0346 7860     		str	r0, [r7, #4]
+ 188:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 189:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 190:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t num6Prequest;
+ 191:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 192:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 193:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 754              		.loc 1 193 0
+ 755 0348 FFF7FEFF 		bl	IntMasterDisable
+ 194:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 195:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     num6Prequest = 0;
+ 756              		.loc 1 195 0
+ 757 034c 0023     		movs	r3, #0
+ 758 034e BB73     		strb	r3, [r7, #14]
+ 196:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 759              		.loc 1 196 0
+ 760 0350 0023     		movs	r3, #0
+ 761 0352 FB73     		strb	r3, [r7, #15]
+ 762 0354 35E0     		b	.L50
+ 763              	.L52:
+ 197:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 198:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].owner   == COMPONENT_IEEE802154E_TO_SIXTOP  &&
+ 764              		.loc 1 198 0
+ 765 0356 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 766 0358 1F4A     		ldr	r2, .L54
+ 767 035a 4FF4A671 		mov	r1, #332
+ 768 035e 01FB03F3 		mul	r3, r1, r3
+ 769 0362 1344     		add	r3, r3, r2
+ 770 0364 0133     		adds	r3, r3, #1
+ 771 0366 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 197:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 772              		.loc 1 197 0
+ 773 0368 0B2B     		cmp	r3, #11
+ 774 036a 27D1     		bne	.L51
+ 199:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator == COMPONENT_SIXTOP_RES             &&
+ 775              		.loc 1 199 0
+ 776 036c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 777 036e 1A4A     		ldr	r2, .L54
+ 778 0370 4FF4A671 		mov	r1, #332
+ 779 0374 01FB03F3 		mul	r3, r1, r3
+ 780 0378 1344     		add	r3, r3, r2
+ 781 037a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 198:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator == COMPONENT_SIXTOP_RES             &&
+ 782              		.loc 1 198 0
+ 783 037c 0F2B     		cmp	r3, #15
+ 784 037e 1DD1     		bne	.L51
+ 200:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].l2_sixtop_messageType == SIXTOP_CELL_REQUEST&&
+ 785              		.loc 1 200 0
+ 786 0380 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 787 0382 154A     		ldr	r2, .L54
+ 788 0384 4FF4A671 		mov	r1, #332
+ 789 0388 01FB03F3 		mul	r3, r1, r3
+ 790 038c 1344     		add	r3, r3, r2
+ 791 038e 9433     		adds	r3, r3, #148
+ 792 0390 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 199:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator == COMPONENT_SIXTOP_RES             &&
+ 793              		.loc 1 199 0
+ 794 0392 002B     		cmp	r3, #0
+ 795 0394 12D1     		bne	.L51
+ 201:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             packetfunctions_sameAddress(neighbor,&openqueue_vars.queue[i].l2_nextORpreviousHop)
+ 796              		.loc 1 201 0
+ 797 0396 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 798 0398 4FF4A672 		mov	r2, #332
+ 799 039c 02FB03F3 		mul	r3, r2, r3
+ 800 03a0 4033     		adds	r3, r3, #64
+ 801 03a2 0D4A     		ldr	r2, .L54
+ 802 03a4 1344     		add	r3, r3, r2
+ 803 03a6 0133     		adds	r3, r3, #1
+ 804 03a8 1946     		mov	r1, r3
+ 805 03aa 7868     		ldr	r0, [r7, #4]
+ 806 03ac FFF7FEFF 		bl	packetfunctions_sameAddress
+ 807 03b0 0346     		mov	r3, r0
+ 200:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].l2_sixtop_messageType == SIXTOP_CELL_REQUEST&&
+ 808              		.loc 1 200 0
+ 809 03b2 002B     		cmp	r3, #0
+ 810 03b4 02D0     		beq	.L51
+ 202:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         ) {
+ 203:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             num6Prequest += 1;
+ 811              		.loc 1 203 0
+ 812 03b6 BB7B     		ldrb	r3, [r7, #14]
+ 813 03b8 0133     		adds	r3, r3, #1
+ 814 03ba BB73     		strb	r3, [r7, #14]
+ 815              	.L51:
+ 196:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 816              		.loc 1 196 0 discriminator 2
+ 817 03bc FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 818 03be 0133     		adds	r3, r3, #1
+ 819 03c0 FB73     		strb	r3, [r7, #15]
+ 820              	.L50:
+ 196:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 821              		.loc 1 196 0 is_stmt 0 discriminator 1
+ 822 03c2 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 823 03c4 092B     		cmp	r3, #9
+ 824 03c6 C6D9     		bls	.L52
+ 204:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         }
+ 205:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 206:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     ENABLE_INTERRUPTS();
+ 825              		.loc 1 206 0 is_stmt 1
+ 826 03c8 FFF7FEFF 		bl	IntMasterEnable
+ 207:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     return num6Prequest;
+ 827              		.loc 1 207 0
+ 828 03cc BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 208:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 829              		.loc 1 208 0
+ 830 03ce 1846     		mov	r0, r3
+ 831 03d0 1037     		adds	r7, r7, #16
+ 832              		.cfi_def_cfa_offset 8
+ 833 03d2 BD46     		mov	sp, r7
+ 834              		.cfi_def_cfa_register 13
+ 835              		@ sp needed
+ 836 03d4 80BD     		pop	{r7, pc}
+ 837              	.L55:
+ 838 03d6 00BF     		.align	2
+ 839              	.L54:
+ 840 03d8 00000000 		.word	openqueue_vars
+ 841              		.cfi_endproc
+ 842              	.LFE10:
+ 844              		.align	1
+ 845              		.global	openqueue_getNum6PResp
+ 846              		.syntax unified
+ 847              		.thumb
+ 848              		.thumb_func
+ 849              		.fpu softvfp
+ 851              	openqueue_getNum6PResp:
+ 852              	.LFB11:
+ 209:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 210:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** uint8_t openqueue_getNum6PResp(void){
+ 853              		.loc 1 210 0
+ 854              		.cfi_startproc
+ 855              		@ args = 0, pretend = 0, frame = 8
+ 856              		@ frame_needed = 1, uses_anonymous_args = 0
+ 857 03dc 80B5     		push	{r7, lr}
+ 858              		.cfi_def_cfa_offset 8
+ 859              		.cfi_offset 7, -8
+ 860              		.cfi_offset 14, -4
+ 861 03de 82B0     		sub	sp, sp, #8
+ 862              		.cfi_def_cfa_offset 16
+ 863 03e0 00AF     		add	r7, sp, #0
+ 864              		.cfi_def_cfa_register 7
+ 211:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 212:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 213:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t num6Presponse;
+ 214:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 215:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 216:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 865              		.loc 1 216 0
+ 866 03e2 FFF7FEFF 		bl	IntMasterDisable
+ 217:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 218:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     num6Presponse = 0;
+ 867              		.loc 1 218 0
+ 868 03e6 0023     		movs	r3, #0
+ 869 03e8 BB71     		strb	r3, [r7, #6]
+ 219:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 870              		.loc 1 219 0
+ 871 03ea 0023     		movs	r3, #0
+ 872 03ec FB71     		strb	r3, [r7, #7]
+ 873 03ee 25E0     		b	.L57
+ 874              	.L59:
+ 220:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 221:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].owner   == COMPONENT_IEEE802154E_TO_SIXTOP  &&
+ 875              		.loc 1 221 0
+ 876 03f0 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 877 03f2 174A     		ldr	r2, .L61
+ 878 03f4 4FF4A671 		mov	r1, #332
+ 879 03f8 01FB03F3 		mul	r3, r1, r3
+ 880 03fc 1344     		add	r3, r3, r2
+ 881 03fe 0133     		adds	r3, r3, #1
+ 882 0400 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 220:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 883              		.loc 1 220 0
+ 884 0402 0B2B     		cmp	r3, #11
+ 885 0404 17D1     		bne	.L58
+ 222:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator == COMPONENT_SIXTOP_RES             &&
+ 886              		.loc 1 222 0
+ 887 0406 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 888 0408 114A     		ldr	r2, .L61
+ 889 040a 4FF4A671 		mov	r1, #332
+ 890 040e 01FB03F3 		mul	r3, r1, r3
+ 891 0412 1344     		add	r3, r3, r2
+ 892 0414 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 221:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator == COMPONENT_SIXTOP_RES             &&
+ 893              		.loc 1 221 0
+ 894 0416 0F2B     		cmp	r3, #15
+ 895 0418 0DD1     		bne	.L58
+ 223:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].l2_sixtop_messageType == SIXTOP_CELL_RESPONSE
+ 896              		.loc 1 223 0
+ 897 041a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 898 041c 0C4A     		ldr	r2, .L61
+ 899 041e 4FF4A671 		mov	r1, #332
+ 900 0422 01FB03F3 		mul	r3, r1, r3
+ 901 0426 1344     		add	r3, r3, r2
+ 902 0428 9433     		adds	r3, r3, #148
+ 903 042a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 222:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator == COMPONENT_SIXTOP_RES             &&
+ 904              		.loc 1 222 0
+ 905 042c 012B     		cmp	r3, #1
+ 906 042e 02D1     		bne	.L58
+ 224:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         ) {
+ 225:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             num6Presponse += 1;
+ 907              		.loc 1 225 0
+ 908 0430 BB79     		ldrb	r3, [r7, #6]
+ 909 0432 0133     		adds	r3, r3, #1
+ 910 0434 BB71     		strb	r3, [r7, #6]
+ 911              	.L58:
+ 219:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 912              		.loc 1 219 0 discriminator 2
+ 913 0436 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 914 0438 0133     		adds	r3, r3, #1
+ 915 043a FB71     		strb	r3, [r7, #7]
+ 916              	.L57:
+ 219:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 917              		.loc 1 219 0 is_stmt 0 discriminator 1
+ 918 043c FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 919 043e 092B     		cmp	r3, #9
+ 920 0440 D6D9     		bls	.L59
+ 226:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         }
+ 227:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 228:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     ENABLE_INTERRUPTS();
+ 921              		.loc 1 228 0 is_stmt 1
+ 922 0442 FFF7FEFF 		bl	IntMasterEnable
+ 229:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     return num6Presponse;
+ 923              		.loc 1 229 0
+ 924 0446 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 230:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 925              		.loc 1 230 0
+ 926 0448 1846     		mov	r0, r3
+ 927 044a 0837     		adds	r7, r7, #8
+ 928              		.cfi_def_cfa_offset 8
+ 929 044c BD46     		mov	sp, r7
+ 930              		.cfi_def_cfa_register 13
+ 931              		@ sp needed
+ 932 044e 80BD     		pop	{r7, pc}
+ 933              	.L62:
+ 934              		.align	2
+ 935              	.L61:
+ 936 0450 00000000 		.word	openqueue_vars
+ 937              		.cfi_endproc
+ 938              	.LFE11:
+ 940              		.align	1
+ 941              		.global	openqueue_remove6PrequestToNeighbor
+ 942              		.syntax unified
+ 943              		.thumb
+ 944              		.thumb_func
+ 945              		.fpu softvfp
+ 947              	openqueue_remove6PrequestToNeighbor:
+ 948              	.LFB12:
+ 231:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 232:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** void openqueue_remove6PrequestToNeighbor(open_addr_t* neighbor){
+ 949              		.loc 1 232 0
+ 950              		.cfi_startproc
+ 951              		@ args = 0, pretend = 0, frame = 16
+ 952              		@ frame_needed = 1, uses_anonymous_args = 0
+ 953 0454 80B5     		push	{r7, lr}
+ 954              		.cfi_def_cfa_offset 8
+ 955              		.cfi_offset 7, -8
+ 956              		.cfi_offset 14, -4
+ 957 0456 84B0     		sub	sp, sp, #16
+ 958              		.cfi_def_cfa_offset 24
+ 959 0458 00AF     		add	r7, sp, #0
+ 960              		.cfi_def_cfa_register 7
+ 961 045a 7860     		str	r0, [r7, #4]
+ 233:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 234:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 235:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 236:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 237:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 962              		.loc 1 237 0
+ 963 045c FFF7FEFF 		bl	IntMasterDisable
+ 238:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 239:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 964              		.loc 1 239 0
+ 965 0460 0023     		movs	r3, #0
+ 966 0462 FB73     		strb	r3, [r7, #15]
+ 967 0464 3CE0     		b	.L64
+ 968              	.L66:
+ 240:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 241:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].owner   == COMPONENT_IEEE802154E_TO_SIXTOP   &&
+ 969              		.loc 1 241 0
+ 970 0466 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 971 0468 224A     		ldr	r2, .L67
+ 972 046a 4FF4A671 		mov	r1, #332
+ 973 046e 01FB03F3 		mul	r3, r1, r3
+ 974 0472 1344     		add	r3, r3, r2
+ 975 0474 0133     		adds	r3, r3, #1
+ 976 0476 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 240:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 977              		.loc 1 240 0
+ 978 0478 0B2B     		cmp	r3, #11
+ 979 047a 2ED1     		bne	.L65
+ 242:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator == COMPONENT_SIXTOP_RES              &&
+ 980              		.loc 1 242 0
+ 981 047c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 982 047e 1D4A     		ldr	r2, .L67
+ 983 0480 4FF4A671 		mov	r1, #332
+ 984 0484 01FB03F3 		mul	r3, r1, r3
+ 985 0488 1344     		add	r3, r3, r2
+ 986 048a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 241:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator == COMPONENT_SIXTOP_RES              &&
+ 987              		.loc 1 241 0
+ 988 048c 0F2B     		cmp	r3, #15
+ 989 048e 24D1     		bne	.L65
+ 243:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].l2_sixtop_messageType == SIXTOP_CELL_REQUEST &&
+ 990              		.loc 1 243 0
+ 991 0490 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 992 0492 184A     		ldr	r2, .L67
+ 993 0494 4FF4A671 		mov	r1, #332
+ 994 0498 01FB03F3 		mul	r3, r1, r3
+ 995 049c 1344     		add	r3, r3, r2
+ 996 049e 9433     		adds	r3, r3, #148
+ 997 04a0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 242:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator == COMPONENT_SIXTOP_RES              &&
+ 998              		.loc 1 242 0
+ 999 04a2 002B     		cmp	r3, #0
+ 1000 04a4 19D1     		bne	.L65
+ 244:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             packetfunctions_sameAddress(neighbor,&openqueue_vars.queue[i].l2_nextORpreviousHop)
+ 1001              		.loc 1 244 0
+ 1002 04a6 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1003 04a8 4FF4A672 		mov	r2, #332
+ 1004 04ac 02FB03F3 		mul	r3, r2, r3
+ 1005 04b0 4033     		adds	r3, r3, #64
+ 1006 04b2 104A     		ldr	r2, .L67
+ 1007 04b4 1344     		add	r3, r3, r2
+ 1008 04b6 0133     		adds	r3, r3, #1
+ 1009 04b8 1946     		mov	r1, r3
+ 1010 04ba 7868     		ldr	r0, [r7, #4]
+ 1011 04bc FFF7FEFF 		bl	packetfunctions_sameAddress
+ 1012 04c0 0346     		mov	r3, r0
+ 243:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].l2_sixtop_messageType == SIXTOP_CELL_REQUEST &&
+ 1013              		.loc 1 243 0
+ 1014 04c2 002B     		cmp	r3, #0
+ 1015 04c4 09D0     		beq	.L65
+ 245:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         ) {
+ 246:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_reset_entry(&(openqueue_vars.queue[i]));
+ 1016              		.loc 1 246 0
+ 1017 04c6 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1018 04c8 4FF4A672 		mov	r2, #332
+ 1019 04cc 02FB03F3 		mul	r3, r2, r3
+ 1020 04d0 084A     		ldr	r2, .L67
+ 1021 04d2 1344     		add	r3, r3, r2
+ 1022 04d4 1846     		mov	r0, r3
+ 1023 04d6 FFF7FEFF 		bl	openqueue_reset_entry
+ 1024              	.L65:
+ 239:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 1025              		.loc 1 239 0 discriminator 2
+ 1026 04da FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1027 04dc 0133     		adds	r3, r3, #1
+ 1028 04de FB73     		strb	r3, [r7, #15]
+ 1029              	.L64:
+ 239:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 1030              		.loc 1 239 0 is_stmt 0 discriminator 1
+ 1031 04e0 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1032 04e2 092B     		cmp	r3, #9
+ 1033 04e4 BFD9     		bls	.L66
+ 247:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         }
+ 248:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 249:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     ENABLE_INTERRUPTS();
+ 1034              		.loc 1 249 0 is_stmt 1
+ 1035 04e6 FFF7FEFF 		bl	IntMasterEnable
+ 250:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 1036              		.loc 1 250 0
+ 1037 04ea 00BF     		nop
+ 1038 04ec 1037     		adds	r7, r7, #16
+ 1039              		.cfi_def_cfa_offset 8
+ 1040 04ee BD46     		mov	sp, r7
+ 1041              		.cfi_def_cfa_register 13
+ 1042              		@ sp needed
+ 1043 04f0 80BD     		pop	{r7, pc}
+ 1044              	.L68:
+ 1045 04f2 00BF     		.align	2
+ 1046              	.L67:
+ 1047 04f4 00000000 		.word	openqueue_vars
+ 1048              		.cfi_endproc
+ 1049              	.LFE12:
+ 1051              		.align	1
+ 1052              		.global	openqueue_macGet6PResponseAndDownStreamPacket
+ 1053              		.syntax unified
+ 1054              		.thumb
+ 1055              		.thumb_func
+ 1056              		.fpu softvfp
+ 1058              	openqueue_macGet6PResponseAndDownStreamPacket:
+ 1059              	.LFB13:
+ 251:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 252:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** //======= called by IEEE80215E
+ 253:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 254:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** OpenQueueEntry_t* openqueue_macGet6PResponseAndDownStreamPacket(open_addr_t* toNeighbor) {
+ 1060              		.loc 1 254 0
+ 1061              		.cfi_startproc
+ 1062              		@ args = 0, pretend = 0, frame = 16
+ 1063              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1064 04f8 80B5     		push	{r7, lr}
+ 1065              		.cfi_def_cfa_offset 8
+ 1066              		.cfi_offset 7, -8
+ 1067              		.cfi_offset 14, -4
+ 1068 04fa 84B0     		sub	sp, sp, #16
+ 1069              		.cfi_def_cfa_offset 24
+ 1070 04fc 00AF     		add	r7, sp, #0
+ 1071              		.cfi_def_cfa_register 7
+ 1072 04fe 7860     		str	r0, [r7, #4]
+ 255:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 256:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 257:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 1073              		.loc 1 257 0
+ 1074 0500 FFF7FEFF 		bl	IntMasterDisable
+ 258:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 259:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     // first to look the sixtop RES packet
+ 260:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 1075              		.loc 1 260 0
+ 1076 0504 0023     		movs	r3, #0
+ 1077 0506 FB73     		strb	r3, [r7, #15]
+ 1078 0508 44E0     		b	.L70
+ 1079              	.L75:
+ 261:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 262:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1080              		.loc 1 262 0
+ 1081 050a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1082 050c 454A     		ldr	r2, .L80
+ 1083 050e 4FF4A671 		mov	r1, #332
+ 1084 0512 01FB03F3 		mul	r3, r1, r3
+ 1085 0516 1344     		add	r3, r3, r2
+ 1086 0518 0133     		adds	r3, r3, #1
+ 1087 051a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 261:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 1088              		.loc 1 261 0
+ 1089 051c 0A2B     		cmp	r3, #10
+ 1090 051e 36D1     		bne	.L71
+ 263:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].creator==COMPONENT_SIXTOP_RES &&
+ 1091              		.loc 1 263 0
+ 1092 0520 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1093 0522 404A     		ldr	r2, .L80
+ 1094 0524 4FF4A671 		mov	r1, #332
+ 1095 0528 01FB03F3 		mul	r3, r1, r3
+ 1096 052c 1344     		add	r3, r3, r2
+ 1097 052e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 262:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].creator==COMPONENT_SIXTOP_RES &&
+ 1098              		.loc 1 262 0
+ 1099 0530 0F2B     		cmp	r3, #15
+ 1100 0532 2CD1     		bne	.L71
+ 264:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            (
+ 265:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                (
+ 266:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                    toNeighbor->type==ADDR_64B &&
+ 1101              		.loc 1 266 0
+ 1102 0534 7B68     		ldr	r3, [r7, #4]
+ 1103 0536 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 263:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            (
+ 1104              		.loc 1 263 0
+ 1105 0538 022B     		cmp	r3, #2
+ 1106 053a 0FD1     		bne	.L72
+ 267:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                    packetfunctions_sameAddress(toNeighbor,&openqueue_vars.queue[i].l2_nextORpreviou
+ 1107              		.loc 1 267 0
+ 1108 053c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1109 053e 4FF4A672 		mov	r2, #332
+ 1110 0542 02FB03F3 		mul	r3, r2, r3
+ 1111 0546 4033     		adds	r3, r3, #64
+ 1112 0548 364A     		ldr	r2, .L80
+ 1113 054a 1344     		add	r3, r3, r2
+ 1114 054c 0133     		adds	r3, r3, #1
+ 1115 054e 1946     		mov	r1, r3
+ 1116 0550 7868     		ldr	r0, [r7, #4]
+ 1117 0552 FFF7FEFF 		bl	packetfunctions_sameAddress
+ 1118 0556 0346     		mov	r3, r0
+ 266:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                    packetfunctions_sameAddress(toNeighbor,&openqueue_vars.queue[i].l2_nextORpreviou
+ 1119              		.loc 1 266 0
+ 1120 0558 002B     		cmp	r3, #0
+ 1121 055a 03D1     		bne	.L73
+ 1122              	.L72:
+ 268:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                ) || toNeighbor->type==ADDR_ANYCAST
+ 1123              		.loc 1 268 0
+ 1124 055c 7B68     		ldr	r3, [r7, #4]
+ 1125 055e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1126 0560 062B     		cmp	r3, #6
+ 1127 0562 14D1     		bne	.L71
+ 1128              	.L73:
+ 269:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            ) &&
+ 270:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].l2_sixtop_messageType == SIXTOP_CELL_RESPONSE
+ 1129              		.loc 1 270 0
+ 1130 0564 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1131 0566 2F4A     		ldr	r2, .L80
+ 1132 0568 4FF4A671 		mov	r1, #332
+ 1133 056c 01FB03F3 		mul	r3, r1, r3
+ 1134 0570 1344     		add	r3, r3, r2
+ 1135 0572 9433     		adds	r3, r3, #148
+ 1136 0574 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 269:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            ) &&
+ 1137              		.loc 1 269 0
+ 1138 0576 012B     		cmp	r3, #1
+ 1139 0578 09D1     		bne	.L71
+ 271:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        ){
+ 272:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****           ENABLE_INTERRUPTS();
+ 1140              		.loc 1 272 0
+ 1141 057a FFF7FEFF 		bl	IntMasterEnable
+ 273:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****           return &openqueue_vars.queue[i];
+ 1142              		.loc 1 273 0
+ 1143 057e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1144 0580 4FF4A672 		mov	r2, #332
+ 1145 0584 02FB03F3 		mul	r3, r2, r3
+ 1146 0588 264A     		ldr	r2, .L80
+ 1147 058a 1344     		add	r3, r3, r2
+ 1148 058c 46E0     		b	.L74
+ 1149              	.L71:
+ 260:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 1150              		.loc 1 260 0 discriminator 2
+ 1151 058e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1152 0590 0133     		adds	r3, r3, #1
+ 1153 0592 FB73     		strb	r3, [r7, #15]
+ 1154              	.L70:
+ 260:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 1155              		.loc 1 260 0 is_stmt 0 discriminator 1
+ 1156 0594 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1157 0596 092B     		cmp	r3, #9
+ 1158 0598 B7D9     		bls	.L75
+ 274:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        }
+ 275:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 276:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 277:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     // look for a packet which is either from openbridge or forwarding component by source routing
+ 278:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 1159              		.loc 1 278 0 is_stmt 1
+ 1160 059a 0023     		movs	r3, #0
+ 1161 059c FB73     		strb	r3, [r7, #15]
+ 1162 059e 37E0     		b	.L76
+ 1163              	.L79:
+ 279:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 280:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1164              		.loc 1 280 0
+ 1165 05a0 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1166 05a2 204A     		ldr	r2, .L80
+ 1167 05a4 4FF4A671 		mov	r1, #332
+ 1168 05a8 01FB03F3 		mul	r3, r1, r3
+ 1169 05ac 1344     		add	r3, r3, r2
+ 1170 05ae 0133     		adds	r3, r3, #1
+ 1171 05b0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 279:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 1172              		.loc 1 279 0
+ 1173 05b2 0A2B     		cmp	r3, #10
+ 1174 05b4 29D1     		bne	.L77
+ 281:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             (
+ 282:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 openqueue_vars.queue[i].creator==COMPONENT_OPENBRIDGE ||
+ 1175              		.loc 1 282 0
+ 1176 05b6 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1177 05b8 1A4A     		ldr	r2, .L80
+ 1178 05ba 4FF4A671 		mov	r1, #332
+ 1179 05be 01FB03F3 		mul	r3, r1, r3
+ 1180 05c2 1344     		add	r3, r3, r2
+ 1181 05c4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 280:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             (
+ 1182              		.loc 1 280 0
+ 1183 05c6 102B     		cmp	r3, #16
+ 1184 05c8 15D0     		beq	.L78
+ 283:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 openqueue_vars.queue[i].l3_useSourceRouting == TRUE   ||
+ 1185              		.loc 1 283 0
+ 1186 05ca FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1187 05cc 154A     		ldr	r2, .L80
+ 1188 05ce 4FF4A671 		mov	r1, #332
+ 1189 05d2 01FB03F3 		mul	r3, r1, r3
+ 1190 05d6 1344     		add	r3, r3, r2
+ 1191 05d8 3F33     		adds	r3, r3, #63
+ 1192 05da 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 282:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 openqueue_vars.queue[i].l3_useSourceRouting == TRUE   ||
+ 1193              		.loc 1 282 0
+ 1194 05dc 002B     		cmp	r3, #0
+ 1195 05de 0AD1     		bne	.L78
+ 284:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 openqueue_vars.queue[i].is_cjoin_response
+ 1196              		.loc 1 284 0
+ 1197 05e0 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1198 05e2 104A     		ldr	r2, .L80
+ 1199 05e4 4FF4A671 		mov	r1, #332
+ 1200 05e8 01FB03F3 		mul	r3, r1, r3
+ 1201 05ec 1344     		add	r3, r3, r2
+ 1202 05ee 0E33     		adds	r3, r3, #14
+ 1203 05f0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 283:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 openqueue_vars.queue[i].l3_useSourceRouting == TRUE   ||
+ 1204              		.loc 1 283 0
+ 1205 05f2 002B     		cmp	r3, #0
+ 1206 05f4 09D0     		beq	.L77
+ 1207              	.L78:
+ 285:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             )
+ 286:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         ) {
+ 287:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             ENABLE_INTERRUPTS();
+ 1208              		.loc 1 287 0
+ 1209 05f6 FFF7FEFF 		bl	IntMasterEnable
+ 288:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             return &openqueue_vars.queue[i];
+ 1210              		.loc 1 288 0
+ 1211 05fa FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1212 05fc 4FF4A672 		mov	r2, #332
+ 1213 0600 02FB03F3 		mul	r3, r2, r3
+ 1214 0604 074A     		ldr	r2, .L80
+ 1215 0606 1344     		add	r3, r3, r2
+ 1216 0608 08E0     		b	.L74
+ 1217              	.L77:
+ 278:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 1218              		.loc 1 278 0 discriminator 2
+ 1219 060a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1220 060c 0133     		adds	r3, r3, #1
+ 1221 060e FB73     		strb	r3, [r7, #15]
+ 1222              	.L76:
+ 278:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 1223              		.loc 1 278 0 is_stmt 0 discriminator 1
+ 1224 0610 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1225 0612 092B     		cmp	r3, #9
+ 1226 0614 C4D9     		bls	.L79
+ 289:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         }
+ 290:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 291:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     ENABLE_INTERRUPTS();
+ 1227              		.loc 1 291 0 is_stmt 1
+ 1228 0616 FFF7FEFF 		bl	IntMasterEnable
+ 292:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     return NULL;
+ 1229              		.loc 1 292 0
+ 1230 061a 0023     		movs	r3, #0
+ 1231              	.L74:
+ 293:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 1232              		.loc 1 293 0
+ 1233 061c 1846     		mov	r0, r3
+ 1234 061e 1037     		adds	r7, r7, #16
+ 1235              		.cfi_def_cfa_offset 8
+ 1236 0620 BD46     		mov	sp, r7
+ 1237              		.cfi_def_cfa_register 13
+ 1238              		@ sp needed
+ 1239 0622 80BD     		pop	{r7, pc}
+ 1240              	.L81:
+ 1241              		.align	2
+ 1242              	.L80:
+ 1243 0624 00000000 		.word	openqueue_vars
+ 1244              		.cfi_endproc
+ 1245              	.LFE13:
+ 1247              		.align	1
+ 1248              		.global	openqueue_macGet6PRequestOnAnycast
+ 1249              		.syntax unified
+ 1250              		.thumb
+ 1251              		.thumb_func
+ 1252              		.fpu softvfp
+ 1254              	openqueue_macGet6PRequestOnAnycast:
+ 1255              	.LFB14:
+ 294:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 295:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** OpenQueueEntry_t* openqueue_macGet6PRequestOnAnycast(open_addr_t* autonomousUnicastNeighbor){
+ 1256              		.loc 1 295 0
+ 1257              		.cfi_startproc
+ 1258              		@ args = 0, pretend = 0, frame = 16
+ 1259              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1260 0628 80B5     		push	{r7, lr}
+ 1261              		.cfi_def_cfa_offset 8
+ 1262              		.cfi_offset 7, -8
+ 1263              		.cfi_offset 14, -4
+ 1264 062a 84B0     		sub	sp, sp, #16
+ 1265              		.cfi_def_cfa_offset 24
+ 1266 062c 00AF     		add	r7, sp, #0
+ 1267              		.cfi_def_cfa_register 7
+ 1268 062e 7860     		str	r0, [r7, #4]
+ 296:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 297:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 298:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 1269              		.loc 1 298 0
+ 1270 0630 FFF7FEFF 		bl	IntMasterDisable
+ 299:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 300:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 1271              		.loc 1 300 0
+ 1272 0634 0023     		movs	r3, #0
+ 1273 0636 FB73     		strb	r3, [r7, #15]
+ 1274 0638 43E0     		b	.L83
+ 1275              	.L86:
+ 301:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 302:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1276              		.loc 1 302 0
+ 1277 063a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1278 063c 264A     		ldr	r2, .L87
+ 1279 063e 4FF4A671 		mov	r1, #332
+ 1280 0642 01FB03F3 		mul	r3, r1, r3
+ 1281 0646 1344     		add	r3, r3, r2
+ 1282 0648 0133     		adds	r3, r3, #1
+ 1283 064a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 301:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 1284              		.loc 1 301 0
+ 1285 064c 0A2B     		cmp	r3, #10
+ 1286 064e 35D1     		bne	.L84
+ 303:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].creator==COMPONENT_SIXTOP_RES &&
+ 1287              		.loc 1 303 0
+ 1288 0650 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1289 0652 214A     		ldr	r2, .L87
+ 1290 0654 4FF4A671 		mov	r1, #332
+ 1291 0658 01FB03F3 		mul	r3, r1, r3
+ 1292 065c 1344     		add	r3, r3, r2
+ 1293 065e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 302:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].creator==COMPONENT_SIXTOP_RES &&
+ 1294              		.loc 1 302 0
+ 1295 0660 0F2B     		cmp	r3, #15
+ 1296 0662 2BD1     		bne	.L84
+ 304:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            (
+ 305:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                (
+ 306:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                    autonomousUnicastNeighbor->type==ADDR_64B &&
+ 1297              		.loc 1 306 0
+ 1298 0664 7B68     		ldr	r3, [r7, #4]
+ 1299 0666 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 303:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            (
+ 1300              		.loc 1 303 0
+ 1301 0668 022B     		cmp	r3, #2
+ 1302 066a 27D1     		bne	.L84
+ 307:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                    packetfunctions_sameAddress(autonomousUnicastNeighbor,&openqueue_vars.queue[i].l
+ 1303              		.loc 1 307 0
+ 1304 066c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1305 066e 4FF4A672 		mov	r2, #332
+ 1306 0672 02FB03F3 		mul	r3, r2, r3
+ 1307 0676 4033     		adds	r3, r3, #64
+ 1308 0678 174A     		ldr	r2, .L87
+ 1309 067a 1344     		add	r3, r3, r2
+ 1310 067c 0133     		adds	r3, r3, #1
+ 1311 067e 1946     		mov	r1, r3
+ 1312 0680 7868     		ldr	r0, [r7, #4]
+ 1313 0682 FFF7FEFF 		bl	packetfunctions_sameAddress
+ 1314 0686 0346     		mov	r3, r0
+ 1315 0688 83F00103 		eor	r3, r3, #1
+ 1316 068c DBB2     		uxtb	r3, r3
+ 306:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                    packetfunctions_sameAddress(autonomousUnicastNeighbor,&openqueue_vars.queue[i].l
+ 1317              		.loc 1 306 0
+ 1318 068e 002B     		cmp	r3, #0
+ 1319 0690 14D0     		beq	.L84
+ 308:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                )
+ 309:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            ) &&
+ 310:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].l2_sixtop_messageType == SIXTOP_CELL_REQUEST
+ 1320              		.loc 1 310 0
+ 1321 0692 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1322 0694 104A     		ldr	r2, .L87
+ 1323 0696 4FF4A671 		mov	r1, #332
+ 1324 069a 01FB03F3 		mul	r3, r1, r3
+ 1325 069e 1344     		add	r3, r3, r2
+ 1326 06a0 9433     		adds	r3, r3, #148
+ 1327 06a2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 309:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].l2_sixtop_messageType == SIXTOP_CELL_REQUEST
+ 1328              		.loc 1 309 0
+ 1329 06a4 002B     		cmp	r3, #0
+ 1330 06a6 09D1     		bne	.L84
+ 311:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        ){
+ 312:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****           ENABLE_INTERRUPTS();
+ 1331              		.loc 1 312 0
+ 1332 06a8 FFF7FEFF 		bl	IntMasterEnable
+ 313:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****           return &openqueue_vars.queue[i];
+ 1333              		.loc 1 313 0
+ 1334 06ac FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1335 06ae 4FF4A672 		mov	r2, #332
+ 1336 06b2 02FB03F3 		mul	r3, r2, r3
+ 1337 06b6 084A     		ldr	r2, .L87
+ 1338 06b8 1344     		add	r3, r3, r2
+ 1339 06ba 08E0     		b	.L85
+ 1340              	.L84:
+ 300:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 1341              		.loc 1 300 0 discriminator 2
+ 1342 06bc FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1343 06be 0133     		adds	r3, r3, #1
+ 1344 06c0 FB73     		strb	r3, [r7, #15]
+ 1345              	.L83:
+ 300:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 1346              		.loc 1 300 0 is_stmt 0 discriminator 1
+ 1347 06c2 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1348 06c4 092B     		cmp	r3, #9
+ 1349 06c6 B8D9     		bls	.L86
+ 314:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        }
+ 315:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 316:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 317:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     ENABLE_INTERRUPTS();
+ 1350              		.loc 1 317 0 is_stmt 1
+ 1351 06c8 FFF7FEFF 		bl	IntMasterEnable
+ 318:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     return NULL;
+ 1352              		.loc 1 318 0
+ 1353 06cc 0023     		movs	r3, #0
+ 1354              	.L85:
+ 319:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 1355              		.loc 1 319 0
+ 1356 06ce 1846     		mov	r0, r3
+ 1357 06d0 1037     		adds	r7, r7, #16
+ 1358              		.cfi_def_cfa_offset 8
+ 1359 06d2 BD46     		mov	sp, r7
+ 1360              		.cfi_def_cfa_register 13
+ 1361              		@ sp needed
+ 1362 06d4 80BD     		pop	{r7, pc}
+ 1363              	.L88:
+ 1364 06d6 00BF     		.align	2
+ 1365              	.L87:
+ 1366 06d8 00000000 		.word	openqueue_vars
+ 1367              		.cfi_endproc
+ 1368              	.LFE14:
+ 1370              		.align	1
+ 1371              		.global	openqueue_isHighPriorityEntryEnough
+ 1372              		.syntax unified
+ 1373              		.thumb
+ 1374              		.thumb_func
+ 1375              		.fpu softvfp
+ 1377              	openqueue_isHighPriorityEntryEnough:
+ 1378              	.LFB15:
+ 320:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 321:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** bool openqueue_isHighPriorityEntryEnough(void) {
+ 1379              		.loc 1 321 0
+ 1380              		.cfi_startproc
+ 1381              		@ args = 0, pretend = 0, frame = 8
+ 1382              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1383 06dc 80B5     		push	{r7, lr}
+ 1384              		.cfi_def_cfa_offset 8
+ 1385              		.cfi_offset 7, -8
+ 1386              		.cfi_offset 14, -4
+ 1387 06de 82B0     		sub	sp, sp, #8
+ 1388              		.cfi_def_cfa_offset 16
+ 1389 06e0 00AF     		add	r7, sp, #0
+ 1390              		.cfi_def_cfa_register 7
+ 322:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 323:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t numberOfEntry;
+ 324:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 325:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 1391              		.loc 1 325 0
+ 1392 06e2 FFF7FEFF 		bl	IntMasterDisable
+ 326:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 327:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     numberOfEntry = 0;
+ 1393              		.loc 1 327 0
+ 1394 06e6 0023     		movs	r3, #0
+ 1395 06e8 BB71     		strb	r3, [r7, #6]
+ 328:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 1396              		.loc 1 328 0
+ 1397 06ea 0023     		movs	r3, #0
+ 1398 06ec FB71     		strb	r3, [r7, #7]
+ 1399 06ee 0FE0     		b	.L90
+ 1400              	.L92:
+ 329:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if(openqueue_vars.queue[i].creator>COMPONENT_SIXTOP_RES){
+ 1401              		.loc 1 329 0
+ 1402 06f0 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1403 06f2 104A     		ldr	r2, .L95
+ 1404 06f4 4FF4A671 		mov	r1, #332
+ 1405 06f8 01FB03F3 		mul	r3, r1, r3
+ 1406 06fc 1344     		add	r3, r3, r2
+ 1407 06fe 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1408 0700 0F2B     		cmp	r3, #15
+ 1409 0702 02D9     		bls	.L91
+ 330:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             numberOfEntry++;
+ 1410              		.loc 1 330 0
+ 1411 0704 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 1412 0706 0133     		adds	r3, r3, #1
+ 1413 0708 BB71     		strb	r3, [r7, #6]
+ 1414              	.L91:
+ 328:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 1415              		.loc 1 328 0 discriminator 2
+ 1416 070a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1417 070c 0133     		adds	r3, r3, #1
+ 1418 070e FB71     		strb	r3, [r7, #7]
+ 1419              	.L90:
+ 328:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 1420              		.loc 1 328 0 is_stmt 0 discriminator 1
+ 1421 0710 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1422 0712 092B     		cmp	r3, #9
+ 1423 0714 ECD9     		bls	.L92
+ 331:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         }
+ 332:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 333:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 334:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     if (numberOfEntry>QUEUELENGTH-HIGH_PRIORITY_QUEUE_ENTRY){
+ 1424              		.loc 1 334 0 is_stmt 1
+ 1425 0716 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 1426 0718 052B     		cmp	r3, #5
+ 1427 071a 03D9     		bls	.L93
+ 335:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       ENABLE_INTERRUPTS();
+ 1428              		.loc 1 335 0
+ 1429 071c FFF7FEFF 		bl	IntMasterEnable
+ 336:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         return FALSE;
+ 1430              		.loc 1 336 0
+ 1431 0720 0023     		movs	r3, #0
+ 1432 0722 02E0     		b	.L94
+ 1433              	.L93:
+ 337:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     } else {
+ 338:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       ENABLE_INTERRUPTS();
+ 1434              		.loc 1 338 0
+ 1435 0724 FFF7FEFF 		bl	IntMasterEnable
+ 339:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         return TRUE;
+ 1436              		.loc 1 339 0
+ 1437 0728 0123     		movs	r3, #1
+ 1438              	.L94:
+ 340:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 341:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 1439              		.loc 1 341 0
+ 1440 072a 1846     		mov	r0, r3
+ 1441 072c 0837     		adds	r7, r7, #8
+ 1442              		.cfi_def_cfa_offset 8
+ 1443 072e BD46     		mov	sp, r7
+ 1444              		.cfi_def_cfa_register 13
+ 1445              		@ sp needed
+ 1446 0730 80BD     		pop	{r7, pc}
+ 1447              	.L96:
+ 1448 0732 00BF     		.align	2
+ 1449              	.L95:
+ 1450 0734 00000000 		.word	openqueue_vars
+ 1451              		.cfi_endproc
+ 1452              	.LFE15:
+ 1454              		.align	1
+ 1455              		.global	openqueue_macGetEBPacket
+ 1456              		.syntax unified
+ 1457              		.thumb
+ 1458              		.thumb_func
+ 1459              		.fpu softvfp
+ 1461              	openqueue_macGetEBPacket:
+ 1462              	.LFB16:
+ 342:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 343:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** OpenQueueEntry_t* openqueue_macGetEBPacket(void) {
+ 1463              		.loc 1 343 0
+ 1464              		.cfi_startproc
+ 1465              		@ args = 0, pretend = 0, frame = 8
+ 1466              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1467 0738 80B5     		push	{r7, lr}
+ 1468              		.cfi_def_cfa_offset 8
+ 1469              		.cfi_offset 7, -8
+ 1470              		.cfi_offset 14, -4
+ 1471 073a 82B0     		sub	sp, sp, #8
+ 1472              		.cfi_def_cfa_offset 16
+ 1473 073c 00AF     		add	r7, sp, #0
+ 1474              		.cfi_def_cfa_register 7
+ 344:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    uint8_t i;
+ 345:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    INTERRUPT_DECLARATION();
+ 346:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    DISABLE_INTERRUPTS();
+ 1475              		.loc 1 346 0
+ 1476 073e FFF7FEFF 		bl	IntMasterDisable
+ 347:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    for (i=0;i<QUEUELENGTH;i++) {
+ 1477              		.loc 1 347 0
+ 1478 0742 0023     		movs	r3, #0
+ 1479 0744 FB71     		strb	r3, [r7, #7]
+ 1480 0746 30E0     		b	.L98
+ 1481              	.L101:
+ 348:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1482              		.loc 1 348 0
+ 1483 0748 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1484 074a 1D4A     		ldr	r2, .L102
+ 1485 074c 4FF4A671 		mov	r1, #332
+ 1486 0750 01FB03F3 		mul	r3, r1, r3
+ 1487 0754 1344     		add	r3, r3, r2
+ 1488 0756 0133     		adds	r3, r3, #1
+ 1489 0758 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1490 075a 0A2B     		cmp	r3, #10
+ 1491 075c 22D1     		bne	.L99
+ 349:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****           openqueue_vars.queue[i].creator==COMPONENT_SIXTOP              &&
+ 1492              		.loc 1 349 0 discriminator 1
+ 1493 075e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1494 0760 174A     		ldr	r2, .L102
+ 1495 0762 4FF4A671 		mov	r1, #332
+ 1496 0766 01FB03F3 		mul	r3, r1, r3
+ 1497 076a 1344     		add	r3, r3, r2
+ 1498 076c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 348:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1499              		.loc 1 348 0 discriminator 1
+ 1500 076e 0C2B     		cmp	r3, #12
+ 1501 0770 18D1     		bne	.L99
+ 350:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****           packetfunctions_isBroadcastMulticast(&(openqueue_vars.queue[i].l2_nextORpreviousHop))) {
+ 1502              		.loc 1 350 0
+ 1503 0772 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1504 0774 4FF4A672 		mov	r2, #332
+ 1505 0778 02FB03F3 		mul	r3, r2, r3
+ 1506 077c 4033     		adds	r3, r3, #64
+ 1507 077e 104A     		ldr	r2, .L102
+ 1508 0780 1344     		add	r3, r3, r2
+ 1509 0782 0133     		adds	r3, r3, #1
+ 1510 0784 1846     		mov	r0, r3
+ 1511 0786 FFF7FEFF 		bl	packetfunctions_isBroadcastMulticast
+ 1512 078a 0346     		mov	r3, r0
+ 349:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****           openqueue_vars.queue[i].creator==COMPONENT_SIXTOP              &&
+ 1513              		.loc 1 349 0
+ 1514 078c 002B     		cmp	r3, #0
+ 1515 078e 09D0     		beq	.L99
+ 351:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          ENABLE_INTERRUPTS();
+ 1516              		.loc 1 351 0
+ 1517 0790 FFF7FEFF 		bl	IntMasterEnable
+ 352:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****          return &openqueue_vars.queue[i];
+ 1518              		.loc 1 352 0
+ 1519 0794 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1520 0796 4FF4A672 		mov	r2, #332
+ 1521 079a 02FB03F3 		mul	r3, r2, r3
+ 1522 079e 084A     		ldr	r2, .L102
+ 1523 07a0 1344     		add	r3, r3, r2
+ 1524 07a2 08E0     		b	.L100
+ 1525              	.L99:
+ 347:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1526              		.loc 1 347 0 discriminator 2
+ 1527 07a4 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1528 07a6 0133     		adds	r3, r3, #1
+ 1529 07a8 FB71     		strb	r3, [r7, #7]
+ 1530              	.L98:
+ 347:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1531              		.loc 1 347 0 is_stmt 0 discriminator 1
+ 1532 07aa FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1533 07ac 092B     		cmp	r3, #9
+ 1534 07ae CBD9     		bls	.L101
+ 353:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****       }
+ 354:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    }
+ 355:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    ENABLE_INTERRUPTS();
+ 1535              		.loc 1 355 0 is_stmt 1
+ 1536 07b0 FFF7FEFF 		bl	IntMasterEnable
+ 356:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    return NULL;
+ 1537              		.loc 1 356 0
+ 1538 07b4 0023     		movs	r3, #0
+ 1539              	.L100:
+ 357:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 1540              		.loc 1 357 0
+ 1541 07b6 1846     		mov	r0, r3
+ 1542 07b8 0837     		adds	r7, r7, #8
+ 1543              		.cfi_def_cfa_offset 8
+ 1544 07ba BD46     		mov	sp, r7
+ 1545              		.cfi_def_cfa_register 13
+ 1546              		@ sp needed
+ 1547 07bc 80BD     		pop	{r7, pc}
+ 1548              	.L103:
+ 1549 07be 00BF     		.align	2
+ 1550              	.L102:
+ 1551 07c0 00000000 		.word	openqueue_vars
+ 1552              		.cfi_endproc
+ 1553              	.LFE16:
+ 1555              		.align	1
+ 1556              		.global	openqueue_macGetKaPacket
+ 1557              		.syntax unified
+ 1558              		.thumb
+ 1559              		.thumb_func
+ 1560              		.fpu softvfp
+ 1562              	openqueue_macGetKaPacket:
+ 1563              	.LFB17:
+ 358:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 359:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** OpenQueueEntry_t* openqueue_macGetKaPacket(open_addr_t* toNeighbor) {
+ 1564              		.loc 1 359 0
+ 1565              		.cfi_startproc
+ 1566              		@ args = 0, pretend = 0, frame = 16
+ 1567              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1568 07c4 80B5     		push	{r7, lr}
+ 1569              		.cfi_def_cfa_offset 8
+ 1570              		.cfi_offset 7, -8
+ 1571              		.cfi_offset 14, -4
+ 1572 07c6 84B0     		sub	sp, sp, #16
+ 1573              		.cfi_def_cfa_offset 24
+ 1574 07c8 00AF     		add	r7, sp, #0
+ 1575              		.cfi_def_cfa_register 7
+ 1576 07ca 7860     		str	r0, [r7, #4]
+ 360:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 361:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 362:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 1577              		.loc 1 362 0
+ 1578 07cc FFF7FEFF 		bl	IntMasterDisable
+ 363:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 1579              		.loc 1 363 0
+ 1580 07d0 0023     		movs	r3, #0
+ 1581 07d2 FB73     		strb	r3, [r7, #15]
+ 1582 07d4 35E0     		b	.L105
+ 1583              	.L108:
+ 364:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1584              		.loc 1 364 0
+ 1585 07d6 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1586 07d8 1F4A     		ldr	r2, .L109
+ 1587 07da 4FF4A671 		mov	r1, #332
+ 1588 07de 01FB03F3 		mul	r3, r1, r3
+ 1589 07e2 1344     		add	r3, r3, r2
+ 1590 07e4 0133     		adds	r3, r3, #1
+ 1591 07e6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1592 07e8 0A2B     		cmp	r3, #10
+ 1593 07ea 27D1     		bne	.L106
+ 365:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator==COMPONENT_SIXTOP              &&
+ 1594              		.loc 1 365 0 discriminator 1
+ 1595 07ec FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1596 07ee 1A4A     		ldr	r2, .L109
+ 1597 07f0 4FF4A671 		mov	r1, #332
+ 1598 07f4 01FB03F3 		mul	r3, r1, r3
+ 1599 07f8 1344     		add	r3, r3, r2
+ 1600 07fa 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 364:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1601              		.loc 1 364 0 discriminator 1
+ 1602 07fc 0C2B     		cmp	r3, #12
+ 1603 07fe 1DD1     		bne	.L106
+ 366:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             toNeighbor->type==ADDR_64B                                     &&
+ 1604              		.loc 1 366 0
+ 1605 0800 7B68     		ldr	r3, [r7, #4]
+ 1606 0802 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 365:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator==COMPONENT_SIXTOP              &&
+ 1607              		.loc 1 365 0
+ 1608 0804 022B     		cmp	r3, #2
+ 1609 0806 19D1     		bne	.L106
+ 367:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             packetfunctions_sameAddress(toNeighbor,&openqueue_vars.queue[i].l2_nextORpreviousHop)
+ 1610              		.loc 1 367 0
+ 1611 0808 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1612 080a 4FF4A672 		mov	r2, #332
+ 1613 080e 02FB03F3 		mul	r3, r2, r3
+ 1614 0812 4033     		adds	r3, r3, #64
+ 1615 0814 104A     		ldr	r2, .L109
+ 1616 0816 1344     		add	r3, r3, r2
+ 1617 0818 0133     		adds	r3, r3, #1
+ 1618 081a 1946     		mov	r1, r3
+ 1619 081c 7868     		ldr	r0, [r7, #4]
+ 1620 081e FFF7FEFF 		bl	packetfunctions_sameAddress
+ 1621 0822 0346     		mov	r3, r0
+ 366:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             toNeighbor->type==ADDR_64B                                     &&
+ 1622              		.loc 1 366 0
+ 1623 0824 002B     		cmp	r3, #0
+ 1624 0826 09D0     		beq	.L106
+ 368:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         ) {
+ 369:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             ENABLE_INTERRUPTS();
+ 1625              		.loc 1 369 0
+ 1626 0828 FFF7FEFF 		bl	IntMasterEnable
+ 370:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             return &openqueue_vars.queue[i];
+ 1627              		.loc 1 370 0
+ 1628 082c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1629 082e 4FF4A672 		mov	r2, #332
+ 1630 0832 02FB03F3 		mul	r3, r2, r3
+ 1631 0836 084A     		ldr	r2, .L109
+ 1632 0838 1344     		add	r3, r3, r2
+ 1633 083a 08E0     		b	.L107
+ 1634              	.L106:
+ 363:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1635              		.loc 1 363 0 discriminator 2
+ 1636 083c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1637 083e 0133     		adds	r3, r3, #1
+ 1638 0840 FB73     		strb	r3, [r7, #15]
+ 1639              	.L105:
+ 363:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1640              		.loc 1 363 0 is_stmt 0 discriminator 1
+ 1641 0842 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1642 0844 092B     		cmp	r3, #9
+ 1643 0846 C6D9     		bls	.L108
+ 371:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         }
+ 372:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 373:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     ENABLE_INTERRUPTS();
+ 1644              		.loc 1 373 0 is_stmt 1
+ 1645 0848 FFF7FEFF 		bl	IntMasterEnable
+ 374:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     return NULL;
+ 1646              		.loc 1 374 0
+ 1647 084c 0023     		movs	r3, #0
+ 1648              	.L107:
+ 375:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 1649              		.loc 1 375 0
+ 1650 084e 1846     		mov	r0, r3
+ 1651 0850 1037     		adds	r7, r7, #16
+ 1652              		.cfi_def_cfa_offset 8
+ 1653 0852 BD46     		mov	sp, r7
+ 1654              		.cfi_def_cfa_register 13
+ 1655              		@ sp needed
+ 1656 0854 80BD     		pop	{r7, pc}
+ 1657              	.L110:
+ 1658 0856 00BF     		.align	2
+ 1659              	.L109:
+ 1660 0858 00000000 		.word	openqueue_vars
+ 1661              		.cfi_endproc
+ 1662              	.LFE17:
+ 1664              		.align	1
+ 1665              		.global	openqueue_macGetDIOPacket
+ 1666              		.syntax unified
+ 1667              		.thumb
+ 1668              		.thumb_func
+ 1669              		.fpu softvfp
+ 1671              	openqueue_macGetDIOPacket:
+ 1672              	.LFB18:
+ 376:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 377:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** OpenQueueEntry_t*  openqueue_macGetDIOPacket(){
+ 1673              		.loc 1 377 0
+ 1674              		.cfi_startproc
+ 1675              		@ args = 0, pretend = 0, frame = 8
+ 1676              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1677 085c 80B5     		push	{r7, lr}
+ 1678              		.cfi_def_cfa_offset 8
+ 1679              		.cfi_offset 7, -8
+ 1680              		.cfi_offset 14, -4
+ 1681 085e 82B0     		sub	sp, sp, #8
+ 1682              		.cfi_def_cfa_offset 16
+ 1683 0860 00AF     		add	r7, sp, #0
+ 1684              		.cfi_def_cfa_register 7
+ 378:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 379:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 380:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 1685              		.loc 1 380 0
+ 1686 0862 FFF7FEFF 		bl	IntMasterDisable
+ 381:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 1687              		.loc 1 381 0
+ 1688 0866 0023     		movs	r3, #0
+ 1689 0868 FB71     		strb	r3, [r7, #7]
+ 1690 086a 30E0     		b	.L112
+ 1691              	.L115:
+ 382:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1692              		.loc 1 382 0
+ 1693 086c FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1694 086e 1D4A     		ldr	r2, .L116
+ 1695 0870 4FF4A671 		mov	r1, #332
+ 1696 0874 01FB03F3 		mul	r3, r1, r3
+ 1697 0878 1344     		add	r3, r3, r2
+ 1698 087a 0133     		adds	r3, r3, #1
+ 1699 087c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1700 087e 0A2B     		cmp	r3, #10
+ 1701 0880 22D1     		bne	.L113
+ 383:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator==COMPONENT_ICMPv6RPL           &&
+ 1702              		.loc 1 383 0 discriminator 1
+ 1703 0882 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1704 0884 174A     		ldr	r2, .L116
+ 1705 0886 4FF4A671 		mov	r1, #332
+ 1706 088a 01FB03F3 		mul	r3, r1, r3
+ 1707 088e 1344     		add	r3, r3, r2
+ 1708 0890 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 382:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1709              		.loc 1 382 0 discriminator 1
+ 1710 0892 162B     		cmp	r3, #22
+ 1711 0894 18D1     		bne	.L113
+ 384:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             packetfunctions_isBroadcastMulticast(&(openqueue_vars.queue[i].l2_nextORpreviousHop))) 
+ 1712              		.loc 1 384 0
+ 1713 0896 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1714 0898 4FF4A672 		mov	r2, #332
+ 1715 089c 02FB03F3 		mul	r3, r2, r3
+ 1716 08a0 4033     		adds	r3, r3, #64
+ 1717 08a2 104A     		ldr	r2, .L116
+ 1718 08a4 1344     		add	r3, r3, r2
+ 1719 08a6 0133     		adds	r3, r3, #1
+ 1720 08a8 1846     		mov	r0, r3
+ 1721 08aa FFF7FEFF 		bl	packetfunctions_isBroadcastMulticast
+ 1722 08ae 0346     		mov	r3, r0
+ 383:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].creator==COMPONENT_ICMPv6RPL           &&
+ 1723              		.loc 1 383 0
+ 1724 08b0 002B     		cmp	r3, #0
+ 1725 08b2 09D0     		beq	.L113
+ 385:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             ENABLE_INTERRUPTS();
+ 1726              		.loc 1 385 0
+ 1727 08b4 FFF7FEFF 		bl	IntMasterEnable
+ 386:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             return &openqueue_vars.queue[i];
+ 1728              		.loc 1 386 0
+ 1729 08b8 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1730 08ba 4FF4A672 		mov	r2, #332
+ 1731 08be 02FB03F3 		mul	r3, r2, r3
+ 1732 08c2 084A     		ldr	r2, .L116
+ 1733 08c4 1344     		add	r3, r3, r2
+ 1734 08c6 08E0     		b	.L114
+ 1735              	.L113:
+ 381:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1736              		.loc 1 381 0 discriminator 2
+ 1737 08c8 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1738 08ca 0133     		adds	r3, r3, #1
+ 1739 08cc FB71     		strb	r3, [r7, #7]
+ 1740              	.L112:
+ 381:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1741              		.loc 1 381 0 is_stmt 0 discriminator 1
+ 1742 08ce FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1743 08d0 092B     		cmp	r3, #9
+ 1744 08d2 CBD9     		bls	.L115
+ 387:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         }
+ 388:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 389:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     ENABLE_INTERRUPTS();
+ 1745              		.loc 1 389 0 is_stmt 1
+ 1746 08d4 FFF7FEFF 		bl	IntMasterEnable
+ 390:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     return NULL;
+ 1747              		.loc 1 390 0
+ 1748 08d8 0023     		movs	r3, #0
+ 1749              	.L114:
+ 391:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 1750              		.loc 1 391 0
+ 1751 08da 1846     		mov	r0, r3
+ 1752 08dc 0837     		adds	r7, r7, #8
+ 1753              		.cfi_def_cfa_offset 8
+ 1754 08de BD46     		mov	sp, r7
+ 1755              		.cfi_def_cfa_register 13
+ 1756              		@ sp needed
+ 1757 08e0 80BD     		pop	{r7, pc}
+ 1758              	.L117:
+ 1759 08e2 00BF     		.align	2
+ 1760              	.L116:
+ 1761 08e4 00000000 		.word	openqueue_vars
+ 1762              		.cfi_endproc
+ 1763              	.LFE18:
+ 1765              		.align	1
+ 1766              		.global	openqueue_updateNextHopPayload
+ 1767              		.syntax unified
+ 1768              		.thumb
+ 1769              		.thumb_func
+ 1770              		.fpu softvfp
+ 1772              	openqueue_updateNextHopPayload:
+ 1773              	.LFB19:
+ 392:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** /**
+ 393:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \Brief replace the upstream packet nexthop payload by given newNextHop address
+ 394:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** \param newNextHop.
+ 395:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** */
+ 396:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** void openqueue_updateNextHopPayload(open_addr_t* newNextHop){
+ 1774              		.loc 1 396 0
+ 1775              		.cfi_startproc
+ 1776              		@ args = 0, pretend = 0, frame = 16
+ 1777              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1778 08e8 80B5     		push	{r7, lr}
+ 1779              		.cfi_def_cfa_offset 8
+ 1780              		.cfi_offset 7, -8
+ 1781              		.cfi_offset 14, -4
+ 1782 08ea 84B0     		sub	sp, sp, #16
+ 1783              		.cfi_def_cfa_offset 24
+ 1784 08ec 00AF     		add	r7, sp, #0
+ 1785              		.cfi_def_cfa_register 7
+ 1786 08ee 7860     		str	r0, [r7, #4]
+ 397:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 398:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i,j;
+ 399:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 400:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 1787              		.loc 1 400 0
+ 1788 08f0 FFF7FEFF 		bl	IntMasterDisable
+ 401:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 402:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 1789              		.loc 1 402 0
+ 1790 08f4 0023     		movs	r3, #0
+ 1791 08f6 FB73     		strb	r3, [r7, #15]
+ 1792 08f8 63E0     		b	.L119
+ 1793              	.L123:
+ 403:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 404:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1794              		.loc 1 404 0
+ 1795 08fa FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1796 08fc 354A     		ldr	r2, .L124
+ 1797 08fe 4FF4A671 		mov	r1, #332
+ 1798 0902 01FB03F3 		mul	r3, r1, r3
+ 1799 0906 1344     		add	r3, r3, r2
+ 1800 0908 0133     		adds	r3, r3, #1
+ 1801 090a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 403:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 1802              		.loc 1 403 0
+ 1803 090c 0A2B     		cmp	r3, #10
+ 1804 090e 55D1     		bne	.L120
+ 405:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             (
+ 406:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 newNextHop->type==ADDR_64B &&
+ 1805              		.loc 1 406 0
+ 1806 0910 7B68     		ldr	r3, [r7, #4]
+ 1807 0912 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 404:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             (
+ 1808              		.loc 1 404 0
+ 1809 0914 022B     		cmp	r3, #2
+ 1810 0916 51D1     		bne	.L120
+ 407:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 packetfunctions_sameAddress(newNextHop,&openqueue_vars.queue[i].l2_nextORpreviousHo
+ 1811              		.loc 1 407 0
+ 1812 0918 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1813 091a 4FF4A672 		mov	r2, #332
+ 1814 091e 02FB03F3 		mul	r3, r2, r3
+ 1815 0922 4033     		adds	r3, r3, #64
+ 1816 0924 2B4A     		ldr	r2, .L124
+ 1817 0926 1344     		add	r3, r3, r2
+ 1818 0928 0133     		adds	r3, r3, #1
+ 1819 092a 1946     		mov	r1, r3
+ 1820 092c 7868     		ldr	r0, [r7, #4]
+ 1821 092e FFF7FEFF 		bl	packetfunctions_sameAddress
+ 1822 0932 0346     		mov	r3, r0
+ 1823 0934 83F00103 		eor	r3, r3, #1
+ 1824 0938 DBB2     		uxtb	r3, r3
+ 406:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 packetfunctions_sameAddress(newNextHop,&openqueue_vars.queue[i].l2_nextORpreviousHo
+ 1825              		.loc 1 406 0
+ 1826 093a 002B     		cmp	r3, #0
+ 1827 093c 3ED0     		beq	.L120
+ 408:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             )
+ 409:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         ){
+ 410:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             if (
+ 411:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 openqueue_vars.queue[i].creator >= COMPONENT_FORWARDING &&
+ 1828              		.loc 1 411 0
+ 1829 093e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1830 0940 244A     		ldr	r2, .L124
+ 1831 0942 4FF4A671 		mov	r1, #332
+ 1832 0946 01FB03F3 		mul	r3, r1, r3
+ 1833 094a 1344     		add	r3, r3, r2
+ 1834 094c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 410:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 openqueue_vars.queue[i].creator >= COMPONENT_FORWARDING &&
+ 1835              		.loc 1 410 0
+ 1836 094e 112B     		cmp	r3, #17
+ 1837 0950 34D9     		bls	.L120
+ 412:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 openqueue_vars.queue[i].l3_useSourceRouting == FALSE
+ 1838              		.loc 1 412 0
+ 1839 0952 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1840 0954 1F4A     		ldr	r2, .L124
+ 1841 0956 4FF4A671 		mov	r1, #332
+ 1842 095a 01FB03F3 		mul	r3, r1, r3
+ 1843 095e 1344     		add	r3, r3, r2
+ 1844 0960 3F33     		adds	r3, r3, #63
+ 1845 0962 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1846 0964 83F00103 		eor	r3, r3, #1
+ 1847 0968 DBB2     		uxtb	r3, r3
+ 411:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 openqueue_vars.queue[i].l3_useSourceRouting == FALSE
+ 1848              		.loc 1 411 0
+ 1849 096a 002B     		cmp	r3, #0
+ 1850 096c 26D0     		beq	.L120
+ 413:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             ) {
+ 414:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 memcpy(&openqueue_vars.queue[i].l2_nextORpreviousHop, newNextHop, sizeof(open_addr_
+ 1851              		.loc 1 414 0
+ 1852 096e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1853 0970 4FF4A672 		mov	r2, #332
+ 1854 0974 02FB03F3 		mul	r3, r2, r3
+ 1855 0978 4033     		adds	r3, r3, #64
+ 1856 097a 164A     		ldr	r2, .L124
+ 1857 097c 1344     		add	r3, r3, r2
+ 1858 097e 0133     		adds	r3, r3, #1
+ 1859 0980 1122     		movs	r2, #17
+ 1860 0982 7968     		ldr	r1, [r7, #4]
+ 1861 0984 1846     		mov	r0, r3
+ 1862 0986 FFF7FEFF 		bl	memcpy
+ 415:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 for (j=0;j<8;j++) {
+ 1863              		.loc 1 415 0
+ 1864 098a 0023     		movs	r3, #0
+ 1865 098c BB73     		strb	r3, [r7, #14]
+ 1866 098e 12E0     		b	.L121
+ 1867              	.L122:
+ 416:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                     *((uint8_t*)openqueue_vars.queue[i].l2_nextHop_payload+j) = newNextHop->addr_64
+ 1868              		.loc 1 416 0 discriminator 3
+ 1869 0990 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 1870 0992 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1871 0994 0F49     		ldr	r1, .L124
+ 1872 0996 4FF4A670 		mov	r0, #332
+ 1873 099a 00FB03F3 		mul	r3, r0, r3
+ 1874 099e 0B44     		add	r3, r3, r1
+ 1875 09a0 9C33     		adds	r3, r3, #156
+ 1876 09a2 1968     		ldr	r1, [r3]
+ 1877 09a4 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 1878 09a6 0B44     		add	r3, r3, r1
+ 1879 09a8 7968     		ldr	r1, [r7, #4]
+ 1880 09aa 0A44     		add	r2, r2, r1
+ 1881 09ac 5278     		ldrb	r2, [r2, #1]	@ zero_extendqisi2
+ 1882 09ae 1A70     		strb	r2, [r3]
+ 415:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 for (j=0;j<8;j++) {
+ 1883              		.loc 1 415 0 discriminator 3
+ 1884 09b0 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 1885 09b2 0133     		adds	r3, r3, #1
+ 1886 09b4 BB73     		strb	r3, [r7, #14]
+ 1887              	.L121:
+ 415:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 for (j=0;j<8;j++) {
+ 1888              		.loc 1 415 0 is_stmt 0 discriminator 1
+ 1889 09b6 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 1890 09b8 072B     		cmp	r3, #7
+ 1891 09ba E9D9     		bls	.L122
+ 1892              	.L120:
+ 402:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 1893              		.loc 1 402 0 is_stmt 1 discriminator 2
+ 1894 09bc FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1895 09be 0133     		adds	r3, r3, #1
+ 1896 09c0 FB73     		strb	r3, [r7, #15]
+ 1897              	.L119:
+ 402:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         if (
+ 1898              		.loc 1 402 0 is_stmt 0 discriminator 1
+ 1899 09c2 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1900 09c4 092B     		cmp	r3, #9
+ 1901 09c6 98D9     		bls	.L123
+ 417:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 }
+ 418:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             }
+ 419:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         }
+ 420:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 421:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 422:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     ENABLE_INTERRUPTS();
+ 1902              		.loc 1 422 0 is_stmt 1
+ 1903 09c8 FFF7FEFF 		bl	IntMasterEnable
+ 423:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 1904              		.loc 1 423 0
+ 1905 09cc 00BF     		nop
+ 1906 09ce 1037     		adds	r7, r7, #16
+ 1907              		.cfi_def_cfa_offset 8
+ 1908 09d0 BD46     		mov	sp, r7
+ 1909              		.cfi_def_cfa_register 13
+ 1910              		@ sp needed
+ 1911 09d2 80BD     		pop	{r7, pc}
+ 1912              	.L125:
+ 1913              		.align	2
+ 1914              	.L124:
+ 1915 09d4 00000000 		.word	openqueue_vars
+ 1916              		.cfi_endproc
+ 1917              	.LFE19:
+ 1919              		.align	1
+ 1920              		.global	openqueue_macGetNonJoinIPv6Packet
+ 1921              		.syntax unified
+ 1922              		.thumb
+ 1923              		.thumb_func
+ 1924              		.fpu softvfp
+ 1926              	openqueue_macGetNonJoinIPv6Packet:
+ 1927              	.LFB20:
+ 424:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 425:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** OpenQueueEntry_t*  openqueue_macGetNonJoinIPv6Packet(open_addr_t* toNeighbor){
+ 1928              		.loc 1 425 0
+ 1929              		.cfi_startproc
+ 1930              		@ args = 0, pretend = 0, frame = 16
+ 1931              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1932 09d8 80B5     		push	{r7, lr}
+ 1933              		.cfi_def_cfa_offset 8
+ 1934              		.cfi_offset 7, -8
+ 1935              		.cfi_offset 14, -4
+ 1936 09da 84B0     		sub	sp, sp, #16
+ 1937              		.cfi_def_cfa_offset 24
+ 1938 09dc 00AF     		add	r7, sp, #0
+ 1939              		.cfi_def_cfa_register 7
+ 1940 09de 7860     		str	r0, [r7, #4]
+ 426:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 427:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t packet_index;
+ 428:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 429:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 1941              		.loc 1 429 0
+ 1942 09e0 FFF7FEFF 		bl	IntMasterDisable
+ 430:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 431:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     packet_index = QUEUELENGTH;
+ 1943              		.loc 1 431 0
+ 1944 09e4 0A23     		movs	r3, #10
+ 1945 09e6 BB73     		strb	r3, [r7, #14]
+ 432:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     // first to look the sixtop RES packet
+ 433:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 1946              		.loc 1 433 0
+ 1947 09e8 0023     		movs	r3, #0
+ 1948 09ea FB73     		strb	r3, [r7, #15]
+ 1949 09ec 4FE0     		b	.L127
+ 1950              	.L130:
+ 434:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 435:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 1951              		.loc 1 435 0
+ 1952 09ee FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1953 09f0 324A     		ldr	r2, .L133
+ 1954 09f2 4FF4A671 		mov	r1, #332
+ 1955 09f6 01FB03F3 		mul	r3, r1, r3
+ 1956 09fa 1344     		add	r3, r3, r2
+ 1957 09fc 0133     		adds	r3, r3, #1
+ 1958 09fe 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 434:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 1959              		.loc 1 434 0
+ 1960 0a00 0A2B     		cmp	r3, #10
+ 1961 0a02 41D1     		bne	.L128
+ 436:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            (
+ 437:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                toNeighbor->type==ADDR_64B &&
+ 1962              		.loc 1 437 0
+ 1963 0a04 7B68     		ldr	r3, [r7, #4]
+ 1964 0a06 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 435:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            (
+ 1965              		.loc 1 435 0
+ 1966 0a08 022B     		cmp	r3, #2
+ 1967 0a0a 3DD1     		bne	.L128
+ 438:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                packetfunctions_sameAddress(toNeighbor,&openqueue_vars.queue[i].l2_nextORpreviousHop
+ 1968              		.loc 1 438 0
+ 1969 0a0c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1970 0a0e 4FF4A672 		mov	r2, #332
+ 1971 0a12 02FB03F3 		mul	r3, r2, r3
+ 1972 0a16 4033     		adds	r3, r3, #64
+ 1973 0a18 284A     		ldr	r2, .L133
+ 1974 0a1a 1344     		add	r3, r3, r2
+ 1975 0a1c 0133     		adds	r3, r3, #1
+ 1976 0a1e 1946     		mov	r1, r3
+ 1977 0a20 7868     		ldr	r0, [r7, #4]
+ 1978 0a22 FFF7FEFF 		bl	packetfunctions_sameAddress
+ 1979 0a26 0346     		mov	r3, r0
+ 437:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                packetfunctions_sameAddress(toNeighbor,&openqueue_vars.queue[i].l2_nextORpreviousHop
+ 1980              		.loc 1 437 0
+ 1981 0a28 002B     		cmp	r3, #0
+ 1982 0a2a 2DD0     		beq	.L128
+ 439:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            ) &&
+ 440:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].creator >= COMPONENT_OPENBRIDGE &&
+ 1983              		.loc 1 440 0
+ 1984 0a2c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1985 0a2e 234A     		ldr	r2, .L133
+ 1986 0a30 4FF4A671 		mov	r1, #332
+ 1987 0a34 01FB03F3 		mul	r3, r1, r3
+ 1988 0a38 1344     		add	r3, r3, r2
+ 1989 0a3a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 439:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            ) &&
+ 1990              		.loc 1 439 0
+ 1991 0a3c 0F2B     		cmp	r3, #15
+ 1992 0a3e 23D9     		bls	.L128
+ 441:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].creator != COMPONENT_CJOIN
+ 1993              		.loc 1 441 0
+ 1994 0a40 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1995 0a42 1E4A     		ldr	r2, .L133
+ 1996 0a44 4FF4A671 		mov	r1, #332
+ 1997 0a48 01FB03F3 		mul	r3, r1, r3
+ 1998 0a4c 1344     		add	r3, r3, r2
+ 1999 0a4e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 440:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].creator != COMPONENT_CJOIN
+ 2000              		.loc 1 440 0
+ 2001 0a50 272B     		cmp	r3, #39
+ 2002 0a52 19D0     		beq	.L128
+ 442:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        ){
+ 443:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             if (packet_index==QUEUELENGTH){
+ 2003              		.loc 1 443 0
+ 2004 0a54 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 2005 0a56 0A2B     		cmp	r3, #10
+ 2006 0a58 02D1     		bne	.L129
+ 444:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 packet_index = i;
+ 2007              		.loc 1 444 0
+ 2008 0a5a FB7B     		ldrb	r3, [r7, #15]
+ 2009 0a5c BB73     		strb	r3, [r7, #14]
+ 2010 0a5e 13E0     		b	.L128
+ 2011              	.L129:
+ 445:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             } else {
+ 446:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 if (openqueue_vars.queue[i].creator<openqueue_vars.queue[packet_index].creator){
+ 2012              		.loc 1 446 0
+ 2013 0a60 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2014 0a62 164A     		ldr	r2, .L133
+ 2015 0a64 4FF4A671 		mov	r1, #332
+ 2016 0a68 01FB03F3 		mul	r3, r1, r3
+ 2017 0a6c 1344     		add	r3, r3, r2
+ 2018 0a6e 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 2019 0a70 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 2020 0a72 1249     		ldr	r1, .L133
+ 2021 0a74 4FF4A670 		mov	r0, #332
+ 2022 0a78 00FB03F3 		mul	r3, r0, r3
+ 2023 0a7c 0B44     		add	r3, r3, r1
+ 2024 0a7e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 2025 0a80 9A42     		cmp	r2, r3
+ 2026 0a82 01D2     		bcs	.L128
+ 447:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                     packet_index = i;
+ 2027              		.loc 1 447 0
+ 2028 0a84 FB7B     		ldrb	r3, [r7, #15]
+ 2029 0a86 BB73     		strb	r3, [r7, #14]
+ 2030              	.L128:
+ 433:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 2031              		.loc 1 433 0 discriminator 2
+ 2032 0a88 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2033 0a8a 0133     		adds	r3, r3, #1
+ 2034 0a8c FB73     		strb	r3, [r7, #15]
+ 2035              	.L127:
+ 433:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 2036              		.loc 1 433 0 is_stmt 0 discriminator 1
+ 2037 0a8e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2038 0a90 092B     		cmp	r3, #9
+ 2039 0a92 ACD9     		bls	.L130
+ 448:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 }
+ 449:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             }
+ 450:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        }
+ 451:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 452:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 453:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     if (packet_index == QUEUELENGTH){
+ 2040              		.loc 1 453 0 is_stmt 1
+ 2041 0a94 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 2042 0a96 0A2B     		cmp	r3, #10
+ 2043 0a98 03D1     		bne	.L131
+ 454:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         ENABLE_INTERRUPTS();
+ 2044              		.loc 1 454 0
+ 2045 0a9a FFF7FEFF 		bl	IntMasterEnable
+ 455:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         return NULL;
+ 2046              		.loc 1 455 0
+ 2047 0a9e 0023     		movs	r3, #0
+ 2048 0aa0 08E0     		b	.L132
+ 2049              	.L131:
+ 456:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     } else {
+ 457:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         ENABLE_INTERRUPTS();
+ 2050              		.loc 1 457 0
+ 2051 0aa2 FFF7FEFF 		bl	IntMasterEnable
+ 458:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****         return &openqueue_vars.queue[packet_index];
+ 2052              		.loc 1 458 0
+ 2053 0aa6 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 2054 0aa8 4FF4A672 		mov	r2, #332
+ 2055 0aac 02FB03F3 		mul	r3, r2, r3
+ 2056 0ab0 024A     		ldr	r2, .L133
+ 2057 0ab2 1344     		add	r3, r3, r2
+ 2058              	.L132:
+ 459:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 460:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 2059              		.loc 1 460 0
+ 2060 0ab4 1846     		mov	r0, r3
+ 2061 0ab6 1037     		adds	r7, r7, #16
+ 2062              		.cfi_def_cfa_offset 8
+ 2063 0ab8 BD46     		mov	sp, r7
+ 2064              		.cfi_def_cfa_register 13
+ 2065              		@ sp needed
+ 2066 0aba 80BD     		pop	{r7, pc}
+ 2067              	.L134:
+ 2068              		.align	2
+ 2069              	.L133:
+ 2070 0abc 00000000 		.word	openqueue_vars
+ 2071              		.cfi_endproc
+ 2072              	.LFE20:
+ 2074              		.align	1
+ 2075              		.global	openqueue_macGet6PandJoinPacket
+ 2076              		.syntax unified
+ 2077              		.thumb
+ 2078              		.thumb_func
+ 2079              		.fpu softvfp
+ 2081              	openqueue_macGet6PandJoinPacket:
+ 2082              	.LFB21:
+ 461:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 462:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** OpenQueueEntry_t*  openqueue_macGet6PandJoinPacket(open_addr_t* toNeighbor){
+ 2083              		.loc 1 462 0
+ 2084              		.cfi_startproc
+ 2085              		@ args = 0, pretend = 0, frame = 16
+ 2086              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2087 0ac0 80B5     		push	{r7, lr}
+ 2088              		.cfi_def_cfa_offset 8
+ 2089              		.cfi_offset 7, -8
+ 2090              		.cfi_offset 14, -4
+ 2091 0ac2 84B0     		sub	sp, sp, #16
+ 2092              		.cfi_def_cfa_offset 24
+ 2093 0ac4 00AF     		add	r7, sp, #0
+ 2094              		.cfi_def_cfa_register 7
+ 2095 0ac6 7860     		str	r0, [r7, #4]
+ 463:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     uint8_t i;
+ 464:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     INTERRUPT_DECLARATION();
+ 465:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     DISABLE_INTERRUPTS();
+ 2096              		.loc 1 465 0
+ 2097 0ac8 FFF7FEFF 		bl	IntMasterDisable
+ 466:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 467:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     // first to look the sixtop RES packet
+ 468:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     for (i=0;i<QUEUELENGTH;i++) {
+ 2098              		.loc 1 468 0
+ 2099 0acc 0023     		movs	r3, #0
+ 2100 0ace FB73     		strb	r3, [r7, #15]
+ 2101 0ad0 43E0     		b	.L136
+ 2102              	.L142:
+ 469:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 470:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            openqueue_vars.queue[i].owner==COMPONENT_SIXTOP_TO_IEEE802154E &&
+ 2103              		.loc 1 470 0
+ 2104 0ad2 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2105 0ad4 264A     		ldr	r2, .L143
+ 2106 0ad6 4FF4A671 		mov	r1, #332
+ 2107 0ada 01FB03F3 		mul	r3, r1, r3
+ 2108 0ade 1344     		add	r3, r3, r2
+ 2109 0ae0 0133     		adds	r3, r3, #1
+ 2110 0ae2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 469:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 2111              		.loc 1 469 0
+ 2112 0ae4 0A2B     		cmp	r3, #10
+ 2113 0ae6 35D1     		bne	.L137
+ 471:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            (
+ 472:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                (
+ 473:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                     toNeighbor->type==ADDR_64B &&
+ 2114              		.loc 1 473 0
+ 2115 0ae8 7B68     		ldr	r3, [r7, #4]
+ 2116 0aea 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 470:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            (
+ 2117              		.loc 1 470 0
+ 2118 0aec 022B     		cmp	r3, #2
+ 2119 0aee 0FD1     		bne	.L138
+ 474:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                     packetfunctions_sameAddress(toNeighbor,&openqueue_vars.queue[i].l2_nextORprevio
+ 2120              		.loc 1 474 0
+ 2121 0af0 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2122 0af2 4FF4A672 		mov	r2, #332
+ 2123 0af6 02FB03F3 		mul	r3, r2, r3
+ 2124 0afa 4033     		adds	r3, r3, #64
+ 2125 0afc 1C4A     		ldr	r2, .L143
+ 2126 0afe 1344     		add	r3, r3, r2
+ 2127 0b00 0133     		adds	r3, r3, #1
+ 2128 0b02 1946     		mov	r1, r3
+ 2129 0b04 7868     		ldr	r0, [r7, #4]
+ 2130 0b06 FFF7FEFF 		bl	packetfunctions_sameAddress
+ 2131 0b0a 0346     		mov	r3, r0
+ 473:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                     packetfunctions_sameAddress(toNeighbor,&openqueue_vars.queue[i].l2_nextORprevio
+ 2132              		.loc 1 473 0
+ 2133 0b0c 002B     		cmp	r3, #0
+ 2134 0b0e 03D1     		bne	.L139
+ 2135              	.L138:
+ 475:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                 ) || toNeighbor->type==ADDR_ANYCAST // in case autonomous unicast cells is located 
+ 2136              		.loc 1 475 0
+ 2137 0b10 7B68     		ldr	r3, [r7, #4]
+ 2138 0b12 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 2139 0b14 062B     		cmp	r3, #6
+ 2140 0b16 1DD1     		bne	.L137
+ 2141              	.L139:
+ 476:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            ) &&
+ 477:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            (
+ 478:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                openqueue_vars.queue[i].creator == COMPONENT_SIXTOP_RES ||
+ 2142              		.loc 1 478 0
+ 2143 0b18 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2144 0b1a 154A     		ldr	r2, .L143
+ 2145 0b1c 4FF4A671 		mov	r1, #332
+ 2146 0b20 01FB03F3 		mul	r3, r1, r3
+ 2147 0b24 1344     		add	r3, r3, r2
+ 2148 0b26 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 476:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            ) &&
+ 2149              		.loc 1 476 0
+ 2150 0b28 0F2B     		cmp	r3, #15
+ 2151 0b2a 09D0     		beq	.L140
+ 479:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                openqueue_vars.queue[i].creator == COMPONENT_CJOIN
+ 2152              		.loc 1 479 0
+ 2153 0b2c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2154 0b2e 104A     		ldr	r2, .L143
+ 2155 0b30 4FF4A671 		mov	r1, #332
+ 2156 0b34 01FB03F3 		mul	r3, r1, r3
+ 2157 0b38 1344     		add	r3, r3, r2
+ 2158 0b3a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 478:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****                openqueue_vars.queue[i].creator == COMPONENT_CJOIN
+ 2159              		.loc 1 478 0
+ 2160 0b3c 272B     		cmp	r3, #39
+ 2161 0b3e 09D1     		bne	.L137
+ 2162              	.L140:
+ 480:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****            )
+ 481:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        ){
+ 482:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             ENABLE_INTERRUPTS();
+ 2163              		.loc 1 482 0
+ 2164 0b40 FFF7FEFF 		bl	IntMasterEnable
+ 483:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****             return &openqueue_vars.queue[i];
+ 2165              		.loc 1 483 0
+ 2166 0b44 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2167 0b46 4FF4A672 		mov	r2, #332
+ 2168 0b4a 02FB03F3 		mul	r3, r2, r3
+ 2169 0b4e 084A     		ldr	r2, .L143
+ 2170 0b50 1344     		add	r3, r3, r2
+ 2171 0b52 08E0     		b	.L141
+ 2172              	.L137:
+ 468:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 2173              		.loc 1 468 0 discriminator 2
+ 2174 0b54 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2175 0b56 0133     		adds	r3, r3, #1
+ 2176 0b58 FB73     		strb	r3, [r7, #15]
+ 2177              	.L136:
+ 468:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        if (
+ 2178              		.loc 1 468 0 is_stmt 0 discriminator 1
+ 2179 0b5a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2180 0b5c 092B     		cmp	r3, #9
+ 2181 0b5e B8D9     		bls	.L142
+ 484:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****        }
+ 485:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     }
+ 486:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 487:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     ENABLE_INTERRUPTS();
+ 2182              		.loc 1 487 0 is_stmt 1
+ 2183 0b60 FFF7FEFF 		bl	IntMasterEnable
+ 488:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****     return NULL;
+ 2184              		.loc 1 488 0
+ 2185 0b64 0023     		movs	r3, #0
+ 2186              	.L141:
+ 489:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 2187              		.loc 1 489 0
+ 2188 0b66 1846     		mov	r0, r3
+ 2189 0b68 1037     		adds	r7, r7, #16
+ 2190              		.cfi_def_cfa_offset 8
+ 2191 0b6a BD46     		mov	sp, r7
+ 2192              		.cfi_def_cfa_register 13
+ 2193              		@ sp needed
+ 2194 0b6c 80BD     		pop	{r7, pc}
+ 2195              	.L144:
+ 2196 0b6e 00BF     		.align	2
+ 2197              	.L143:
+ 2198 0b70 00000000 		.word	openqueue_vars
+ 2199              		.cfi_endproc
+ 2200              	.LFE21:
+ 2202              		.align	1
+ 2203              		.global	openqueue_reset_entry
+ 2204              		.syntax unified
+ 2205              		.thumb
+ 2206              		.thumb_func
+ 2207              		.fpu softvfp
+ 2209              	openqueue_reset_entry:
+ 2210              	.LFB22:
+ 490:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 491:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 492:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** //=========================== private =========================================
+ 493:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** 
+ 494:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** void openqueue_reset_entry(OpenQueueEntry_t* entry) {
+ 2211              		.loc 1 494 0
+ 2212              		.cfi_startproc
+ 2213              		@ args = 0, pretend = 0, frame = 8
+ 2214              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2215              		@ link register save eliminated.
+ 2216 0b74 80B4     		push	{r7}
+ 2217              		.cfi_def_cfa_offset 4
+ 2218              		.cfi_offset 7, -4
+ 2219 0b76 83B0     		sub	sp, sp, #12
+ 2220              		.cfi_def_cfa_offset 16
+ 2221 0b78 00AF     		add	r7, sp, #0
+ 2222              		.cfi_def_cfa_register 7
+ 2223 0b7a 7860     		str	r0, [r7, #4]
+ 495:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    //admin
+ 496:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->creator                      = COMPONENT_NULL;
+ 2224              		.loc 1 496 0
+ 2225 0b7c 7B68     		ldr	r3, [r7, #4]
+ 2226 0b7e 0022     		movs	r2, #0
+ 2227 0b80 1A70     		strb	r2, [r3]
+ 497:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->owner                        = COMPONENT_NULL;
+ 2228              		.loc 1 497 0
+ 2229 0b82 7B68     		ldr	r3, [r7, #4]
+ 2230 0b84 0022     		movs	r2, #0
+ 2231 0b86 5A70     		strb	r2, [r3, #1]
+ 498:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->payload                      = &(entry->packet[127 - IEEE802154_SECURITY_TAG_LEN]); // Fo
+ 2232              		.loc 1 498 0
+ 2233 0b88 7B68     		ldr	r3, [r7, #4]
+ 2234 0b8a 03F24712 		addw	r2, r3, #327
+ 2235 0b8e 7B68     		ldr	r3, [r7, #4]
+ 2236 0b90 5A60     		str	r2, [r3, #4]
+ 499:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->length                       = 0;
+ 2237              		.loc 1 499 0
+ 2238 0b92 7B68     		ldr	r3, [r7, #4]
+ 2239 0b94 0022     		movs	r2, #0
+ 2240 0b96 1A72     		strb	r2, [r3, #8]
+ 500:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->is_cjoin_response            = FALSE;
+ 2241              		.loc 1 500 0
+ 2242 0b98 7B68     		ldr	r3, [r7, #4]
+ 2243 0b9a 0022     		movs	r2, #0
+ 2244 0b9c 9A73     		strb	r2, [r3, #14]
+ 501:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    //l4
+ 502:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l4_protocol                  = IANA_UNDEFINED;
+ 2245              		.loc 1 502 0
+ 2246 0b9e 7B68     		ldr	r3, [r7, #4]
+ 2247 0ba0 FA22     		movs	r2, #250
+ 2248 0ba2 DA73     		strb	r2, [r3, #15]
+ 503:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l4_protocol_compressed       = FALSE;
+ 2249              		.loc 1 503 0
+ 2250 0ba4 7B68     		ldr	r3, [r7, #4]
+ 2251 0ba6 0022     		movs	r2, #0
+ 2252 0ba8 1A74     		strb	r2, [r3, #16]
+ 504:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    //l3
+ 505:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l3_destinationAdd.type       = ADDR_NONE;
+ 2253              		.loc 1 505 0
+ 2254 0baa 7B68     		ldr	r3, [r7, #4]
+ 2255 0bac 0022     		movs	r2, #0
+ 2256 0bae 5A77     		strb	r2, [r3, #29]
+ 506:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l3_sourceAdd.type            = ADDR_NONE;
+ 2257              		.loc 1 506 0
+ 2258 0bb0 7B68     		ldr	r3, [r7, #4]
+ 2259 0bb2 0022     		movs	r2, #0
+ 2260 0bb4 83F82E20 		strb	r2, [r3, #46]
+ 507:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l3_useSourceRouting          = FALSE;
+ 2261              		.loc 1 507 0
+ 2262 0bb8 7B68     		ldr	r3, [r7, #4]
+ 2263 0bba 0022     		movs	r2, #0
+ 2264 0bbc 83F83F20 		strb	r2, [r3, #63]
+ 508:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    //l2
+ 509:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l2_nextORpreviousHop.type    = ADDR_NONE;
+ 2265              		.loc 1 509 0
+ 2266 0bc0 7B68     		ldr	r3, [r7, #4]
+ 2267 0bc2 0022     		movs	r2, #0
+ 2268 0bc4 83F84120 		strb	r2, [r3, #65]
+ 510:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l2_frameType                 = IEEE154_TYPE_UNDEFINED;
+ 2269              		.loc 1 510 0
+ 2270 0bc8 7B68     		ldr	r3, [r7, #4]
+ 2271 0bca 0522     		movs	r2, #5
+ 2272 0bcc 83F85220 		strb	r2, [r3, #82]
+ 511:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l2_retriesLeft               = 0;
+ 2273              		.loc 1 511 0
+ 2274 0bd0 7B68     		ldr	r3, [r7, #4]
+ 2275 0bd2 0022     		movs	r2, #0
+ 2276 0bd4 83F85420 		strb	r2, [r3, #84]
+ 512:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l2_IEListPresent             = 0;
+ 2277              		.loc 1 512 0
+ 2278 0bd8 7B68     		ldr	r3, [r7, #4]
+ 2279 0bda 0022     		movs	r2, #0
+ 2280 0bdc 83F8A120 		strb	r2, [r3, #161]
+ 513:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l2_isNegativeACK             = 0;
+ 2281              		.loc 1 513 0
+ 2282 0be0 7B68     		ldr	r3, [r7, #4]
+ 2283 0be2 0022     		movs	r2, #0
+ 2284 0be4 83F8A420 		strb	r2, [r3, #164]
+ 514:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l2_payloadIEpresent          = 0;
+ 2285              		.loc 1 514 0
+ 2286 0be8 7B68     		ldr	r3, [r7, #4]
+ 2287 0bea 0022     		movs	r2, #0
+ 2288 0bec 83F8A220 		strb	r2, [r3, #162]
+ 515:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l2_sendOnTxCell              = FALSE;
+ 2289              		.loc 1 515 0
+ 2290 0bf0 7B68     		ldr	r3, [r7, #4]
+ 2291 0bf2 0022     		movs	r2, #0
+ 2292 0bf4 83F8A820 		strb	r2, [r3, #168]
+ 516:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    //l2-security
+ 517:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c ****    entry->l2_securityLevel             = 0;
+ 2293              		.loc 1 517 0
+ 2294 0bf8 7B68     		ldr	r3, [r7, #4]
+ 2295 0bfa 0022     		movs	r2, #0
+ 2296 0bfc 83F8A920 		strb	r2, [r3, #169]
+ 518:build\openmote-cc2538_armgcc\openstack\cross-layers/openqueue.c **** }
+ 2297              		.loc 1 518 0
+ 2298 0c00 00BF     		nop
+ 2299 0c02 0C37     		adds	r7, r7, #12
+ 2300              		.cfi_def_cfa_offset 4
+ 2301 0c04 BD46     		mov	sp, r7
+ 2302              		.cfi_def_cfa_register 13
+ 2303              		@ sp needed
+ 2304 0c06 80BC     		pop	{r7}
+ 2305              		.cfi_restore 7
+ 2306              		.cfi_def_cfa_offset 0
+ 2307 0c08 7047     		bx	lr
+ 2308              		.cfi_endproc
+ 2309              	.LFE22:
+ 2311              	.Letext0:
+ 2312              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2313              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2314              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2315              		.file 5 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2316              		.file 6 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\lib\\gcc\\arm-none-eab
+ 2317              		.file 7 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 2318              		.file 8 "bsp\\boards\\openmote-cc2538/board_info.h"
+ 2319              		.file 9 "inc/opendefs.h"
+ 2320              		.file 10 "build\\openmote-cc2538_armgcc\\openstack\\cross-layers\\openqueue.h"
+ 2321              		.file 11 "openstack\\02a-MAClow/IEEE802154E.h"
+ 2322              		.file 12 "openstack\\02b-MAChigh/sixtop.h"
+ 2323              		.file 13 "openstack\\02a-MAClow/IEEE802154.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 openqueue.c
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:16     .rodata:00000000 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:19     .rodata:00000000 rreg_uriquery
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:24     .rodata:00000008 infoBoardname
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:29     .rodata:00000010 infouCName
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:34     .rodata:00000018 infoRadioName
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:39     .rodata:00000024 infoStackName
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:44     .rodata:00000030 chTemplate_default
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:64     .rodata:00000040 ebIEsBytestream
+                            *COM*:00000cf8 openqueue_vars
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:95     .text:00000000 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:102    .text:00000000 openqueue_init
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:2209   .text:00000b74 openqueue_reset_entry
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:150    .text:00000034 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:154    .text:00000038 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:161    .text:00000038 debugPrint_queue
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:233    .text:000000a4 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:237    .text:000000a8 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:244    .text:000000a8 openqueue_getFreePacketBuffer
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1377   .text:000006dc openqueue_isHighPriorityEntryEnough
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:363    .text:00000164 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:367    .text:00000168 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:374    .text:00000168 openqueue_freePacketBuffer
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:467    .text:000001f4 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:471    .text:000001f8 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:478    .text:000001f8 openqueue_removeAllCreatedBy
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:554    .text:00000264 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:558    .text:00000268 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:565    .text:00000268 openqueue_sixtopGetSentPacket
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:641    .text:000002d0 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:645    .text:000002d4 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:652    .text:000002d4 openqueue_sixtopGetReceivedPacket
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:728    .text:0000033c $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:732    .text:00000340 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:739    .text:00000340 openqueue_getNum6PReq
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:840    .text:000003d8 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:844    .text:000003dc $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:851    .text:000003dc openqueue_getNum6PResp
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:936    .text:00000450 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:940    .text:00000454 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:947    .text:00000454 openqueue_remove6PrequestToNeighbor
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1047   .text:000004f4 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1051   .text:000004f8 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1058   .text:000004f8 openqueue_macGet6PResponseAndDownStreamPacket
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1243   .text:00000624 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1247   .text:00000628 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1254   .text:00000628 openqueue_macGet6PRequestOnAnycast
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1366   .text:000006d8 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1370   .text:000006dc $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1450   .text:00000734 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1454   .text:00000738 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1461   .text:00000738 openqueue_macGetEBPacket
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1551   .text:000007c0 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1555   .text:000007c4 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1562   .text:000007c4 openqueue_macGetKaPacket
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1660   .text:00000858 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1664   .text:0000085c $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1671   .text:0000085c openqueue_macGetDIOPacket
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1761   .text:000008e4 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1765   .text:000008e8 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1772   .text:000008e8 openqueue_updateNextHopPayload
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1915   .text:000009d4 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1919   .text:000009d8 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:1926   .text:000009d8 openqueue_macGetNonJoinIPv6Packet
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:2070   .text:00000abc $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:2074   .text:00000ac0 $t
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:2081   .text:00000ac0 openqueue_macGet6PandJoinPacket
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:2198   .text:00000b70 $d
+C:\Users\Lee\AppData\Local\Temp\ccb6QmVu.s:2202   .text:00000b74 $t
+                           .group:00000000 wm4.0.93d65e4ff05d5af51629690e5b534e57
+                           .group:00000000 wm4._newlib_version.h.4.875b979a44719054cd750d0952ad3fd6
+                           .group:00000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.cce27fed8484c08a33f522034c30d2b5
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:00000000 wm4.newlib.h.8.f6e543eac3f2f65163ba2ffe3b04987b
+                           .group:00000000 wm4.ieeefp.h.77.220d9cccac42cd58761758bee2df4ce6
+                           .group:00000000 wm4.config.h.220.6cac6a9685cfce5e83c17784171638d9
+                           .group:00000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:00000000 wm4.stddef.h.39.a38874c8f8a57e66301090908ec2a69f
+                           .group:00000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:00000000 wm4._types.h.125.5cf8a495f1f7ef36777ad868a1e32068
+                           .group:00000000 wm4.stddef.h.161.5349cb105733e8777bfb0cf53c4e3f34
+                           .group:00000000 wm4._types.h.184.03611d4f6b5bec9997bcf4279eceba07
+                           .group:00000000 wm4.reent.h.17.90c2574d4acdcfce933db5cb09ff35fe
+                           .group:00000000 wm4.cdefs.h.47.0bcdf94cb40e176393dd1404056825b4
+                           .group:00000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:00000000 wm4.stddef.h.161.19e15733342b50ead2919490b095303e
+                           .group:00000000 wm4.stdbool.h.29.07dce69c3b78884144b7f7bd19483461
+                           .group:00000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:00000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:00000000 wm4.board_info.h.22.34c159473b0affd9f1a6f5aa8cf576c9
+                           .group:00000000 wm4.opendefs.h.23.3a22b672f37c862344b7aef3ebe35451
+                           .group:00000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:00000000 wm4.stdio.h.27.3fc80220048df77954e38daec3bb9670
+                           .group:00000000 wm4.stdarg.h.34.3a23a216c0c293b3d2ea2e89281481e6
+                           .group:00000000 wm4.types.h.40.e8c16e7ec36ba55f133d0616070e25fc
+                           .group:00000000 wm4._endian.h.31.65a10590763c3dde1ac4a7f66d7d4891
+                           .group:00000000 wm4.endian.h.9.49f3a4695c1b61e8a0808de3c4a106cb
+                           .group:00000000 wm4._timeval.h.30.0e8bfd94e85db17dda3286ee81496fe6
+                           .group:00000000 wm4.timespec.h.41.d855182eb0e690443ab8651bcedca6e1
+                           .group:00000000 wm4.select.h.19.97ca6fd0c752a0f3b6719fd314d361e6
+                           .group:00000000 wm4.types.h.69.ed3eae3cf73030a737515151ebcab7a1
+                           .group:00000000 wm4.sched.h.22.c60982713a5c428609783c78f9c78d95
+                           .group:00000000 wm4._pthreadtypes.h.36.fcee9961c35163dde6267ef772ad1972
+                           .group:00000000 wm4.stdio.h.2.4aa87247282eca6c8f36f9de33d8df1a
+                           .group:00000000 wm4.stdio.h.81.932d0c162786b883f622b8d05c120c78
+                           .group:00000000 wm4.stdarg.h.31.3fa7b8f6daaa31edd1696c08c77f2a73
+                           .group:00000000 wm4.openserial.h.32.ea1006cc0a4d06130c082222e630581b
+                           .group:00000000 wm4.opentimers.h.8.eb1cab84a6e82ba9569a1990291c92ba
+                           .group:00000000 wm4.schedule.h.2.655275e038307b96d02df4174b9f26be
+                           .group:00000000 wm4.IEEE802154E.h.31.0ae4fc33f8fea842f27863b9e73e066e
+                           .group:00000000 wm4.IEEE802154_security.h.35.26212369b49c5e0c3bd4f8181fa7153e
+                           .group:00000000 wm4.sixtop.h.2.ee4bd0b70b528bdc38891cf2a16bad67
+
+UNDEFINED SYMBOLS
+openserial_printStatus
+IntMasterDisable
+ieee154e_isSynch
+IntMasterEnable
+openserial_printCritical
+packetfunctions_sameAddress
+packetfunctions_isBroadcastMulticast
+memcpy

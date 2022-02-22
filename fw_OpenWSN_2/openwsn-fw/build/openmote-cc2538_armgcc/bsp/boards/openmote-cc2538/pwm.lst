@@ -1,0 +1,274 @@
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"pwm.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.rodata
+  16              		.align	2
+  19              	rreg_uriquery:
+  20 0000 683D7563 		.ascii	"h=ucb\000"
+  20      6200
+  21 0006 0000     		.align	2
+  24              	infoBoardname:
+  25 0008 43433235 		.ascii	"CC2538\000"
+  25      333800
+  26 000f 00       		.align	2
+  29              	infouCName:
+  30 0010 43433235 		.ascii	"CC2538\000"
+  30      333800
+  31 0017 00       		.align	2
+  34              	infoRadioName:
+  35 0018 43433235 		.ascii	"CC2538 SoC\000"
+  35      33382053 
+  35      6F4300
+  36              		.comm	pwm_vars,1,4
+  37              		.text
+  38              		.align	1
+  39              		.global	pwm_init
+  40              		.syntax unified
+  41              		.thumb
+  42              		.thumb_func
+  43              		.fpu softvfp
+  45              	pwm_init:
+  46              	.LFB0:
+  47              		.file 1 "build\\openmote-cc2538_armgcc\\bsp\\boards\\openmote-cc2538\\pwm.c"
+   1:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** /**
+   2:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** \brief A PWM module. 
+   3:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+   4:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** \author Tengfei Chang     <tengfei.chang@inria.fr> April 2017
+   5:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** */
+   6:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+   7:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** #include "board_info.h"
+   8:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** #include "gptimer.h"
+   9:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** #include <headers/hw_ints.h>
+  10:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** #include <headers/hw_memmap.h>
+  11:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  12:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** #include <source/ioc.h>
+  13:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** #include <source/sys_ctrl.h>
+  14:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** #include <source/gpio.h>
+  15:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  16:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** // ========================== define ==========================================
+  17:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  18:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** // ========================== variable ========================================
+  19:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  20:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** typedef struct {
+  21:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     bool isStarted;
+  22:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** } pwm_vars_t;
+  23:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  24:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** pwm_vars_t pwm_vars;
+  25:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  26:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  27:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** // ========================== private =========================================
+  28:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  29:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** // ========================== protocol =========================================
+  30:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  31:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** /**
+  32:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** \brief Initialization pwm.
+  33:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** */
+  34:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** void pwm_init(void){
+  48              		.loc 1 34 0
+  49              		.cfi_startproc
+  50              		@ args = 0, pretend = 0, frame = 0
+  51              		@ frame_needed = 1, uses_anonymous_args = 0
+  52 0000 80B5     		push	{r7, lr}
+  53              		.cfi_def_cfa_offset 8
+  54              		.cfi_offset 7, -8
+  55              		.cfi_offset 14, -4
+  56 0002 00AF     		add	r7, sp, #0
+  57              		.cfi_def_cfa_register 7
+  35:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****   
+  36:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     // Configure GPIOPortB.3 as the Timer0_InputCapturePin.1
+  37:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     IOCPinConfigPeriphOutput(GPIO_B_BASE, GPIO_PIN_3, IOC_MUX_OUT_SEL_GPT3_ICP1);
+  58              		.loc 1 37 0
+  59 0004 1322     		movs	r2, #19
+  60 0006 0821     		movs	r1, #8
+  61 0008 0C48     		ldr	r0, .L2
+  62 000a FFF7FEFF 		bl	IOCPinConfigPeriphOutput
+  38:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     
+  39:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     TimerConfigure(GPTIMER3_BASE, (GPTIMER_CFG_SPLIT_PAIR | GPTIMER_CFG_A_PWM));
+  63              		.loc 1 39 0
+  64 000e 0C49     		ldr	r1, .L2+4
+  65 0010 0C48     		ldr	r0, .L2+8
+  66 0012 FFF7FEFF 		bl	TimerConfigure
+  40:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     TimerControlLevel(GPTIMER3_BASE, GPTIMER_A, false);
+  67              		.loc 1 40 0
+  68 0016 0022     		movs	r2, #0
+  69 0018 FF21     		movs	r1, #255
+  70 001a 0A48     		ldr	r0, .L2+8
+  71 001c FFF7FEFF 		bl	TimerControlLevel
+  41:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     
+  42:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     // configure GPTimer to be 38khz (infrared standard modulation frequency)
+  43:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     
+  44:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** //    // set the frequency (32,000,000/842=38khz)
+  45:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** //    TimerLoadSet(GPTIMER3_BASE, GPTIMER_A, 842);
+  46:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** //    // set 50% duty cycle
+  47:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** //    TimerMatchSet(GPTIMER3_BASE, GPTIMER_A, 421);
+  48:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     
+  49:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     // measured frequency: 32.719khz (from infrared of remote controller)
+  50:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     TimerLoadSet(GPTIMER3_BASE, GPTIMER_A, 978);
+  72              		.loc 1 50 0
+  73 0020 40F2D232 		movw	r2, #978
+  74 0024 FF21     		movs	r1, #255
+  75 0026 0748     		ldr	r0, .L2+8
+  76 0028 FFF7FEFF 		bl	TimerLoadSet
+  51:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     TimerMatchSet(GPTIMER3_BASE, GPTIMER_A, 489);
+  77              		.loc 1 51 0
+  78 002c 40F2E912 		movw	r2, #489
+  79 0030 FF21     		movs	r1, #255
+  80 0032 0448     		ldr	r0, .L2+8
+  81 0034 FFF7FEFF 		bl	TimerMatchSet
+  52:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** }
+  82              		.loc 1 52 0
+  83 0038 00BF     		nop
+  84 003a 80BD     		pop	{r7, pc}
+  85              	.L3:
+  86              		.align	2
+  87              	.L2:
+  88 003c 00A00D40 		.word	1074634752
+  89 0040 0A000004 		.word	67108874
+  90 0044 00300340 		.word	1073950720
+  91              		.cfi_endproc
+  92              	.LFE0:
+  94              		.align	1
+  95              		.global	pwm_enable
+  96              		.syntax unified
+  97              		.thumb
+  98              		.thumb_func
+  99              		.fpu softvfp
+ 101              	pwm_enable:
+ 102              	.LFB1:
+  53:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  54:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** void pwm_enable(void){
+ 103              		.loc 1 54 0
+ 104              		.cfi_startproc
+ 105              		@ args = 0, pretend = 0, frame = 0
+ 106              		@ frame_needed = 1, uses_anonymous_args = 0
+ 107 0048 80B5     		push	{r7, lr}
+ 108              		.cfi_def_cfa_offset 8
+ 109              		.cfi_offset 7, -8
+ 110              		.cfi_offset 14, -4
+ 111 004a 00AF     		add	r7, sp, #0
+ 112              		.cfi_def_cfa_register 7
+  55:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     TimerEnable(GPTIMER3_BASE, GPTIMER_A);
+ 113              		.loc 1 55 0
+ 114 004c FF21     		movs	r1, #255
+ 115 004e 0248     		ldr	r0, .L5
+ 116 0050 FFF7FEFF 		bl	TimerEnable
+  56:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** }
+ 117              		.loc 1 56 0
+ 118 0054 00BF     		nop
+ 119 0056 80BD     		pop	{r7, pc}
+ 120              	.L6:
+ 121              		.align	2
+ 122              	.L5:
+ 123 0058 00300340 		.word	1073950720
+ 124              		.cfi_endproc
+ 125              	.LFE1:
+ 127              		.align	1
+ 128              		.global	pwm_disable
+ 129              		.syntax unified
+ 130              		.thumb
+ 131              		.thumb_func
+ 132              		.fpu softvfp
+ 134              	pwm_disable:
+ 135              	.LFB2:
+  57:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** 
+  58:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** void pwm_disable(void){
+ 136              		.loc 1 58 0
+ 137              		.cfi_startproc
+ 138              		@ args = 0, pretend = 0, frame = 0
+ 139              		@ frame_needed = 1, uses_anonymous_args = 0
+ 140 005c 80B5     		push	{r7, lr}
+ 141              		.cfi_def_cfa_offset 8
+ 142              		.cfi_offset 7, -8
+ 143              		.cfi_offset 14, -4
+ 144 005e 00AF     		add	r7, sp, #0
+ 145              		.cfi_def_cfa_register 7
+  59:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c ****     TimerDisable(GPTIMER3_BASE, GPTIMER_A);
+ 146              		.loc 1 59 0
+ 147 0060 FF21     		movs	r1, #255
+ 148 0062 0248     		ldr	r0, .L8
+ 149 0064 FFF7FEFF 		bl	TimerDisable
+  60:build\openmote-cc2538_armgcc\bsp\boards\openmote-cc2538/pwm.c **** }
+ 150              		.loc 1 60 0
+ 151 0068 00BF     		nop
+ 152 006a 80BD     		pop	{r7, pc}
+ 153              	.L9:
+ 154              		.align	2
+ 155              	.L8:
+ 156 006c 00300340 		.word	1073950720
+ 157              		.cfi_endproc
+ 158              	.LFE2:
+ 160              	.Letext0:
+ 161              		.file 2 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 162              		.file 3 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 163              		.file 4 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 164              		.file 5 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 165              		.file 6 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\lib\\gcc\\arm-none-eab
+ 166              		.file 7 "c:\\program files (x86)\\gnu tools arm embedded\\7 2018-q2-update\\arm-none-eabi\\include
+ 167              		.file 8 "build\\openmote-cc2538_armgcc\\bsp\\boards\\openmote-cc2538\\board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 pwm.c
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:16     .rodata:00000000 $d
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:19     .rodata:00000000 rreg_uriquery
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:24     .rodata:00000008 infoBoardname
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:29     .rodata:00000010 infouCName
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:34     .rodata:00000018 infoRadioName
+                            *COM*:00000001 pwm_vars
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:38     .text:00000000 $t
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:45     .text:00000000 pwm_init
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:88     .text:0000003c $d
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:94     .text:00000048 $t
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:101    .text:00000048 pwm_enable
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:123    .text:00000058 $d
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:127    .text:0000005c $t
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:134    .text:0000005c pwm_disable
+C:\Users\Lee\AppData\Local\Temp\ccSUjtSR.s:156    .text:0000006c $d
+                           .group:00000000 wm4.0.93d65e4ff05d5af51629690e5b534e57
+                           .group:00000000 wm4._newlib_version.h.4.875b979a44719054cd750d0952ad3fd6
+                           .group:00000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.cce27fed8484c08a33f522034c30d2b5
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.newlib.h.8.f6e543eac3f2f65163ba2ffe3b04987b
+                           .group:00000000 wm4.ieeefp.h.77.220d9cccac42cd58761758bee2df4ce6
+                           .group:00000000 wm4.config.h.220.6cac6a9685cfce5e83c17784171638d9
+                           .group:00000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:00000000 wm4.stddef.h.39.a38874c8f8a57e66301090908ec2a69f
+                           .group:00000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:00000000 wm4._types.h.125.5cf8a495f1f7ef36777ad868a1e32068
+                           .group:00000000 wm4.stddef.h.161.5349cb105733e8777bfb0cf53c4e3f34
+                           .group:00000000 wm4._types.h.184.03611d4f6b5bec9997bcf4279eceba07
+                           .group:00000000 wm4.reent.h.17.90c2574d4acdcfce933db5cb09ff35fe
+                           .group:00000000 wm4.cdefs.h.47.0bcdf94cb40e176393dd1404056825b4
+                           .group:00000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:00000000 wm4.stddef.h.161.19e15733342b50ead2919490b095303e
+                           .group:00000000 wm4.stdbool.h.29.07dce69c3b78884144b7f7bd19483461
+                           .group:00000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:00000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:00000000 wm4.board_info.h.22.34c159473b0affd9f1a6f5aa8cf576c9
+                           .group:00000000 wm4.gptimer.h.41.51b4a65e82289454ba49ea8dab75309e
+                           .group:00000000 wm4.hw_ints.h.42.85b9479f2be35b086f1bb7cbb15bc097
+                           .group:00000000 wm4.hw_memmap.h.39.19283c377d449c9bca5fdd8ccb62628c
+                           .group:00000000 wm4.ioc.h.41.7444fe7016a1d045dd9fea497d615b28
+                           .group:00000000 wm4.sys_ctrl.h.41.c6bbd4dace326d685c1afa45bc1ba1e2
+                           .group:00000000 wm4.gpio.h.41.604fa3d9f70fb140a75ada50bffeaeff
+
+UNDEFINED SYMBOLS
+IOCPinConfigPeriphOutput
+TimerConfigure
+TimerControlLevel
+TimerLoadSet
+TimerMatchSet
+TimerEnable
+TimerDisable
